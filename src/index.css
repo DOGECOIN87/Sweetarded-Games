@@ -11,7 +11,10 @@
 }
 
 body {
-  background-color: black;
+  /* Sweetardios base — deep Oxford Blue with a hint of Zaffre depth */
+  background-color: #070F34;
+  background-image: radial-gradient(1200px 800px at 20% -10%, rgba(146, 1, 203, 0.25), transparent 60%),
+                    radial-gradient(1000px 700px at 100% 0%, rgba(3, 19, 166, 0.35), transparent 55%);
 }
 
 /* Gorbagana Brand — Custom Animations & Utilities */
@@ -68,4 +71,117 @@ body {
 
 .animate-scan-bar {
   animation: scan-bar 2.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   SWEETARDIOS — landing page theme (neon candy arcade)
+   oxford #070F34 · zaffre #0313A6 · violet #9201CB
+   cerise #F715AB · cyan #34EDF3
+   ============================================================ */
+
+/* Neon text glows */
+.sw-glow-cerise { text-shadow: 0 0 6px #F715AB, 0 0 18px rgba(247, 21, 171, 0.75), 0 0 44px rgba(247, 21, 171, 0.45); }
+.sw-glow-cyan   { text-shadow: 0 0 6px #34EDF3, 0 0 18px rgba(52, 237, 243, 0.75), 0 0 44px rgba(52, 237, 243, 0.4); }
+.sw-glow-violet { text-shadow: 0 0 6px #9201CB, 0 0 18px rgba(146, 1, 203, 0.7); }
+
+/* Animated aurora gradient backdrop */
+@keyframes sw-aurora {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.sw-aurora {
+  background: linear-gradient(125deg, #070F34 0%, #0313A6 30%, #9201CB 50%, #0313A6 70%, #070F34 100%);
+  background-size: 300% 300%;
+  animation: sw-aurora 20s ease infinite;
+}
+
+/* Soft radial glow blobs */
+.sw-blob { filter: blur(70px); opacity: 0.5; border-radius: 9999px; }
+
+/* Floating particles */
+@keyframes sw-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-28px) rotate(10deg); }
+}
+.sw-float { animation: sw-float 7s ease-in-out infinite; }
+
+/* Twinkle sparkles */
+@keyframes sw-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+.sw-twinkle { animation: sw-twinkle 3.4s ease-in-out infinite; }
+
+/* Neon flicker for the wordmark */
+@keyframes sw-flicker {
+  0%, 88%, 100% { opacity: 1; }
+  90% { opacity: 0.55; }
+  92% { opacity: 1; }
+  96% { opacity: 0.8; }
+}
+.sw-flicker { animation: sw-flicker 7s linear infinite; }
+
+/* Button shine sweep */
+@keyframes sw-shine { 0% { transform: translateX(-130%); } 60%, 100% { transform: translateX(240%); } }
+.sw-shine { position: relative; overflow: hidden; }
+.sw-shine::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+  transform: translateX(-130%);
+}
+.sw-shine:hover::after { animation: sw-shine 0.9s ease; }
+
+/* Scanline overlay */
+.sw-scanlines {
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+}
+
+/* Entrance rise */
+@keyframes sw-rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+.sw-rise { animation: sw-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* Slow spin */
+@keyframes sw-spin { to { transform: rotate(360deg); } }
+.sw-spin-slow { animation: sw-spin 16s linear infinite; }
+
+/* Marquee ticker (track holds two copies, shifts by -50%) */
+@keyframes sw-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.sw-marquee-track { animation: sw-marquee 24s linear infinite; }
+
+/* Animated gradient clip-text */
+.sw-gradient-text {
+  background: linear-gradient(90deg, #34EDF3, #F715AB, #9201CB, #34EDF3);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sw-aurora 8s linear infinite;
+}
+
+/* Pulsing play ring */
+@keyframes sw-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(247, 21, 171, 0.5); }
+  50%      { box-shadow: 0 0 0 14px rgba(247, 21, 171, 0); }
+}
+.sw-pulse-glow { animation: sw-pulse-glow 2.4s ease-out infinite; }
+
+/* Vertical reel spin (slots card hint) */
+@keyframes sw-reel { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+.sw-reel-track { animation: sw-reel 4s linear infinite; }
+
+/* Falling coin (junk pusher card hint) */
+@keyframes sw-drop {
+  0% { transform: translateY(-120%) rotate(0deg); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(220%) rotate(220deg); opacity: 0; }
+}
+.sw-drop { animation: sw-drop 2.6s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-aurora, .sw-float, .sw-twinkle, .sw-flicker, .sw-spin-slow,
+  .sw-marquee-track, .sw-gradient-text, .sw-pulse-glow, .sw-reel-track,
+  .sw-drop, .animate-float-slow, .animate-scan-bar {
+    animation: none !important;
+  }
 }
