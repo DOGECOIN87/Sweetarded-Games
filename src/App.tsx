@@ -6,6 +6,7 @@ import { WalletProvider } from './contexts/WalletContext';
 import { DynamicConnectionProvider } from './contexts/DynamicConnectionProvider';
 import Landing from './components/Landing';
 import MascotGuide from './components/MascotGuide';
+import SiteMusic from './components/SiteMusic';
 
 // Lazy-load each game so they stay independent code-split bundles
 const SlotsPage = lazy(() => import('./pages/Slots'));
@@ -54,6 +55,7 @@ const AppInner: React.FC = () => (
     </main>
 
     <MascotGuide />
+    <SiteMusic />
   </div>
 );
 

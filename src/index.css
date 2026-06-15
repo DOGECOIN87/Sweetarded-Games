@@ -178,10 +178,17 @@ body {
 }
 .sw-drop { animation: sw-drop 2.6s linear infinite; }
 
+/* Music toggle equalizer bars */
+@keyframes sw-eq {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+.sw-eq { transform-origin: bottom; animation: sw-eq 0.8s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .sw-aurora, .sw-float, .sw-twinkle, .sw-flicker, .sw-spin-slow,
   .sw-marquee-track, .sw-gradient-text, .sw-pulse-glow, .sw-reel-track,
-  .sw-drop, .animate-float-slow, .animate-scan-bar {
+  .sw-drop, .sw-eq, .animate-float-slow, .animate-scan-bar {
     animation: none !important;
   }
 }
