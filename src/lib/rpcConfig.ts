@@ -1,0 +1,36 @@
+/**
+ * Centralized RPC Configuration
+ *
+ * Single source of truth for all RPC endpoints used across the dApp.
+ * Import from here instead of hardcoding RPC URLs anywhere else.
+ *
+ * Gorbagana RPC: rpc.cookiescan.io
+ * Solana Mainnet: api.mainnet-beta.solana.com
+ * Solana Devnet: api.devnet.solana.com
+ */
+
+export const RPC_ENDPOINTS = {
+  /** Gorbagana L2 mainnet RPC */
+  GORBAGANA: 'https://rpc.cookiescan.io',
+
+  /** Gorbagana WebSocket endpoint */
+  GORBAGANA_WS: 'wss://rpc.cookiescan.io',
+
+  /** Gorbagana REST API */
+  GORBAGANA_API: import.meta.env?.VITE_API_BASE_URL || 'https://api.trashmarket.fun',
+
+  /** Solana mainnet-beta RPC */
+  SOLANA_MAINNET: 'https://api.mainnet-beta.solana.com',
+
+  /** Solana devnet RPC */
+  SOLANA_DEVNET: 'https://api.devnet.solana.com',
+} as const;
+
+/** Gorbagana block explorer */
+export const EXPLORER_URLS = {
+  GORBAGANA: 'https://explorer.gorbagana.wtf',
+  SOLANA_MAINNET: 'https://explorer.solana.com',
+  SOLANA_DEVNET: 'https://explorer.solana.com',
+} as const;
+
+export type RpcEndpoint = (typeof RPC_ENDPOINTS)[keyof typeof RPC_ENDPOINTS];
