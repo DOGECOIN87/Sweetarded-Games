@@ -148,6 +148,8 @@ body {
 /* Marquee ticker (track holds two copies, shifts by -50%) */
 @keyframes sw-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .sw-marquee-track { animation: sw-marquee 24s linear infinite; }
+@keyframes sw-marquee-rev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.sw-marquee-rev { animation: sw-marquee-rev 26s linear infinite; }
 
 /* Animated gradient clip-text */
 .sw-gradient-text {
@@ -187,7 +189,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .sw-aurora, .sw-float, .sw-twinkle, .sw-flicker, .sw-spin-slow,
-  .sw-marquee-track, .sw-gradient-text, .sw-pulse-glow, .sw-reel-track,
+  .sw-marquee-track, .sw-marquee-rev, .sw-gradient-text, .sw-pulse-glow, .sw-reel-track,
   .sw-drop, .sw-eq, .animate-float-slow, .animate-scan-bar {
     animation: none !important;
   }
