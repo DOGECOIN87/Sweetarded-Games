@@ -161,6 +161,19 @@ const Landing = () => (
 
     {/* HERO */}
     <section className="relative flex min-h-[calc(100vh-56px)] flex-col items-center justify-center px-6 text-center">
+      <div className="sw-rise relative mb-4 flex justify-center">
+        <div
+          aria-hidden
+          className="sw-blob absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2"
+          style={{ background: '#F715AB', opacity: 0.45 }}
+        />
+        <img
+          src="/sweetardios-logo.svg"
+          alt="Sweetardios logo"
+          className="sw-float relative h-36 w-36 drop-shadow-[0_12px_30px_rgba(52,237,243,0.45)] sm:h-44 sm:w-44"
+        />
+      </div>
+
       <span className="sw-rise mb-6 inline-flex items-center gap-2 border border-sweetardios-cyan/40 bg-sweetardios-oxford/60 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-sweetardios-cyan backdrop-blur">
         <span className="sw-twinkle">✦</span> Powered by Sweetardios on Gorbagana <span className="sw-twinkle">✦</span>
       </span>

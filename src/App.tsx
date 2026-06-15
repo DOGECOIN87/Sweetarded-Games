@@ -19,9 +19,12 @@ const AppInner: React.FC = () => (
   >
     <nav className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-sweetardios-violet/40 bg-sweetardios-oxford/80 px-4 backdrop-blur">
       <div className="flex items-center gap-6">
-        <Link to="/" className="font-heading text-lg tracking-tight">
-          <span className="sw-glow-cerise text-sweetardios-cerise">SWEET</span>
-          <span className="sw-glow-cyan text-sweetardios-cyan">ARDED</span>
+        <Link to="/" className="flex items-center gap-2 font-heading text-lg tracking-tight">
+          <img src="/sweetardios-logo.svg" alt="Sweetardios" className="h-9 w-9" />
+          <span className="hidden sm:inline">
+            <span className="sw-glow-cerise text-sweetardios-cerise">SWEET</span>
+            <span className="sw-glow-cyan text-sweetardios-cyan">ARDED</span>
+          </span>
         </Link>
         <Link to="/slots" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">
           Slots
