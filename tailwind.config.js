@@ -15,6 +15,15 @@ export default {
         'magic-blue': '#00d4ff',
         'magic-red': '#ff2222',
         'magic-text': '#666666',
+        // Sweetardios NFT collection palette — brand colors for the redesign.
+        // Usage: bg-sweetardios-oxford, text-sweetardios-cerise, border-sweetardios-cyan, ...
+        sweetardios: {
+          oxford: '#070F34', // Oxford Blue — base background / darkest layer
+          zaffre: '#0313A6', // Zaffre — panels, cards, reel frames
+          violet: '#9201CB', // Dark Violet — primary brand / structure
+          cerise: '#F715AB', // Hollywood Cerise — CTAs, wins, highlights
+          cyan: '#34EDF3',   // Fluorescent Cyan — neon glow, interactive accents
+        },
       },
       fontFamily: {
         sans: ['JetBrains Mono', 'monospace'],
