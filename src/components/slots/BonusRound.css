@@ -19,7 +19,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/assets/enhanced_logo_v6.svg');
+  background-image: url('/sweetardios-logo.svg');
   background-size: 350px 350px;
   background-repeat: repeat;
   opacity: 0.18;
@@ -149,8 +149,8 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(28px, 4vw, 44px);
   font-weight: 900;
-  color: #adff02;
-  text-shadow: 0 0 20px #adff02;
+  color: #F715AB;
+  text-shadow: 0 0 20px #F715AB;
   line-height: 1;
 }
 
@@ -275,7 +275,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/assets/enhanced_logo_v6.svg');
+  background-image: url('/sweetardios-logo.svg');
   background-size: 180px 180px;
   background-repeat: repeat;
   opacity: 0.06;
@@ -285,19 +285,19 @@
 
 /* Active (currently spinning) column cell */
 .br-cell-active {
-  border-color: #adff0255;
+  border-color: #F715AB55;
   background: #111f00;
   animation: cell-active-pulse 0.7s ease-in-out infinite alternate;
 }
 
 @keyframes cell-active-pulse {
-  from { border-color: #adff0233; }
-  to   { border-color: #adff0288; }
+  from { border-color: #F715AB33; }
+  to   { border-color: #F715AB88; }
 }
 
 /* Locked (revealed) cell */
 .br-cell-locked {
-  border-color: #adff0266;
+  border-color: #F715AB66;
   background: #0e1a00;
 }
 
@@ -335,9 +335,9 @@
   text-shadow: 0 0 6px #5aad5a88;
 }
 .br-chip.c-mid {
-  color: #adff02;
+  color: #F715AB;
   background: radial-gradient(circle at 38% 32%, #162200, #0a1200);
-  text-shadow: 0 0 6px #adff0288;
+  text-shadow: 0 0 6px #F715AB88;
 }
 .br-chip.c-high {
   color: #ff9500;
@@ -408,12 +408,12 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(10px, 1.2vw, 14px);
   font-weight: 900;
-  color: #adff02;
+  color: #F715AB;
   letter-spacing: 3px;
   text-transform: uppercase;
   pointer-events: none;
   z-index: 10;
-  text-shadow: 0 0 12px #adff02;
+  text-shadow: 0 0 12px #F715AB;
   animation: tap-blink 0.75s ease-in-out infinite alternate;
 }
 @keyframes tap-blink {
@@ -431,8 +431,8 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(26px, 4.5vw, 56px);
   font-weight: 900;
-  color: #adff02;
-  text-shadow: 0 0 30px #adff02, 0 0 60px #adff0244;
+  color: #F715AB;
+  text-shadow: 0 0 30px #F715AB, 0 0 60px #F715AB44;
   background: rgba(0,0,0,0.5);
   pointer-events: none;
   z-index: 20;
@@ -481,8 +481,8 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(18px, 3vw, 36px);
   font-weight: 900;
-  color: #adff02;
-  text-shadow: 0 0 20px #adff02;
+  color: #F715AB;
+  text-shadow: 0 0 20px #F715AB;
 }
 
 /* ── Right panel ──────────────────────────────────────────────────────────── */
@@ -582,6 +582,6 @@
 }
 
 .br-status span         { flex: 1; text-align: center; }
-.br-status strong       { color: #adff02; text-shadow: 0 0 8px #adff0244; }
+.br-status strong       { color: #F715AB; text-shadow: 0 0 8px #F715AB44; }
 .br-status-sep          { flex: 0 !important; color: #2a2a2a; padding: 0 12px; font-size: 18px; }
 .br-status-luck         { color: #333; font-style: italic; }

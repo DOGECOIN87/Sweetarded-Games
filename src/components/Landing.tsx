@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { StickerMarquee } from './StickerPattern';
+import { LogoWall } from './LogoPattern';
 import GetStarted from './GetStarted';
 
 const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
@@ -120,6 +121,8 @@ const Landing = () => (
 
     {/* HERO */}
     <section className="relative flex min-h-[calc(100vh-56px)] items-center justify-center overflow-hidden px-6">
+      {/* staggered animated Sweetardios-logo pattern */}
+      <LogoWall />
       {/* subtle edge vignette for depth */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sweetardios-oxford/30 via-transparent to-sweetardios-oxford/50" />
 

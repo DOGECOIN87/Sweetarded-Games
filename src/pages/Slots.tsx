@@ -23,12 +23,12 @@ export default function SlotsPage() {
                     <div className="text-6xl mb-6">🔒</div>
                     <h1 className="text-3xl font-bold text-white mb-4">Network Restricted</h1>
                     <p className="text-gray-400 mb-6">
-                        The Skill Slots game is only available on the <span className="text-adff02 font-bold">Gorbagana Network</span>.
+                        The Skill Slots game is only available on the <span className="text-sweetardios-cerise font-bold">Gorbagana Network</span>.
                     </p>
                     <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-left">
                         <p className="text-sm text-gray-400 mb-2">To play:</p>
                         <ol className="text-sm text-gray-300 space-y-2">
-                            <li>1. Switch your wallet to <strong className="text-adff02">Gorbagana Network</strong></li>
+                            <li>1. Switch your wallet to <strong className="text-sweetardios-cerise">Gorbagana Network</strong></li>
                             <li>2. Make sure you're connected to Gorbagana in the navbar</li>
                             <li>3. Return to this page</li>
                         </ol>

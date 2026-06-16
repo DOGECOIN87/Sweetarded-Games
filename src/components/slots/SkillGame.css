@@ -1,4 +1,4 @@
-/* Skill Game - Trashmarket.fun Style */
+/* Skill Game - Sweetardios */
 
 .skill-game-container {
   display: flex;
@@ -57,8 +57,8 @@
 
 .skill-tier-row:hover {
   background: #222;
-  border-color: #adff02;
-  box-shadow: 0 0 10px rgba(173, 255, 2, 0.5);
+  border-color: #F715AB;
+  box-shadow: 0 0 10px rgba(247, 21, 171, 0.5);
 }
 
 .skill-tier-symbol {
@@ -88,8 +88,8 @@
 }
 
 .skill-tier-row:hover .skill-tier-value {
-  color: #adff02;
-  text-shadow: 0 0 10px #adff02;
+  color: #F715AB;
+  text-shadow: 0 0 10px #F715AB;
 }
 
 .skill-win-display {
@@ -103,8 +103,8 @@
 }
 
 .skill-win-display:hover {
-  border-color: #adff02;
-  box-shadow: 0 0 15px rgba(173, 255, 2, 0.4);
+  border-color: #F715AB;
+  box-shadow: 0 0 15px rgba(247, 21, 171, 0.4);
 }
 
 .skill-win-label {
@@ -126,8 +126,8 @@
 }
 
 .skill-win-display:hover .skill-win-value {
-  color: #adff02;
-  text-shadow: 0 0 15px #adff02;
+  color: #F715AB;
+  text-shadow: 0 0 15px #F715AB;
 }
 
 /* Play Area */
@@ -144,8 +144,8 @@
 }
 
 .skill-play-area:hover {
-  border-color: #adff02;
-  box-shadow: 0 0 15px rgba(173, 255, 2, 0.2);
+  border-color: #F715AB;
+  box-shadow: 0 0 15px rgba(247, 21, 171, 0.2);
 }
 
 .skill-grid-container {
@@ -178,7 +178,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/assets/enhanced_logo_v6.svg');
+  background-image: url('/sweetardios-logo.svg');
   background-size: 350px 350px;
   background-repeat: repeat;
   opacity: 0.30;
@@ -192,41 +192,41 @@
 }
 
 .skill-grid-cell:hover {
-  border-color: #adff02;
+  border-color: #F715AB;
   background: #222;
-  box-shadow: 0 0 15px rgba(173, 255, 2, 0.4);
+  box-shadow: 0 0 15px rgba(247, 21, 171, 0.4);
 }
 
 .skill-grid-cell:active {
-  border-color: #adff02;
-  box-shadow: 0 0 20px rgba(173, 255, 2, 0.6);
+  border-color: #F715AB;
+  box-shadow: 0 0 20px rgba(247, 21, 171, 0.6);
 }
 
 .skill-grid-cell.skill-active {
-  border-color: #adff02;
-  box-shadow: 0 0 20px rgba(173, 255, 2, 0.5);
+  border-color: #F715AB;
+  box-shadow: 0 0 20px rgba(247, 21, 171, 0.5);
 }
 
 .skill-grid-cell.skill-wild {
-  background: rgba(173, 255, 2, 0.15);
-  border-color: #adff02;
+  background: rgba(247, 21, 171, 0.15);
+  border-color: #F715AB;
 }
 
 .skill-grid-cell.skill-choosable {
   cursor: pointer;
-  border-color: #adff02;
+  border-color: #F715AB;
   animation: choosable-pulse 1.2s ease-in-out infinite;
 }
 
 .skill-grid-cell.skill-choosable:hover {
   transform: scale(1.06);
-  background: rgba(173, 255, 2, 0.12);
-  box-shadow: 0 0 12px rgba(173, 255, 2, 0.4);
+  background: rgba(247, 21, 171, 0.12);
+  box-shadow: 0 0 12px rgba(247, 21, 171, 0.4);
 }
 
 @keyframes choosable-pulse {
   0%, 100% { border-color: #555; }
-  50% { border-color: #adff02; }
+  50% { border-color: #F715AB; }
 }
 
 .skill-cell-symbol {
@@ -260,8 +260,8 @@
 
 .skill-grid-cell:hover .skill-cell-symbol.skill-wild-text,
 .skill-grid-cell.skill-wild .skill-cell-symbol.skill-wild-text {
-  color: #adff02;
-  text-shadow: 0 0 10px #adff02;
+  color: #F715AB;
+  text-shadow: 0 0 10px #F715AB;
 }
 
 .skill-status-message {
@@ -304,7 +304,7 @@
 
 .skill-timer-bar {
   height: 100%;
-  background: linear-gradient(to right, #ff0000, #ffff00, #adff02);
+  background: linear-gradient(to right, #ff0000, #ffff00, #F715AB);
   width: 100%;
   transition: width 0.1s linear;
 }
@@ -364,8 +364,8 @@
 }
 
 .skill-grid-cell.skill-spinning {
-  border-color: #adff02;
-  box-shadow: 0 0 20px rgba(173, 255, 2, 0.6);
+  border-color: #F715AB;
+  box-shadow: 0 0 20px rgba(247, 21, 171, 0.6);
 }
 
 .skill-grid-cell.skill-spinning .skill-cell-symbol {
@@ -385,8 +385,8 @@
 
 .skill-winning-cell {
   animation: skill-pulse 0.5s ease-in-out infinite;
-  border-color: #adff02 !important;
-  box-shadow: 0 0 30px #adff02 !important;
+  border-color: #F715AB !important;
+  box-shadow: 0 0 30px #F715AB !important;
 }
 
 /* Level Selector Bar */
@@ -433,10 +433,10 @@
 }
 
 .skill-level-btn.active {
-  background: linear-gradient(to bottom, #adff02, #8ac900);
-  border-color: #adff02;
+  background: linear-gradient(to bottom, #F715AB, #b80d80);
+  border-color: #F715AB;
   color: #000;
-  box-shadow: 0 0 15px rgba(173, 255, 2, 0.5);
+  box-shadow: 0 0 15px rgba(247, 21, 171, 0.5);
   z-index: 1;
 }
 
@@ -454,7 +454,7 @@
 }
 
 .skill-control-section:hover {
-  border-top-color: #adff02;
+  border-top-color: #F715AB;
 }
 
 .skill-status-bar {
@@ -493,18 +493,18 @@
 }
 
 .skill-status-value:hover {
-  border-color: #adff02;
-  box-shadow: 0 0 10px rgba(173, 255, 2, 0.4);
+  border-color: #F715AB;
+  box-shadow: 0 0 10px rgba(247, 21, 171, 0.4);
 }
 
 .skill-play-level-value {
-  color: #adff02;
-  text-shadow: 0 0 10px #adff02;
+  color: #F715AB;
+  text-shadow: 0 0 10px #F715AB;
 }
 
 .skill-points-value {
-  color: #adff02;
-  text-shadow: 0 0 10px #adff02;
+  color: #F715AB;
+  text-shadow: 0 0 10px #F715AB;
 }
 
 .skill-button-bar {
@@ -535,17 +535,17 @@
 
 .skill-game-btn:hover:not(:disabled) {
   background: linear-gradient(to bottom, #444, #222);
-  border-color: #adff02;
-  color: #adff02;
+  border-color: #F715AB;
+  color: #F715AB;
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #000, 0 0 15px rgba(173, 255, 2, 0.4);
+  box-shadow: 0 6px 0 #000, 0 0 15px rgba(247, 21, 171, 0.4);
 }
 
 .skill-game-btn:active:not(:disabled) {
   transform: translateY(4px);
   box-shadow: 0 0 0 #000, inset 0 2px 5px rgba(0, 0, 0, 0.5);
-  border-color: #adff02;
-  color: #adff02;
+  border-color: #F715AB;
+  color: #F715AB;
 }
 
 .skill-game-btn:disabled {
@@ -562,14 +562,14 @@
 }
 
 .skill-game-btn.skill-play:hover:not(:disabled) {
-  background: linear-gradient(to bottom, #adff02, #8ac900);
-  border-color: #adff02;
+  background: linear-gradient(to bottom, #F715AB, #b80d80);
+  border-color: #F715AB;
   color: #000;
-  box-shadow: 0 0 20px rgba(173, 255, 2, 0.8), 0 4px 0 #000;
+  box-shadow: 0 0 20px rgba(247, 21, 171, 0.8), 0 4px 0 #000;
 }
 
 .skill-game-btn.skill-play:active:not(:disabled) {
-  background: linear-gradient(to bottom, #fff, #adff02);
+  background: linear-gradient(to bottom, #fff, #F715AB);
   border-color: #fff;
   color: #000;
 }
@@ -636,16 +636,16 @@
 .skill-wallet-balance {
   font-family: 'JetBrains Mono', monospace;
   font-size: 18px;
-  color: #adff02;
+  color: #F715AB;
   font-weight: 900;
-  text-shadow: 0 0 8px rgba(173, 255, 2, 0.4);
+  text-shadow: 0 0 8px rgba(247, 21, 171, 0.4);
 }
 
 .skill-connect-btn {
   flex: 1;
   height: 40px;
-  background: linear-gradient(to bottom, #adff02, #8ac900);
-  border: 2px solid #adff02;
+  background: linear-gradient(to bottom, #F715AB, #b80d80);
+  border: 2px solid #F715AB;
   color: #000;
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
@@ -657,8 +657,8 @@
 }
 
 .skill-connect-btn:hover {
-  background: linear-gradient(to bottom, #c8ff4d, #adff02);
-  box-shadow: 0 0 20px rgba(173, 255, 2, 0.6);
+  background: linear-gradient(to bottom, #c8ff4d, #F715AB);
+  box-shadow: 0 0 20px rgba(247, 21, 171, 0.6);
 }
 
 .skill-deposit-btn {
@@ -676,9 +676,9 @@
 }
 
 .skill-deposit-btn:hover:not(:disabled) {
-  border-color: #adff02;
-  color: #adff02;
-  box-shadow: 0 0 10px rgba(173, 255, 2, 0.3);
+  border-color: #F715AB;
+  color: #F715AB;
+  box-shadow: 0 0 10px rgba(247, 21, 171, 0.3);
 }
 
 .skill-deposit-btn:disabled {
@@ -706,7 +706,7 @@
   height: 34px;
   background: #0a0a0a;
   border: 2px solid #444;
-  color: #adff02;
+  color: #F715AB;
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
   padding: 0 10px;
@@ -715,8 +715,8 @@
 }
 
 .skill-deposit-input:focus {
-  border-color: #adff02;
-  box-shadow: 0 0 8px rgba(173, 255, 2, 0.3);
+  border-color: #F715AB;
+  box-shadow: 0 0 8px rgba(247, 21, 171, 0.3);
 }
 
 .skill-deposit-input::placeholder {
@@ -733,10 +733,10 @@
 .skill-tx-message {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
-  color: #adff02;
+  color: #F715AB;
   text-align: center;
   padding: 4px 0;
-  text-shadow: 0 0 8px rgba(173, 255, 2, 0.4);
+  text-shadow: 0 0 8px rgba(247, 21, 171, 0.4);
 }
 
 /* Responsive - Tablets and smaller desktops */
@@ -942,8 +942,8 @@
   max-width: 520px;
   width: 100%;
   background: #0a0a0a;
-  border: 2px solid #adff02;
-  box-shadow: 0 0 40px rgba(173, 255, 2, 0.25);
+  border: 2px solid #F715AB;
+  box-shadow: 0 0 40px rgba(247, 21, 171, 0.25);
   padding: 28px 24px 24px;
   font-family: 'JetBrains Mono', monospace;
 }
@@ -964,17 +964,17 @@
 }
 
 .skill-fairness-close:hover {
-  color: #adff02;
+  color: #F715AB;
 }
 
 .skill-fairness-title {
   font-size: 18px;
   font-weight: 900;
-  color: #adff02;
+  color: #F715AB;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   margin: 0 0 16px;
-  text-shadow: 0 0 10px rgba(173, 255, 2, 0.4);
+  text-shadow: 0 0 10px rgba(247, 21, 171, 0.4);
 }
 
 .skill-fairness-body {
@@ -991,7 +991,7 @@
 }
 
 .skill-fairness-body strong {
-  color: #adff02;
+  color: #F715AB;
 }
 
 .skill-fairness-body em {

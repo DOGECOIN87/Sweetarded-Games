@@ -26,7 +26,7 @@ const SYMBOL_IMAGES = [
   '/symbols/digibin.webp',
   '/symbols/box.webp',
   '/symbols/matress.webp',
-  '/assets/logo-circle-transparent.png', // index 9 — TM BONUS symbol (ultra-rare)
+  '/sweetardios-logo.svg', // index 9 — Sweetardios BONUS symbol (ultra-rare)
 ];
 
 // Payout multipliers (×wager). Index 9 (TM logo) pays 0 cash — triggers BONUS instead.
@@ -910,7 +910,7 @@ export default function SkillGame() {
   // Jackpot tier definitions — scaled to current play level
   const JACKPOT_TIERS = [
     { name: 'MINI',  mult: 1.5,  color: '#888' },
-    { name: 'MINOR', mult: 4,    color: '#adff02' },
+    { name: 'MINOR', mult: 4,    color: '#F715AB' },
     { name: 'GRAND', mult: 25,   color: '#ffd700', grand: true },
     { name: 'MAJOR', mult: 8,    color: '#ff6b35' },
     { name: 'MINI',  mult: 1.5,  color: '#888' },
@@ -1110,7 +1110,7 @@ export default function SkillGame() {
               </span>
               <button
                 onClick={() => { refreshDebrisBalance(); }}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors text-adff02"
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-sweetardios-cerise"
                 title="Refresh Wallet Balance"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

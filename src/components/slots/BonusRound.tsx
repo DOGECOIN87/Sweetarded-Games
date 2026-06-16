@@ -45,7 +45,7 @@ export default function BonusRound({ playLevel, onClose }: Props) {
 
   const jackpots = [
     { name: 'MINOR', val: amounts[0],                          color: '#888' },
-    { name: 'MEGA',  val: amounts[Math.floor(amtLen * 0.35)], color: '#adff02' },
+    { name: 'MEGA',  val: amounts[Math.floor(amtLen * 0.35)], color: '#F715AB' },
     { name: 'GRAND', val: amounts[amtLen - 1],                color: '#ffd700', grand: true },
     { name: 'MAJOR', val: amounts[Math.floor(amtLen * 0.65)], color: '#ff6b35' },
     { name: 'MINI',  val: amounts[Math.min(1, amtLen - 1)],   color: '#888' },
