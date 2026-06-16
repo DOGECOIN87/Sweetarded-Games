@@ -261,7 +261,7 @@ export class GameEngine {
     return texture;
   }
 
-  /** Coin face: a Sweetardios metallic disc stamped with the character SVG. */
+  /** Coin face: a clean gold SWEET token with a cerise rim. */
   private makeCoinTexture(size: number): THREE.CanvasTexture {
     const canvas = document.createElement('canvas');
     canvas.width = size;
@@ -271,47 +271,40 @@ export class GameEngine {
     const cy = size / 2;
     const R = size / 2;
 
-    // Metallic Sweetardios disc
-    const disc = ctx.createRadialGradient(cx, cy, R * 0.1, cx, cy, R);
-    disc.addColorStop(0, '#fdf2ff');
-    disc.addColorStop(0.55, '#34EDF3');
-    disc.addColorStop(1, '#9201CB');
+    // Gold metallic disc (offset highlight for a 3D coin look)
+    const disc = ctx.createRadialGradient(cx - R * 0.28, cy - R * 0.28, R * 0.1, cx, cy, R);
+    disc.addColorStop(0, '#fff6cf');
+    disc.addColorStop(0.5, '#f3c84f');
+    disc.addColorStop(1, '#b07d1d');
     ctx.fillStyle = disc;
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.fill();
 
-    // Raised cerise rim
-    ctx.lineWidth = size * 0.07;
+    // Cerise rim
+    ctx.lineWidth = size * 0.08;
     ctx.strokeStyle = '#F715AB';
     ctx.beginPath();
     ctx.arc(cx, cy, R - ctx.lineWidth / 2, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Inner bevel highlight
-    ctx.lineWidth = size * 0.015;
-    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    // Inner engraved ring
+    ctx.lineWidth = size * 0.018;
+    ctx.strokeStyle = 'rgba(120, 78, 18, 0.55)';
     ctx.beginPath();
-    ctx.arc(cx, cy, R * 0.78, 0, Math.PI * 2);
+    ctx.arc(cx, cy, R * 0.72, 0, Math.PI * 2);
     ctx.stroke();
 
-    const texture = new THREE.CanvasTexture(canvas);
+    // Center "S" emblem, engraved with a highlight
+    ctx.font = `900 ${Math.round(size * 0.56)}px 'JetBrains Mono', monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(120, 78, 18, 0.85)';
+    ctx.fillText('S', cx, cy + size * 0.03);
+    ctx.fillStyle = 'rgba(255, 246, 207, 0.55)';
+    ctx.fillText('S', cx - size * 0.006, cy + size * 0.02);
 
-    // Stamp the character SVG once it loads (async), then refresh the texture
-    const img = new Image();
-    img.onload = () => {
-      const s = R * 1.4;
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, R * 0.82, 0, Math.PI * 2);
-      ctx.clip();
-      ctx.drawImage(img, cx - s / 2, cy - s / 2, s, s);
-      ctx.restore();
-      texture.needsUpdate = true;
-    };
-    img.src = '/coin.svg';
-
-    return texture;
+    return new THREE.CanvasTexture(canvas);
   }
 
   private buildStaticGeometry() {

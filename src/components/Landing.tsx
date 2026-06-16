@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { StickerMarquee } from './StickerPattern';
-import { LogoWall } from './LogoPattern';
 import GetStarted from './GetStarted';
 
 const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
@@ -98,31 +97,18 @@ const GameCard = ({ to, variant, kicker, title, blurb, features }: GameCardProps
 
 const Landing = () => (
   <div className="relative text-white">
-    {/* Animated background layers */}
+    {/* Background: Sweetardio shop scene + Oxford tint */}
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="sw-aurora absolute inset-0 opacity-70" />
-      {/* New pages background image (drop file at public/pages-bg.png) */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(/pages-bg.png)' }}
+        style={{ backgroundImage: 'url(/games-bg.png)' }}
       />
-      <div className="sw-scanlines absolute inset-0 opacity-30" />
-      {/* Mesh texture overlay — soft-light @ 32% (drop file at public/bg-texture.png) */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: 'url(/bg-texture.png)',
-          backgroundRepeat: 'repeat',
-          mixBlendMode: 'soft-light',
-          opacity: 0.32,
-        }}
-      />
+      <div className="absolute inset-0 bg-sweetardios-oxford/55" />
+      <div className="sw-scanlines absolute inset-0 opacity-25" />
     </div>
 
     {/* HERO */}
     <section className="relative flex min-h-[calc(100vh-56px)] items-center justify-center overflow-hidden px-6">
-      {/* staggered animated Sweetardios-logo pattern */}
-      <LogoWall />
       {/* subtle edge vignette for depth */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sweetardios-oxford/30 via-transparent to-sweetardios-oxford/50" />
 
