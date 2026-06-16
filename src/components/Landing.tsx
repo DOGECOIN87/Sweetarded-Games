@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { StickerWall, StickerMarquee } from './StickerPattern';
 
-const TICKER = ['Slots', 'Junk Pusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
+const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
 
 const FEATURES = [
   { icon: '🎮', title: 'Free to Play', desc: 'Jump in and play for fun — no tokens needed right now.' },
@@ -139,8 +139,8 @@ const Landing = () => (
           <Link to="/slots" className="sw-shine group inline-flex items-center gap-2 bg-sweetardios-cerise px-8 py-3.5 text-base font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5 hover:shadow-[0_0_40px_-4px_rgba(247,21,171,0.85)]">
             🎰 Play Slots <span className="transition-transform group-hover:translate-x-1">→</span>
           </Link>
-          <Link to="/junk-pusher" className="sw-shine group inline-flex items-center gap-2 bg-sweetardios-cyan px-8 py-3.5 text-base font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5 hover:shadow-[0_0_40px_-4px_rgba(52,237,243,0.85)]">
-            🪙 Play Junk Pusher <span className="transition-transform group-hover:translate-x-1">→</span>
+          <Link to="/coinpusher" className="sw-shine group inline-flex items-center gap-2 bg-sweetardios-cyan px-8 py-3.5 text-base font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5 hover:shadow-[0_0_40px_-4px_rgba(52,237,243,0.85)]">
+            🪙 Play Coinpusher <span className="transition-transform group-hover:translate-x-1">→</span>
           </Link>
         </div>
       </div>
@@ -182,10 +182,10 @@ const Landing = () => (
           features={['Bonus rounds', 'Free to play', 'Live leaderboard']}
         />
         <GameCard
-          to="/junk-pusher"
+          to="/coinpusher"
           variant="pusher"
           kicker="Drop · push · win"
-          title="Junk Pusher"
+          title="Coinpusher"
           blurb="Rain candy tokens into the machine, stack the pile high, and shove the jackpot over the edge. Real physics, real chaos."
           features={['Real physics', 'Free to play', 'High scores']}
         />
@@ -226,7 +226,7 @@ const Landing = () => (
         </div>
         <div className="flex items-center gap-6 text-sm text-blue-100/70">
           <Link to="/slots" className="transition-colors hover:text-sweetardios-cerise">Slots</Link>
-          <Link to="/junk-pusher" className="transition-colors hover:text-sweetardios-cyan">Junk Pusher</Link>
+          <Link to="/coinpusher" className="transition-colors hover:text-sweetardios-cyan">Coinpusher</Link>
         </div>
         <p className="text-xs text-white/40">© Sweetardios · Built on Gorbagana</p>
       </div>

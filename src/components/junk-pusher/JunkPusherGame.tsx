@@ -108,7 +108,7 @@ const JunkPusherGame: React.FC = () => {
             // Emit a WIN event every 10 coins collected
             if (next.score > 0 && Math.floor(next.score / 10) > lastScoreMilestoneRef.current) {
                 lastScoreMilestoneRef.current = Math.floor(next.score / 10);
-                pushGameEvent('WIN', `Player hit ${next.score} coins on Junk Pusher (+${next.netProfit > 0 ? next.netProfit : 0} DEBRIS)`);
+                pushGameEvent('WIN', `Player hit ${next.score} coins on Coinpusher (+${next.netProfit > 0 ? next.netProfit : 0} DEBRIS)`);
             }
             // Periodic on-chain balance sync every 50 coins
             if (next.score > 0 && Math.floor(next.score / 50) > lastSyncScoreRef.current) {
@@ -328,7 +328,7 @@ const JunkPusherGame: React.FC = () => {
                 if (sig) {
                     // Credit the engine's internal balance so it stays in sync
                     engineRef.current?.addBalance(amount);
-                    pushGameEvent('DEPOSIT', `Player deposited ${amount} DEBRIS into Junk Pusher`);
+                    pushGameEvent('DEPOSIT', `Player deposited ${amount} DEBRIS into Coinpusher`);
                 }
                 return sig;
             } catch (err) {
@@ -360,7 +360,7 @@ const JunkPusherGame: React.FC = () => {
                 } else {
                     setGameState(prev => ({ ...prev, balance: prev.balance - intAmount }));
                 }
-                pushGameEvent('WIN', `Player withdrew ${intAmount} DEBRIS from Junk Pusher`);
+                pushGameEvent('WIN', `Player withdrew ${intAmount} DEBRIS from Coinpusher`);
             }
             return sig;
         } catch (err) {

@@ -151,7 +151,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                 {/* Left: Brand Identity */}
                 <div className="flex flex-col justify-center select-none shrink-0">
                     <h1 className="text-xl sm:text-3xl md:text-4xl font-heading">
-                        JUNK PUSHER
+                        COINPUSHER
                     </h1>
                     <div className="flex items-center gap-1.5 mt-0.5 opacity-70">
                         <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${wallet.isConnected ? 'bg-green-400 shadow-[0_0_5px_#00ff00]' : 'bg-red-500 shadow-[0_0_5px_red]'}`}></div>

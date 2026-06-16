@@ -1,5 +1,5 @@
 /**
- * useJunkPusherOnChain — React hook for on-chain Junk Pusher integration (FEAT-01)
+ * useJunkPusherOnChain — React hook for on-chain Coinpusher integration (FEAT-01)
  *
  * Wires the existing JunkPusherClient instruction builders and tokenService
  * into the wallet adapter so that game actions produce real transactions.

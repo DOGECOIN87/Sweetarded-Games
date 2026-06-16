@@ -1,5 +1,5 @@
 /**
- * Generated Client SDK for Junk Pusher Game Program
+ * Generated Client SDK for Coinpusher Game Program
  * Configured for Gorbagana (Solana fork) deployment
  * 
  * SECURITY: All transactions are validated to ensure:
@@ -62,7 +62,7 @@ export interface WithdrawBalanceParams {
 }
 
 /**
- * Junk Pusher Game Program Client
+ * Coinpusher Game Program Client
  * Provides typed instruction builders and account readers.
  * 
  * SECURITY FEATURES:

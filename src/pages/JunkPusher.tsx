@@ -5,7 +5,7 @@ import { useNetwork } from '../contexts/NetworkContext';
 const JunkPusherGame = lazy(() => import('../components/junk-pusher/JunkPusherGame'));
 
 /**
- * Junk Pusher Game Page
+ * Coinpusher Game Page
  * 
  * A Web3 arcade game where players can:
  * - Drop coins using DEBRIS tokens
@@ -24,7 +24,7 @@ export default function JunkPusherPage() {
                     <div className="text-6xl mb-6">🔒</div>
                     <h1 className="text-3xl font-bold text-white mb-4">Network Restricted</h1>
                     <p className="text-gray-400 mb-6">
-                        The Junk Pusher game is only available on the <span className="text-green-400 font-bold">Gorbagana Network</span>.
+                        The Coinpusher game is only available on the <span className="text-green-400 font-bold">Gorbagana Network</span>.
                     </p>
                     <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-left">
                         <p className="text-sm text-gray-400 mb-2">To play:</p>
@@ -35,7 +35,7 @@ export default function JunkPusherPage() {
                         </ol>
                     </div>
                     <p className="text-xs text-gray-500 mt-6">
-                        The Junk Pusher game requires GOR tokens and operates exclusively on Gorbagana.
+                        The Coinpusher game requires GOR tokens and operates exclusively on Gorbagana.
                     </p>
                 </div>
             </div>
@@ -49,7 +49,7 @@ export default function JunkPusherPage() {
                     <div className="flex h-full items-center justify-center">
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-500 mx-auto mb-4"></div>
-                            <p className="text-green-400 text-lg font-bold">Loading Junk Pusher...</p>
+                            <p className="text-green-400 text-lg font-bold">Loading Coinpusher...</p>
                             <p className="text-gray-400 text-sm mt-2">Initializing game engine...</p>
                         </div>
                     </div>

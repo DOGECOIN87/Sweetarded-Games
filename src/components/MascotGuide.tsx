@@ -17,7 +17,7 @@ const TIPS: Record<string, string[]> = {
     "Trigger the bonus round for the big sugar rush.",
     "Free play — spin as much as you want, no tokens needed.",
   ],
-  '/junk-pusher': [
+  '/coinpusher': [
     "Drop candy tokens and shove the pile over the edge.",
     "Bump the table to knock a fat stack loose.",
     "It's free to play — stack 'em sky high!",

@@ -1,5 +1,5 @@
 /**
- * Sound Manager for Junk Pusher Game
+ * Sound Manager for Coinpusher Game
  * 
  * Generates arcade-style sound effects using Web Audio API
  * No external audio files needed - all sounds are synthesized

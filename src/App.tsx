@@ -31,8 +31,8 @@ const AppInner: React.FC = () => (
         <Link to="/slots" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">
           Slots
         </Link>
-        <Link to="/junk-pusher" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan">
-          Junk Pusher
+        <Link to="/coinpusher" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan">
+          Coinpusher
         </Link>
       </div>
       <WalletMultiButton />
@@ -49,7 +49,7 @@ const AppInner: React.FC = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/slots" element={<SlotsPage />} />
-          <Route path="/junk-pusher" element={<JunkPusherPage />} />
+          <Route path="/coinpusher" element={<JunkPusherPage />} />
         </Routes>
       </Suspense>
     </main>

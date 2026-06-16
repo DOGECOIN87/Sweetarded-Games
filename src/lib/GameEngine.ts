@@ -260,6 +260,59 @@ export class GameEngine {
     return texture;
   }
 
+  /** Coin face: a Sweetardios metallic disc stamped with the character SVG. */
+  private makeCoinTexture(size: number): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d')!;
+    const cx = size / 2;
+    const cy = size / 2;
+    const R = size / 2;
+
+    // Metallic Sweetardios disc
+    const disc = ctx.createRadialGradient(cx, cy, R * 0.1, cx, cy, R);
+    disc.addColorStop(0, '#fdf2ff');
+    disc.addColorStop(0.55, '#34EDF3');
+    disc.addColorStop(1, '#9201CB');
+    ctx.fillStyle = disc;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Raised cerise rim
+    ctx.lineWidth = size * 0.07;
+    ctx.strokeStyle = '#F715AB';
+    ctx.beginPath();
+    ctx.arc(cx, cy, R - ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Inner bevel highlight
+    ctx.lineWidth = size * 0.015;
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * 0.78, 0, Math.PI * 2);
+    ctx.stroke();
+
+    const texture = new THREE.CanvasTexture(canvas);
+
+    // Stamp the character SVG once it loads (async), then refresh the texture
+    const img = new Image();
+    img.onload = () => {
+      const s = R * 1.4;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, R * 0.82, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(img, cx - s / 2, cy - s / 2, s, s);
+      ctx.restore();
+      texture.needsUpdate = true;
+    };
+    img.src = '/coin.svg';
+
+    return texture;
+  }
+
   private buildStaticGeometry() {
     const pfWidth = DIMENSIONS.PLAYFIELD_WIDTH;
     const pfLength = DIMENSIONS.PLAYFIELD_LENGTH;
@@ -435,32 +488,30 @@ export class GameEngine {
       32
     );
 
-    // Create cartoon cookie texture
-    const cookieTexture = this.makeCookieTexture(512);
+    // Sweetardios character-coin texture
+    const coinTexture = this.makeCoinTexture(512);
 
-    // Cookie colors: golden brown base with chocolate chips
-    const cookieColor = 0xD4A574; // Golden cookie color
-    const edgeColor = 0xC09060;   // Darker edge color
+    const edgeColor = 0xcba53c; // metallic gold rim
 
     // Create materials for the cylinder: [side, top, bottom]
     const sideMaterial = new THREE.MeshStandardMaterial({
       color: edgeColor,
-      roughness: 0.8,
-      metalness: 0.0,
+      roughness: 0.35,
+      metalness: 0.6,
     });
 
     const faceMaterial = new THREE.MeshStandardMaterial({
       color: 0xFFFFFF, // White to show texture colors accurately
-      map: cookieTexture,
-      roughness: 0.7,
-      metalness: 0.0,
+      map: coinTexture,
+      roughness: 0.5,
+      metalness: 0.25,
     });
 
     const backFaceMaterial = new THREE.MeshStandardMaterial({
       color: 0xFFFFFF, // White to show texture colors accurately
-      map: cookieTexture,
-      roughness: 0.7,
-      metalness: 0.0,
+      map: coinTexture,
+      roughness: 0.5,
+      metalness: 0.25,
     });
 
     const materials = [sideMaterial, faceMaterial, backFaceMaterial];
