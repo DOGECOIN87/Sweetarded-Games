@@ -11,10 +11,9 @@
 }
 
 body {
-  /* Sweetardios base — deep Oxford Blue with a hint of Zaffre depth */
+  /* Sweetardios base — predominantly Oxford Blue, faint Zaffre depth only */
   background-color: #070F34;
-  background-image: radial-gradient(1200px 800px at 20% -10%, rgba(146, 1, 203, 0.25), transparent 60%),
-                    radial-gradient(1000px 700px at 100% 0%, rgba(3, 19, 166, 0.35), transparent 55%);
+  background-image: radial-gradient(1100px 760px at 50% -12%, rgba(3, 19, 166, 0.16), transparent 62%);
 }
 
 /* Gorbagana Brand — Custom Animations & Utilities */
@@ -91,9 +90,10 @@ body {
   100% { background-position: 0% 50%; }
 }
 .sw-aurora {
-  background: linear-gradient(125deg, #070F34 0%, #0313A6 30%, #9201CB 50%, #0313A6 70%, #070F34 100%);
+  /* Stays within deep Oxford/navy blues — subtle motion, no bright violet */
+  background: linear-gradient(125deg, #070F34 0%, #0a1647 38%, #0c1c57 50%, #0a1647 62%, #070F34 100%);
   background-size: 300% 300%;
-  animation: sw-aurora 20s ease infinite;
+  animation: sw-aurora 22s ease infinite;
 }
 
 /* Soft radial glow blobs */

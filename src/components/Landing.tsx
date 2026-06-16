@@ -98,11 +98,8 @@ const Landing = () => (
   <div className="relative text-white">
     {/* Animated background layers */}
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="sw-aurora absolute inset-0 opacity-90" />
-      <div className="sw-scanlines absolute inset-0 opacity-50" />
-      <div className="sw-blob absolute -left-20 top-10 h-72 w-72" style={{ background: '#F715AB' }} />
-      <div className="sw-blob absolute right-0 top-1/3 h-80 w-80" style={{ background: '#34EDF3' }} />
-      <div className="sw-blob absolute bottom-10 left-1/3 h-72 w-72" style={{ background: '#9201CB' }} />
+      <div className="sw-aurora absolute inset-0 opacity-70" />
+      <div className="sw-scanlines absolute inset-0 opacity-40" />
     </div>
 
     {/* HERO */}
