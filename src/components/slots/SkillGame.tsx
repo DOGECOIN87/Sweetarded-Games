@@ -4,6 +4,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { getDebrisBalance } from '../../lib/tokenService';
 import { TOKEN_CONFIG } from '../../lib/tokenConfig';
 import { useJunkPusherOnChain } from '../../lib/useJunkPusherOnChain';
+import { FREE_PLAY, FREE_PLAY_BALANCE } from '../../lib/freePlay';
 import { getPlayerGameBalance } from '../../lib/highScoreService';
 import { PROGRAM_ID } from '../../lib/JunkPusherClient';
 import { pushGameEvent } from '../../services/activityService';
@@ -255,14 +256,14 @@ export default function SkillGame() {
 
   // Core game state
   const [grid, setGrid] = useState<CellValue[]>(Array(9).fill(null));
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState(FREE_PLAY ? FREE_PLAY_BALANCE : 0);
   const [netProfit, setNetProfit] = useState(0); // Track cumulative net profit for withdrawal verification
   const [levelIndex, setLevelIndex] = useState(0);
   const playLevel = PLAY_LEVELS[levelIndex];
   const [currentWin, setCurrentWin] = useState(0);
   const [stage, setStage] = useState<Stage>('IDLE');
   const [statusMessage, setStatusMessage] = useState<string | null>(
-    'Connect Wallet to Play'
+    FREE_PLAY ? 'Free play — press Play to spin' : 'Connect Wallet to Play'
   );
   const [winningCells, setWinningCells] = useState<Set<number>>(new Set());
   const [playButtonText, setPlayButtonText] = useState('Play');
@@ -355,8 +356,13 @@ export default function SkillGame() {
       setStatusMessage("Adjust 'Play Level'");
     } else {
       setDebrisBalance(0);
-      setBalance(0);
-      setStatusMessage('Connect Wallet to Play');
+      if (FREE_PLAY) {
+        setBalance((b) => (b > 0 ? b : FREE_PLAY_BALANCE));
+        setStatusMessage('Free play — press Play to spin');
+      } else {
+        setBalance(0);
+        setStatusMessage('Connect Wallet to Play');
+      }
     }
   }, [connected, publicKey, refreshDebrisBalance]);
 
@@ -790,7 +796,7 @@ export default function SkillGame() {
 
   const handlePreview = () => {
     if (stage !== 'IDLE' || isAnimating || isPreviewing) return;
-    if (!connected) {
+    if (!connected && !FREE_PLAY) {
       showWalletModal(true);
       return;
     }
@@ -823,7 +829,7 @@ export default function SkillGame() {
   // Start playing
   const handlePlay = () => {
     if (stage !== 'IDLE' || isAnimating) return;
-    if (!connected) {
+    if (!connected && !FREE_PLAY) {
       showWalletModal(true);
       return;
     }
@@ -832,9 +838,13 @@ export default function SkillGame() {
       return;
     }
     if (balance < playLevel) {
-      setStatusMessage('Deposit DEBRIS to Play!');
-      setShowDepositUI(true);
-      return;
+      if (FREE_PLAY) {
+        setBalance(FREE_PLAY_BALANCE); // top up free credits so you never get stuck
+      } else {
+        setStatusMessage('Deposit DEBRIS to Play!');
+        setShowDepositUI(true);
+        return;
+      }
     }
 
     // Deduct wager upfront (saved to localStorage immediately via auto-save effect)
@@ -1140,7 +1150,7 @@ export default function SkillGame() {
           <button
             className="skill-game-btn"
             onClick={handlePreview}
-            disabled={stage !== 'IDLE' || isAnimating || !connected || isPreviewing || previewCooldown > 0}
+            disabled={stage !== 'IDLE' || isAnimating || (!connected && !FREE_PLAY) || isPreviewing || previewCooldown > 0}
           >
             {previewCooldown > 0 ? `Wait ${previewCooldown}s` : 'Preview'}
           </button>

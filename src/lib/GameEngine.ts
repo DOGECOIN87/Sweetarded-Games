@@ -3,6 +3,7 @@ import RAPIER from '@dimforge/rapier3d-compat';
 import { PHYSICS, DIMENSIONS, COLORS } from './constants';
 import { GameConfig, GameEventCallback } from './types';
 import { soundManager } from './soundManager';
+import { FREE_PLAY, FREE_PLAY_BALANCE } from './freePlay';
 
 export class GameEngine {
   // Config
@@ -41,7 +42,7 @@ export class GameEngine {
 
   // Game Variables
   private score = 0;
-  private balance = 100; // Start with 100 free DEBRIS tokens to try the game
+  private balance = FREE_PLAY ? FREE_PLAY_BALANCE : 100; // free-play: generous local credits
   private netProfit = 0;
   private coinsCollectedRecently = 0;
   private lastCollectionTime = 0;
