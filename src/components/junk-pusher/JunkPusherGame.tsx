@@ -392,10 +392,10 @@ const JunkPusherGame: React.FC = () => {
         <div className="relative w-full h-full overflow-hidden bg-black">
             {/* Background Image */}
             <img
-                src="/images/tm-background.webp"
+                src="/games-bg.png"
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                style={{ objectPosition: 'center 10%' }}
+                style={{ objectPosition: 'center' }}
             />
 
             {/* Rain overlay — renders over background, behind game */}
