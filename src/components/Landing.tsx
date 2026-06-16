@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { StickerWall, StickerMarquee } from './StickerPattern';
+import { StickerMarquee } from './StickerPattern';
 import GetStarted from './GetStarted';
 
 const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
@@ -100,7 +100,12 @@ const Landing = () => (
     {/* Animated background layers */}
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div className="sw-aurora absolute inset-0 opacity-70" />
-      <div className="sw-scanlines absolute inset-0 opacity-40" />
+      {/* New pages background image (drop file at public/pages-bg.png) */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/pages-bg.png)' }}
+      />
+      <div className="sw-scanlines absolute inset-0 opacity-30" />
       {/* Mesh texture overlay — soft-light @ 32% (drop file at public/bg-texture.png) */}
       <div
         className="absolute inset-0"
@@ -115,8 +120,6 @@ const Landing = () => (
 
     {/* HERO */}
     <section className="relative flex min-h-[calc(100vh-56px)] items-center justify-center overflow-hidden px-6">
-      {/* staggered sticker wall */}
-      <StickerWall />
       {/* subtle edge vignette for depth */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sweetardios-oxford/30 via-transparent to-sweetardios-oxford/50" />
 
