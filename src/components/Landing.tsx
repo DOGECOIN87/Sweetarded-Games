@@ -103,61 +103,69 @@ const Landing = () => (
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: 'url(/games-bg.png)' }}
       />
-      <div className="absolute inset-0 bg-sweetardios-oxford/55" />
-      <div className="sw-scanlines absolute inset-0 opacity-25" />
+      <div className="absolute inset-0 bg-sweetardios-oxford/60" />
+      <div className="sw-scanlines absolute inset-0 opacity-[0.1]" />
     </div>
 
     {/* HERO */}
-    <section className="relative flex min-h-[calc(100vh-56px)] items-center justify-center overflow-hidden px-6">
-      {/* subtle edge vignette for depth */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sweetardios-oxford/30 via-transparent to-sweetardios-oxford/50" />
+    <section className="relative flex min-h-[calc(100vh-56px)] items-center justify-center overflow-hidden px-6 py-16">
+      {/* cinematic vignette */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: 'radial-gradient(125% 95% at 50% 22%, transparent 38%, rgba(7,15,52,0.55) 76%, rgba(7,15,52,0.92) 100%)' }}
+      />
 
-      <div className="relative z-10 mx-4 flex max-w-4xl flex-col items-center border border-white/10 bg-sweetardios-oxford/70 px-6 py-10 text-center shadow-[0_24px_70px_-15px_rgba(0,0,0,0.75)] backdrop-blur-md sm:px-12 sm:py-12">
-        <div className="sw-rise relative mb-4 flex justify-center">
-          <div aria-hidden className="sw-blob absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2" style={{ background: '#F715AB', opacity: 0.45 }} />
-          <img src="/sweetardios-logo.svg" alt="Sweetardios logo" className="sw-float relative h-36 w-36 drop-shadow-[0_12px_30px_rgba(52,237,243,0.45)] sm:h-44 sm:w-44" />
-        </div>
+      {/* gradient-bordered glass panel */}
+      <div className="relative z-10 w-full max-w-3xl bg-gradient-to-br from-sweetardios-cerise/50 via-sweetardios-violet/25 to-sweetardios-cyan/50 p-px shadow-[0_50px_140px_-40px_rgba(0,0,0,0.95)]">
+        <div className="relative flex flex-col items-center overflow-hidden bg-sweetardios-oxford/80 px-8 py-12 text-center backdrop-blur-2xl sm:px-16 sm:py-16">
+          {/* top edge highlight */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
-        <span className="sw-rise mb-6 inline-flex items-center gap-2 border border-sweetardios-cyan/40 bg-sweetardios-oxford/60 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-sweetardios-cyan backdrop-blur">
-          <span className="sw-twinkle">✦</span> Free to play · powered by Sweetardios <span className="sw-twinkle">✦</span>
-        </span>
+          <div className="sw-rise relative mb-7 flex justify-center">
+            <div aria-hidden className="sw-blob absolute left-1/2 top-1/2 h-52 w-52 -translate-x-1/2 -translate-y-1/2" style={{ background: '#F715AB', opacity: 0.38 }} />
+            <img src="/sweetardios-logo.svg" alt="Sweetardios" className="sw-float relative h-32 w-32 drop-shadow-[0_16px_40px_rgba(52,237,243,0.4)] sm:h-40 sm:w-40" />
+          </div>
 
-        <h1 className="sw-rise font-heading text-6xl leading-none sm:text-8xl" style={{ animationDelay: '0.05s' }}>
-          <span className="sw-flicker sw-glow-cerise">SWEET</span>
-          <span className="sw-glow-cyan">ARDED</span>
-        </h1>
-        <div className="sw-rise sw-gradient-text font-heading mt-2 text-3xl tracking-[0.5em] sm:text-5xl" style={{ animationDelay: '0.12s' }}>
-          GAMES
-        </div>
+          <span className="sw-rise mb-7 inline-flex items-center gap-2.5 border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-blue-100/75 backdrop-blur">
+            <span className="h-1.5 w-1.5 bg-sweetardios-cyan shadow-[0_0_8px_#34EDF3]" style={{ borderRadius: '9999px' }} /> Free to Play · Powered by Sweetardios
+          </span>
 
-        <p className="sw-rise mt-6 max-w-xl text-base text-blue-100/80 sm:text-lg" style={{ animationDelay: '0.18s' }}>
-          A sugar-coated arcade starring the <span className="font-semibold text-sweetardios-cerise">Sweetardios</span>.
-          Two games, free to play, endless degenerate fun.
-        </p>
+          <h1 className="sw-rise font-heading text-6xl leading-[0.92] sm:text-8xl" style={{ animationDelay: '0.05s' }}>
+            <span className="sw-glow-cerise">SWEET</span><span className="sw-glow-cyan">ARDED</span>
+          </h1>
+          <div className="sw-rise sw-gradient-text font-heading mt-3 text-3xl tracking-[0.55em] sm:text-5xl" style={{ animationDelay: '0.12s' }}>
+            GAMES
+          </div>
 
-        <div className="sw-rise mt-9 flex flex-col items-center gap-4 sm:flex-row" style={{ animationDelay: '0.24s' }}>
-          <Link to="/slots" className="sw-shine group inline-flex items-center gap-2 bg-sweetardios-cerise px-8 py-3.5 text-base font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5 hover:shadow-[0_0_40px_-4px_rgba(247,21,171,0.85)]">
-            🎰 Play Slots <span className="transition-transform group-hover:translate-x-1">→</span>
-          </Link>
-          <Link to="/coinpusher" className="sw-shine group inline-flex items-center gap-2 bg-sweetardios-cyan px-8 py-3.5 text-base font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5 hover:shadow-[0_0_40px_-4px_rgba(52,237,243,0.85)]">
-            🪙 Play Coinpusher <span className="transition-transform group-hover:translate-x-1">→</span>
-          </Link>
+          <p className="sw-rise mt-7 max-w-md text-base leading-relaxed text-blue-100/70 sm:text-lg" style={{ animationDelay: '0.18s' }}>
+            A sugar-coated arcade starring the <span className="font-semibold text-white">Sweetardios</span>. Two games, free to play.
+          </p>
+
+          <div className="sw-rise mt-10 flex w-full flex-col items-center gap-3.5 sm:w-auto sm:flex-row" style={{ animationDelay: '0.24s' }}>
+            <Link to="/slots" className="sw-shine group inline-flex w-full items-center justify-center gap-2 bg-gradient-to-r from-[#ff5cc8] to-[#d40d8f] px-8 py-4 text-sm font-extrabold uppercase tracking-wider text-white shadow-[0_12px_34px_-10px_rgba(247,21,171,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_-10px_rgba(247,21,171,0.95)] sm:w-auto">
+              🎰 Play Slots <span className="transition-transform group-hover:translate-x-1">→</span>
+            </Link>
+            <Link to="/coinpusher" className="sw-shine group inline-flex w-full items-center justify-center gap-2 bg-gradient-to-r from-[#6ef4f9] to-[#1fc6d4] px-8 py-4 text-sm font-extrabold uppercase tracking-wider text-sweetardios-oxford shadow-[0_12px_34px_-10px_rgba(52,237,243,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_-10px_rgba(52,237,243,0.9)] sm:w-auto">
+              🪙 Play Coinpusher <span className="transition-transform group-hover:translate-x-1">→</span>
+            </Link>
+          </div>
         </div>
       </div>
 
-      <a href="#games" aria-label="Scroll to games" className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-sweetardios-cyan/70 transition-colors hover:text-sweetardios-cyan">
-        <span className="block animate-bounce text-2xl">↓</span>
+      <a href="#games" aria-label="Scroll to games" className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-white/35 transition-colors hover:text-white">
+        <span className="block animate-bounce text-xl">↓</span>
       </a>
     </section>
 
     {/* TICKER */}
-    <div className="relative overflow-hidden border-y border-sweetardios-violet/40 bg-sweetardios-oxford/70 py-3 backdrop-blur">
+    <div className="relative overflow-hidden border-y border-white/10 bg-sweetardios-oxford/60 py-3 backdrop-blur">
       <div className="sw-marquee-track flex w-max whitespace-nowrap">
         {[0, 1].map((k) => (
           <div key={k} className="flex items-center" aria-hidden={k === 1}>
             {TICKER.map((t, i) => (
-              <span key={i} className="mx-6 text-sm font-bold uppercase tracking-widest text-blue-100/80">
-                <span className="text-sweetardios-cerise">★</span> {t}
+              <span key={i} className="mx-5 text-xs font-semibold uppercase tracking-[0.28em] text-blue-100/55">
+                <span className="text-sweetardios-cerise/70">◆</span> {t}
               </span>
             ))}
           </div>
