@@ -17,15 +17,15 @@ import { SlotsLeaderboard } from './SlotsLeaderboard';
 import { subscribeToSlotsConfig, DEFAULT_SLOTS_WEIGHTS, SLOTS_OUTCOME_META } from '../../services/gameConfigService';
 
 const SYMBOL_IMAGES = [
-  '/symbols/alon.webp',
-  '/symbols/oscar.webp',
-  '/symbols/sky-garbage.webp',
-  '/symbols/shredder.webp',
-  '/symbols/gorbios.webp',
-  '/symbols/pump-pill.webp',
-  '/symbols/digibin.webp',
-  '/symbols/box.webp',
-  '/symbols/matress.webp',
+  '/armz/Arms_Cash.png',                            // 0 — Cash (jackpot)
+  '/armz/Nerf_Blaster.png',                         // 1
+  '/armz/AK15.png',                                 // 2
+  '/armz/Armz_Twinkie_Katana.png',                  // 3
+  '/armz/Armz_Gummy_worms_katana.png',              // 4
+  '/armz/Armz_Gummy_Bear_Knives.png',               // 5
+  '/armz/Armz_Marshmallow_knives.png',              // 6
+  '/armz/Armz_Katana_for_ice_cream_character.png',  // 7
+  '/armz/Armz_choc_cookie_katana.png',              // 8
   '/sweetardios-logo.svg', // index 9 — Sweetardios BONUS symbol (ultra-rare)
 ];
 
