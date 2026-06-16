@@ -54,7 +54,7 @@ export const Overlay: React.FC<OverlayProps> = ({
         }
     }, [showWalletMenu]);
 
-    const DEPOSIT_AMOUNT = 100; // DEBRIS tokens to deposit per refill
+    const DEPOSIT_AMOUNT = 100; // SWEET tokens to deposit per refill
     const LOW_BALANCE_THRESHOLD = 10; // Show "bump" option when balance is this low
 
     const doDeposit = async (statusSetter: typeof setTxStatus) => {
@@ -274,7 +274,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                 <div className="w-full bg-black/90 border-t border-green-500/40 backdrop-blur-md pointer-events-auto shadow-[0_-2px_12px_rgba(0,0,0,0.5)]">
                     <div className="flex items-center justify-center gap-4 sm:gap-8 px-3 py-2 sm:py-2.5 overflow-x-auto text-[10px] sm:text-xs font-[Inter]">
                         <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-green-300 font-bold font-heading tracking-wider">DEBRIS</span>
+                            <span className="text-green-300 font-bold font-heading tracking-wider">SWEET</span>
                         </div>
                         <div className="h-4 w-px bg-green-500/30 shrink-0" />
                         <div className="flex items-center gap-1 shrink-0">
@@ -364,7 +364,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                                             <span className="font-heading text-[8px] sm:text-[10px] text-emerald-200 font-bold tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-white group-hover:drop-shadow-[0_0_5px_#00ff88] uppercase">
                                                 Deposit
                                             </span>
-                                            <span className="text-[7px] sm:text-[8px] text-emerald-400/60 font-mono">{DEPOSIT_AMOUNT} DEBRIS</span>
+                                            <span className="text-[7px] sm:text-[8px] text-emerald-400/60 font-mono">{DEPOSIT_AMOUNT} SWEET</span>
                                         </>
                                     )}
                                     {(depositBtnStatus === 'signing' || depositBtnStatus === 'broadcasting') && (
@@ -401,7 +401,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                                                 <span className="font-heading text-[8px] sm:text-[10px] text-amber-200 font-bold tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-white group-hover:drop-shadow-[0_0_5px_#ffaa00] uppercase">
                                                     Withdraw
                                                 </span>
-                                                <span className="text-[7px] sm:text-[8px] text-amber-400/60 font-mono">{withdrawAmount || Math.min(Math.floor(gameState.balance), MAX_WITHDRAW)} DEBRIS</span>
+                                                <span className="text-[7px] sm:text-[8px] text-amber-400/60 font-mono">{withdrawAmount || Math.min(Math.floor(gameState.balance), MAX_WITHDRAW)} SWEET</span>
                                             </>
                                         )}
                                         {(withdrawBtnStatus === 'signing' || withdrawBtnStatus === 'broadcasting') && (
@@ -434,7 +434,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                                 <span className="font-heading text-[8px] sm:text-[10px] text-fuchsia-200 font-bold tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-white group-hover:drop-shadow-[0_0_5px_#ff00ff] uppercase">
                                     Bump
                                 </span>
-                                <span className="text-[7px] sm:text-[8px] text-fuchsia-400/60 font-mono">-20 DEBRIS</span>
+                                <span className="text-[7px] sm:text-[8px] text-fuchsia-400/60 font-mono">-20 SWEET</span>
                             </div>
                         </button>
 
@@ -442,7 +442,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                 </div>
             </div>
 
-            {/* --- POPUP: OUT OF DEBRIS (BUMP) --- */}
+            {/* --- POPUP: OUT OF SWEET (BUMP) --- */}
             {showPopup && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[4px] pointer-events-auto animate-in fade-in duration-300 p-4">
                     <div className="relative bg-black/90 border border-green-500/60 p-1 w-full max-w-[420px] shadow-[0_0_100px_rgba(0,255,0,0.15)] transform scale-100 animate-in zoom-in-95 duration-200">
@@ -474,22 +474,22 @@ export const Overlay: React.FC<OverlayProps> = ({
                             </div>
 
                             <h2 className="text-2xl sm:text-4xl font-bold text-white font-heading mb-1.5 sm:mb-2 tracking-tighter drop-shadow-[0_0_10px_rgba(0,255,0,0.5)]">
-                                {gameState.balance <= 0 ? 'OUT OF DEBRIS' : 'LOW ON DEBRIS'}
+                                {gameState.balance <= 0 ? 'OUT OF SWEET' : 'LOW ON SWEET'}
                             </h2>
 
                             <p className="text-green-200/60 text-xs sm:text-sm mb-5 sm:mb-8 font-[Inter] leading-relaxed max-w-[90%] sm:max-w-[80%]">
                                 {gameState.balance <= 0 
                                     ? 'Resource depletion detected. Production halted.' 
-                                    : 'Running low on DEBRIS tokens. Consider refilling to continue.'}
+                                    : 'Running low on SWEET tokens. Consider refilling to continue.'}
                                 <br />
                                 <span className="text-green-400 font-bold">
                                     {wallet.isConnected
-                                        ? 'Deposit DEBRIS tokens to continue playing.'
-                                        : 'Connect wallet to deposit DEBRIS and continue.'}
+                                        ? 'Deposit SWEET tokens to continue playing.'
+                                        : 'Connect wallet to deposit SWEET and continue.'}
                                 </span>
                             </p>
 
-                            {/* Deposit DEBRIS Button */}
+                            {/* Deposit SWEET Button */}
                             <button
                                 onClick={handlePopupDepositClick}
                                 disabled={txStatus !== 'idle'}
@@ -504,13 +504,13 @@ export const Overlay: React.FC<OverlayProps> = ({
                                                 {!wallet.isConnected 
                                                     ? 'CONNECT WALLET'
                                                     : gameState.balance <= 0
-                                                    ? 'DEPOSIT DEBRIS'
+                                                    ? 'DEPOSIT SWEET'
                                                     : 'BUMP'}
                                             </span>
                                             {wallet.isConnected && (
                                                 <div className="flex items-center gap-1 mt-0.5 sm:mt-1">
                                                     <span className="text-[9px] sm:text-[10px] text-green-200 font-mono bg-black/40 px-1.5 py-0.5 rounded border border-green-500/30">
-                                                        {gameState.balance <= 0 ? `${DEPOSIT_AMOUNT} DEBRIS` : '20 DEBRIS'}
+                                                        {gameState.balance <= 0 ? `${DEPOSIT_AMOUNT} SWEET` : '20 SWEET'}
                                                     </span>
                                                 </div>
                                             )}

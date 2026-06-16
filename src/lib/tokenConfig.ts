@@ -13,9 +13,9 @@ export const TOKEN_CONFIG = {
   // DEBRIS Token - The dapp's token used for all gameplay
   DEBRIS: {
     address: 'DebrikgCUTkxMGSxnBoVuwqpW4zivMrUfUP6kUeNUMwy', // Debris token mint address
-    symbol: 'DEBRIS',
+    symbol: 'SWEET',
     decimals: 9,
-    name: 'Debris',
+    name: 'Sweet',
   },
 
   // Game Treasury

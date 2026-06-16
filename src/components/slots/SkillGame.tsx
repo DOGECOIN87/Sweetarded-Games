@@ -243,7 +243,7 @@ export default function SkillGame() {
   const { setVisible: showWalletModal } = useWalletModal();
   const onChain = useJunkPusherOnChain();
 
-  // DEBRIS wallet balance (on-chain)
+  // SWEET wallet balance (on-chain)
   const [debrisBalance, setDebrisBalance] = useState(0);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
@@ -335,7 +335,7 @@ export default function SkillGame() {
     return tier === -1 ? constructLossGrid() : constructWinGrid(tier);
   }, [rollOutcomeDynamic]);
 
-  // ─── Fetch on-chain DEBRIS balance ──────────────────────────────────
+  // ─── Fetch on-chain SWEET balance ──────────────────────────────────
   const refreshDebrisBalance = useCallback(async () => {
     if (!publicKey || !connection) return;
     setIsLoadingBalance(true);
@@ -343,7 +343,7 @@ export default function SkillGame() {
       const bal = await getDebrisBalance(connection, publicKey);
       setDebrisBalance(bal);
     } catch (err) {
-      console.error('[Slots] Failed to fetch DEBRIS balance:', err);
+      console.error('[Slots] Failed to fetch SWEET balance:', err);
     } finally {
       setIsLoadingBalance(false);
     }
@@ -519,7 +519,7 @@ export default function SkillGame() {
     return () => clearInterval(interval);
   }, [previewCooldown, COOLDOWN_KEY]);
 
-  // ─── Deposit DEBRIS into game ────────────────────────────────────────
+  // ─── Deposit SWEET into game ────────────────────────────────────────
   const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
     if (!amount || amount <= 0) return;
@@ -527,19 +527,19 @@ export default function SkillGame() {
     // Round to integer for on-chain validation
     const intAmount = Math.floor(amount);
     if (intAmount <= 0) {
-      setTxMessage('Amount must be at least 1 DEBRIS');
+      setTxMessage('Amount must be at least 1 SWEET');
       setTimeout(() => setTxMessage(null), 3000);
       return;
     }
 
     if (intAmount > debrisBalance && debrisBalance > 0) {
-      setTxMessage(`Insufficient DEBRIS. Wallet balance: ${debrisBalance.toFixed(2)}`);
+      setTxMessage(`Insufficient SWEET. Wallet balance: ${debrisBalance.toFixed(2)}`);
       setTimeout(() => setTxMessage(null), 3000);
       return;
     }
 
     setTxPending(true);
-    setTxMessage('Depositing DEBRIS...');
+    setTxMessage('Depositing SWEET...');
     try {
       const sig = await onChain.depositBalance(intAmount, 0);
       if (sig) {
@@ -548,9 +548,9 @@ export default function SkillGame() {
         // Do NOT call refreshGameBalance() here: the PDA only syncs every 5 spins and would
         // overwrite the local balance, erasing any unsynced gameplay wins.
         setBalance((prev) => prev + intAmount);
-        setTxMessage(`Deposit confirmed! +${intAmount} DEBRIS`);
-        pushGameEvent('DEPOSIT', `Player deposited ${intAmount} DEBRIS into Skill Game`);
-        // Refresh wallet DEBRIS balance so the "wallet" display reflects the deduction
+        setTxMessage(`Deposit confirmed! +${intAmount} SWEET`);
+        pushGameEvent('DEPOSIT', `Player deposited ${intAmount} SWEET into Skill Game`);
+        // Refresh wallet SWEET balance so the "wallet" display reflects the deduction
         setTimeout(() => refreshDebrisBalance(), 2000);
         setTimeout(() => setTxMessage(null), 4000);
       } else {
@@ -566,20 +566,20 @@ export default function SkillGame() {
     }
   };
 
-  // ─── Withdraw DEBRIS from game ───────────────────────────────────────
+  // ─── Withdraw SWEET from game ───────────────────────────────────────
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
     if (!amount || amount <= 0) return;
 
     const intAmount = Math.floor(amount);
     if (intAmount <= 0) {
-      setTxMessage('Amount must be at least 1 DEBRIS');
+      setTxMessage('Amount must be at least 1 SWEET');
       setTimeout(() => setTxMessage(null), 3000);
       return;
     }
 
     if (intAmount > balance) {
-      setTxMessage(`Insufficient game balance: ${balance.toFixed(2)} DEBRIS`);
+      setTxMessage(`Insufficient game balance: ${balance.toFixed(2)} SWEET`);
       setTimeout(() => setTxMessage(null), 3000);
       return;
     }
@@ -630,7 +630,7 @@ export default function SkillGame() {
       setNetProfit((prev) => prev + winAmount);
       setCurrentWin(winAmount);
       setStatusMessage('You Win!');
-      pushGameEvent('WIN', `Player won ${winAmount} DEBRIS on Skill Game`);
+      pushGameEvent('WIN', `Player won ${winAmount} SWEET on Skill Game`);
       // Flash the matching jackpot tier
       const mult = winAmount / playLevel;
       const tier =
@@ -841,7 +841,7 @@ export default function SkillGame() {
       if (FREE_PLAY) {
         setBalance(FREE_PLAY_BALANCE); // top up free credits so you never get stuck
       } else {
-        setStatusMessage('Deposit DEBRIS to Play!');
+        setStatusMessage('Deposit SWEET to Play!');
         setShowDepositUI(true);
         return;
       }
@@ -1020,12 +1020,12 @@ export default function SkillGame() {
 
       {/* Control Section */}
       <div className="skill-control-section">
-        {/* Wallet & DEBRIS Balance Bar */}
+        {/* Wallet & SWEET Balance Bar */}
         <div className="skill-wallet-bar">
           {connected ? (
             <>
               <div className="skill-wallet-info">
-                <span className="skill-wallet-label">DEBRIS</span>
+                <span className="skill-wallet-label">SWEET</span>
                 <span className="skill-wallet-balance">
                   {isLoadingBalance ? '...' : debrisBalance.toFixed(2)}
                 </span>
@@ -1055,7 +1055,7 @@ export default function SkillGame() {
               <input
                 type="number"
                 className="skill-deposit-input"
-                placeholder={`Deposit DEBRIS (wallet: ${debrisBalance.toFixed(2)})`}
+                placeholder={`Deposit SWEET (wallet: ${debrisBalance.toFixed(2)})`}
                 value={depositAmount}
                 onChange={(e) => setDepositAmount(e.target.value)}
                 min="0"
@@ -1074,7 +1074,7 @@ export default function SkillGame() {
               <input
                 type="number"
                 className="skill-deposit-input"
-                placeholder={`Withdraw DEBRIS (game: ${balance.toFixed(2)})`}
+                placeholder={`Withdraw SWEET (game: ${balance.toFixed(2)})`}
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
                 min="0"
@@ -1103,7 +1103,7 @@ export default function SkillGame() {
             </span>
           </div>
           <div className="skill-status-group">
-            <span className="skill-status-label">DEBRIS</span>
+            <span className="skill-status-label">SWEET</span>
             <div className="flex items-center gap-2">
               <span className="skill-status-value skill-points-value">
                 {balance.toFixed(2)}
@@ -1164,8 +1164,8 @@ export default function SkillGame() {
         </div>
 
         <div className="skill-footer">
-          <span>TRASHMARKET.FUN SKILL GAME</span>
-          <span>Currency: DEBRIS</span>
+          <span>SWEETARDED SLOTS</span>
+          <span>Currency: SWEET</span>
           <span>SKL 402 83 PEN</span>
         </div>
       </div>
@@ -1181,7 +1181,7 @@ export default function SkillGame() {
               setNetProfit((prev) => prev + totalWin);
               setCurrentWin(totalWin);
               setStatusMessage(`BONUS WIN: ${totalWin.toLocaleString()}!`);
-              pushGameEvent('WIN', `Player won ${totalWin} DEBRIS in Bonus Round`);
+              pushGameEvent('WIN', `Player won ${totalWin} SWEET in Bonus Round`);
               setTimeout(() => {
                 setCurrentWin(0);
                 setStatusMessage(null);
@@ -1208,7 +1208,7 @@ export default function SkillGame() {
               <p><strong>Fairness:</strong> Game outcomes are pre-determined using a weighted random pool before the grid is constructed (patent-inspired method US20070232385A1). The grid is then built to match the outcome. Your skill determines <em>where</em> to place the WILD to maximize winnings.</p>
               <p><strong>RTP:</strong> Approximately 91% Return-To-Player assuming optimal WILD placement. House edge is ~9%. About 1 in 4 spins is profitable, and big wins (up to 25x your wager) are rare but rewarding!</p>
               <p><strong>On-Chain:</strong> All deposits, withdrawals, and spin results are recorded on the Gorbagana blockchain. Balances are verified against your on-chain game state PDA.</p>
-              <p><strong>Currency:</strong> DEBRIS token (9 decimals) on Gorbagana network.</p>
+              <p><strong>Currency:</strong> SWEET token (9 decimals) on Gorbagana network.</p>
             </div>
           </div>
         </div>

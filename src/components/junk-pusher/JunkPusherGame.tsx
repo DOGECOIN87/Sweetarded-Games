@@ -83,7 +83,7 @@ const JunkPusherGame: React.FC = () => {
 
     const [gameState, setGameState] = useState<GameState>({
         score: 0,
-        balance: 100, // Start with 100 free DEBRIS tokens to try the game
+        balance: 100, // Start with 100 free SWEET tokens to try the game
         netProfit: 0,
         fps: 0,
         isPaused: false,
@@ -108,7 +108,7 @@ const JunkPusherGame: React.FC = () => {
             // Emit a WIN event every 10 coins collected
             if (next.score > 0 && Math.floor(next.score / 10) > lastScoreMilestoneRef.current) {
                 lastScoreMilestoneRef.current = Math.floor(next.score / 10);
-                pushGameEvent('WIN', `Player hit ${next.score} coins on Coinpusher (+${next.netProfit > 0 ? next.netProfit : 0} DEBRIS)`);
+                pushGameEvent('WIN', `Player hit ${next.score} coins on Coinpusher (+${next.netProfit > 0 ? next.netProfit : 0} SWEET)`);
             }
             // Periodic on-chain balance sync every 50 coins
             if (next.score > 0 && Math.floor(next.score / 50) > lastSyncScoreRef.current) {
@@ -309,7 +309,7 @@ const JunkPusherGame: React.FC = () => {
             engineRef.current.reset();
             setGameState({
                 score: 0,
-                balance: 100, // Reset with 100 free DEBRIS tokens
+                balance: 100, // Reset with 100 free SWEET tokens
                 netProfit: 0,
                 fps: currentState.fps,
                 isPaused: false,
@@ -328,7 +328,7 @@ const JunkPusherGame: React.FC = () => {
                 if (sig) {
                     // Credit the engine's internal balance so it stays in sync
                     engineRef.current?.addBalance(amount);
-                    pushGameEvent('DEPOSIT', `Player deposited ${amount} DEBRIS into Coinpusher`);
+                    pushGameEvent('DEPOSIT', `Player deposited ${amount} SWEET into Coinpusher`);
                 }
                 return sig;
             } catch (err) {
@@ -360,7 +360,7 @@ const JunkPusherGame: React.FC = () => {
                 } else {
                     setGameState(prev => ({ ...prev, balance: prev.balance - intAmount }));
                 }
-                pushGameEvent('WIN', `Player withdrew ${intAmount} DEBRIS from Coinpusher`);
+                pushGameEvent('WIN', `Player withdrew ${intAmount} SWEET from Coinpusher`);
             }
             return sig;
         } catch (err) {
@@ -428,7 +428,7 @@ const JunkPusherGame: React.FC = () => {
                             <img src="/assets/logo-circle-transparent.png" alt="" className="w-3.5 h-3.5" />
                             <span className="text-[#cbf30c]/70 font-bold tracking-widest uppercase">On-Chain</span>
                             {onChain.debrisBalance > 0 && (
-                                <span className="text-white/50 ml-0.5">{onChain.debrisBalance.toFixed(0)} DEBRIS</span>
+                                <span className="text-white/50 ml-0.5">{onChain.debrisBalance.toFixed(0)} SWEET</span>
                             )}
                         </div>
                     ) : (
