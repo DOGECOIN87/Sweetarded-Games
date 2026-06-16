@@ -41,6 +41,13 @@ const ECOSYSTEM: LinkItem[] = [
 
 const LinkButton = ({ item }: { item: LinkItem }) => {
   const a = ACCENT[item.accent];
+  let host = '';
+  try {
+    host = new URL(item.url).hostname;
+  } catch {
+    /* noop */
+  }
+  const favicon = `https://www.google.com/s2/favicons?domain=${host}&sz=128`;
   return (
     <a
       href={item.url}
@@ -48,13 +55,19 @@ const LinkButton = ({ item }: { item: LinkItem }) => {
       rel="noopener noreferrer"
       className={`group flex items-center gap-3 border border-white/10 bg-sweetardios-oxford/60 px-5 py-4 transition-all hover:-translate-y-0.5 ${a.border}`}
     >
-      {/* Logo auto-appears once /public/logos/<logo>.png exists; hidden if missing */}
+      {/* Logo: prefer a dropped /logos/<name>.png, fall back to the site favicon, then hide */}
       <img
         src={`/logos/${item.logo}.png`}
         alt=""
         className="h-8 w-8 shrink-0 object-contain"
         onError={(e) => {
-          (e.currentTarget as HTMLImageElement).style.display = 'none';
+          const img = e.currentTarget as HTMLImageElement;
+          if (img.dataset.fb !== '1') {
+            img.dataset.fb = '1';
+            img.src = favicon;
+          } else {
+            img.style.display = 'none';
+          }
         }}
       />
       <span className={`font-bold text-white transition-colors ${a.hoverText}`}>{item.name}</span>
