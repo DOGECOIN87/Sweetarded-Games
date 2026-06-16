@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { StickerMarquee } from './StickerPattern';
 import GetStarted from './GetStarted';
 
 const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
@@ -200,19 +199,8 @@ const Landing = () => (
       </div>
     </section>
 
-    {/* GET STARTED — onboarding from Solana + ecosystem/marketplace links */}
+    {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
-
-    {/* STICKER VAULT — scrolling sticker marquee */}
-    <section className="relative py-12">
-      <header className="mb-8 text-center">
-        <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cerise">Straight from the collection</p>
-        <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">The Sticker Vault</h2>
-      </header>
-      <div className="border-y border-sweetardios-violet/30 bg-sweetardios-oxford/40 py-6 backdrop-blur-sm">
-        <StickerMarquee />
-      </div>
-    </section>
 
     {/* FEATURES */}
     <section className="relative mx-auto max-w-6xl px-6 py-16">

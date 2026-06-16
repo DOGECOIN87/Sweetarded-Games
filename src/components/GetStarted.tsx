@@ -1,28 +1,17 @@
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-
-/* Foreground accents only — sits on the Oxford-blue background. */
+/* Marketplace + Cookie Chain ecosystem links. Foreground accents on Oxford bg. */
 const ACCENT = {
   cerise: {
     text: 'text-sweetardios-cerise',
     hoverText: 'group-hover:text-sweetardios-cerise',
     border: 'hover:border-sweetardios-cerise/60',
-    num: 'bg-sweetardios-cerise',
   },
   cyan: {
     text: 'text-sweetardios-cyan',
     hoverText: 'group-hover:text-sweetardios-cyan',
     border: 'hover:border-sweetardios-cyan/60',
-    num: 'bg-sweetardios-cyan',
   },
 } as const;
 type Accent = keyof typeof ACCENT;
-
-const STEPS: { n: number; icon: string; title: string; desc: string; accent: Accent }[] = [
-  { n: 1, icon: '👛', title: 'Get a Solana wallet', desc: 'Grab Phantom, Backpack or Solflare, then connect it.', accent: 'cerise' },
-  { n: 2, icon: '🍬', title: 'Grab a Sweetardio', desc: 'Mint or buy one on the marketplaces below (on Solana).', accent: 'cyan' },
-  { n: 3, icon: '🌉', title: 'Bridge to Cookie Chain', desc: 'Move from Solana over to the Cookie Chain.', accent: 'cerise' },
-  { n: 4, icon: '🎮', title: 'Play free', desc: 'Dive into Slots & Coinpusher — free for fun.', accent: 'cyan' },
-];
 
 interface LinkItem { name: string; url: string; logo: string; accent: Accent }
 
@@ -77,52 +66,26 @@ const LinkButton = ({ item }: { item: LinkItem }) => {
 };
 
 const GetStarted = () => (
-  <section id="start" className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
+  <section id="links" className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
     <header className="mb-12 text-center">
-      <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">New here?</p>
-      <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">Onboard from Solana</h2>
-      <p className="mx-auto mt-4 max-w-xl text-blue-100/70">
-        Four steps to go from a Solana wallet to playing on the{' '}
-        <span className="font-semibold text-sweetardios-cerise">Cookie Chain</span>.
-      </p>
+      <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">The Ecosystem</p>
+      <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">Links</h2>
     </header>
 
-    {/* Steps */}
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {STEPS.map((s) => {
-        const a = ACCENT[s.accent];
-        return (
-          <div key={s.n} className="relative border border-white/10 bg-sweetardios-oxford/50 p-6">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-3xl">{s.icon}</span>
-              <span className={`flex h-7 w-7 items-center justify-center text-sm font-extrabold text-sweetardios-oxford ${a.num}`}>{s.n}</span>
-            </div>
-            <h3 className={`font-heading text-lg text-white`}>{s.title}</h3>
-            <p className="mt-1.5 text-sm text-blue-100/60">{s.desc}</p>
-          </div>
-        );
-      })}
-    </div>
-
-    {/* Connect CTA */}
-    <div className="mt-8 flex justify-center">
-      <WalletMultiButton />
-    </div>
-
     {/* Marketplaces */}
-    <div className="mt-16">
+    <div className="mb-10">
       <h3 className="mb-5 text-center text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cerise">
-        Get a Sweetardio · Solana marketplaces
+        Marketplaces · Grab a Sweetardio
       </h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {MARKETPLACES.map((m) => <LinkButton key={m.name} item={m} />)}
       </div>
     </div>
 
-    {/* Ecosystem */}
-    <div className="mt-10">
+    {/* Cookie Chain ecosystem */}
+    <div>
       <h3 className="mb-5 text-center text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">
-        Cookie Chain ecosystem
+        Cookie Chain
       </h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {ECOSYSTEM.map((e) => <LinkButton key={e.name} item={e} />)}
