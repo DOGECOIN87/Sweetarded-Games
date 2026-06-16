@@ -24,7 +24,7 @@ const ALL = [
  * Staggered "sticker wall": a brick-offset grid of stickers, each bobbing on
  * its own delay so the whole field shimmers without moving in lockstep.
  */
-export const StickerWall = ({ cols = 9, rows = 7 }: { cols?: number; rows?: number }) => {
+export const StickerWall = ({ cols = 6, rows = 5 }: { cols?: number; rows?: number }) => {
   const cells = [];
   let k = 0;
   for (let r = 0; r < rows; r++) {
@@ -38,7 +38,7 @@ export const StickerWall = ({ cols = 9, rows = 7 }: { cols?: number; rows?: numb
         top: (r * 100) / (rows - 1 || 1),
         delay: ((r + c) % 6) * 0.5,
         dur: 6 + ((r * 3 + c) % 4),
-        size: 5 + ((r + c) % 3) * 1.1, // rem, varied (5–7.2)
+        size: 8.5 + ((r + c) % 3) * 1.8, // rem, varied (8.5–12.1) — large & crisp
         offset: stagger,
       });
     }
