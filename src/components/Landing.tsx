@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { StickerWall, StickerMarquee } from './StickerPattern';
+import GetStarted from './GetStarted';
 
 const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
 
@@ -100,6 +101,16 @@ const Landing = () => (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div className="sw-aurora absolute inset-0 opacity-70" />
       <div className="sw-scanlines absolute inset-0 opacity-40" />
+      {/* Mesh texture overlay — soft-light @ 32% (drop file at public/bg-texture.png) */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: 'url(/bg-texture.png)',
+          backgroundRepeat: 'repeat',
+          mixBlendMode: 'soft-light',
+          opacity: 0.32,
+        }}
+      />
     </div>
 
     {/* HERO */}
@@ -188,6 +199,9 @@ const Landing = () => (
         />
       </div>
     </section>
+
+    {/* GET STARTED — onboarding from Solana + ecosystem/marketplace links */}
+    <GetStarted />
 
     {/* STICKER VAULT — scrolling sticker marquee */}
     <section className="relative py-12">
