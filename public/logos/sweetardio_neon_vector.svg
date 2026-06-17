@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="2000" height="2000" viewBox="0 0 2000 2000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      .neon {
+        fill: none;
+        stroke: #ff2a2a;
+        stroke-width: 18;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: url(#glow);
+      }
+
+      .neonText {
+        fill: none;
+        stroke: #ff4d4d;
+        stroke-width: 10;
+        paint-order: stroke;
+        filter: url(#glow);
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 700;
+      }
+
+      .script {
+        font-family: "Brush Script MT", cursive;
+        font-style: italic;
+      }
+    </style>
+  </defs>
+
+  <!-- Outer Rings -->
+  <circle class="neon" cx="1000" cy="1000" r="760"/>
+  <circle class="neon" cx="1000" cy="1000" r="710"/>
+
+  <!-- HOT -->
+  <path class="neon" d="M760 600 Q1000 380 1240 600"/>
+  <text x="1000" y="470" text-anchor="middle" class="neonText" font-size="140">HOT</text>
+
+  <!-- Script Center -->
+  <line class="neon" x1="380" y1="760" x2="1620" y2="760"/>
+  <line class="neon" x1="380" y1="820" x2="1620" y2="820"/>
+  <text x="1000" y="980" text-anchor="middle" class="neonText script" font-size="300">
+    Sweetardio
+  </text>
+
+  <!-- COLLECTION -->
+  <rect class="neon" x="420" y="1030" rx="45" ry="45" width="1160" height="180"/>
+  <text x="1000" y="1160" text-anchor="middle" class="neonText" font-size="110" letter-spacing="14">
+    COLLECTION
+  </text>
+
+  <!-- NOW -->
+  <path class="neon" d="M820 1310 Q1000 1420 1180 1310"/>
+  <text x="1000" y="1540" text-anchor="middle" class="neonText" font-size="160" letter-spacing="12">
+    NOW
+  </text>
+</svg>
