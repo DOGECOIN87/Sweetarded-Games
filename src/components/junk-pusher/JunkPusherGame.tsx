@@ -401,9 +401,9 @@ const JunkPusherGame: React.FC = () => {
             {/* Rain overlay — renders over background, behind game */}
             <RainOverlay active={isRaining} />
 
-            {/* Mascot random event — rises from below behind the 3D canvas */}
+            {/* Mascot random event — Choppa Cone rises from below behind the 3D canvas */}
             <img
-                src="/assets/Tm-mascot.png"
+                src="/mascot.png"
                 alt=""
                 className="absolute left-1/2 pointer-events-none select-none"
                 style={{
