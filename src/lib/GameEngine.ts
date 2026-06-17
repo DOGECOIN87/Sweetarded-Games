@@ -261,7 +261,7 @@ export class GameEngine {
     return texture;
   }
 
-  /** Coin face: a clean gold SWEET token with a cerise rim. */
+  /** Coin face: a rich gold SWEET token with a cerise rim and a bold S. */
   private makeCoinTexture(size: number): THREE.CanvasTexture {
     const canvas = document.createElement('canvas');
     canvas.width = size;
@@ -271,38 +271,38 @@ export class GameEngine {
     const cy = size / 2;
     const R = size / 2;
 
-    // Gold metallic disc (offset highlight for a 3D coin look)
-    const disc = ctx.createRadialGradient(cx - R * 0.28, cy - R * 0.28, R * 0.1, cx, cy, R);
-    disc.addColorStop(0, '#fff6cf');
-    disc.addColorStop(0.5, '#f3c84f');
-    disc.addColorStop(1, '#b07d1d');
+    // Rich, saturated gold disc (won't blow out under bright scene lighting)
+    const disc = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R);
+    disc.addColorStop(0, '#ffd95e');
+    disc.addColorStop(0.5, '#e3a31c');
+    disc.addColorStop(1, '#8a5b0b');
     ctx.fillStyle = disc;
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.fill();
 
-    // Cerise rim
-    ctx.lineWidth = size * 0.08;
+    // Bold cerise rim
+    ctx.lineWidth = size * 0.1;
     ctx.strokeStyle = '#F715AB';
     ctx.beginPath();
     ctx.arc(cx, cy, R - ctx.lineWidth / 2, 0, Math.PI * 2);
     ctx.stroke();
 
     // Inner engraved ring
-    ctx.lineWidth = size * 0.018;
-    ctx.strokeStyle = 'rgba(120, 78, 18, 0.55)';
+    ctx.lineWidth = size * 0.022;
+    ctx.strokeStyle = 'rgba(70, 44, 6, 0.7)';
     ctx.beginPath();
-    ctx.arc(cx, cy, R * 0.72, 0, Math.PI * 2);
+    ctx.arc(cx, cy, R * 0.68, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Center "S" emblem, engraved with a highlight
-    ctx.font = `900 ${Math.round(size * 0.56)}px 'JetBrains Mono', monospace`;
+    // Bold "S" emblem (engrave + highlight)
+    ctx.font = `900 ${Math.round(size * 0.6)}px 'Arial Black', 'JetBrains Mono', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(120, 78, 18, 0.85)';
-    ctx.fillText('S', cx, cy + size * 0.03);
-    ctx.fillStyle = 'rgba(255, 246, 207, 0.55)';
-    ctx.fillText('S', cx - size * 0.006, cy + size * 0.02);
+    ctx.fillStyle = 'rgba(64, 40, 4, 0.92)';
+    ctx.fillText('S', cx, cy + size * 0.035);
+    ctx.fillStyle = 'rgba(255, 233, 150, 0.9)';
+    ctx.fillText('S', cx - size * 0.01, cy + size * 0.02);
 
     return new THREE.CanvasTexture(canvas);
   }
@@ -494,18 +494,26 @@ export class GameEngine {
       metalness: 0.6,
     });
 
+    // Self-lit (emissive) texture so the coin's gold/cerise/S reads even under
+    // the bright pusher spotlights (which otherwise blow the diffuse out to white).
     const faceMaterial = new THREE.MeshStandardMaterial({
-      color: 0xFFFFFF, // White to show texture colors accurately
+      color: 0x2a2a2a,
       map: coinTexture,
-      roughness: 0.5,
-      metalness: 0.25,
+      emissive: 0xffffff,
+      emissiveMap: coinTexture,
+      emissiveIntensity: 0.85,
+      roughness: 0.6,
+      metalness: 0.0,
     });
 
     const backFaceMaterial = new THREE.MeshStandardMaterial({
-      color: 0xFFFFFF, // White to show texture colors accurately
+      color: 0x2a2a2a,
       map: coinTexture,
-      roughness: 0.5,
-      metalness: 0.25,
+      emissive: 0xffffff,
+      emissiveMap: coinTexture,
+      emissiveIntensity: 0.85,
+      roughness: 0.6,
+      metalness: 0.0,
     });
 
     const materials = [sideMaterial, faceMaterial, backFaceMaterial];
