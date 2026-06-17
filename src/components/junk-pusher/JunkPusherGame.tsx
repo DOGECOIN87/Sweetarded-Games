@@ -407,9 +407,9 @@ const JunkPusherGame: React.FC = () => {
                 alt=""
                 className="absolute left-1/2 pointer-events-none select-none"
                 style={{
-                    bottom: '45%',
-                    width: '48%',
-                    maxWidth: '580px',
+                    bottom: '44%',
+                    width: '72%',
+                    maxWidth: '860px',
                     transform: `translateX(-50%) translateY(${
                         mascotPhase === 'hidden' || mascotPhase === 'falling' ? '110%' : '0%'
                     })`,

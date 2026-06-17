@@ -12,7 +12,7 @@ interface LogoWallProps {
  * A brick-staggered grid of the Sweetardios logo, each tile bobbing on its own
  * delay — our own version of the old staggered sticker wall.
  */
-export const LogoWall = ({ cols = 6, rows = 5, base = 5, opacity = 0.6 }: LogoWallProps) => {
+export const LogoWall = ({ cols = 5, rows = 4, base = 3.2, opacity = 0.5 }: LogoWallProps) => {
   const cells = [];
   let k = 0;
   for (let r = 0; r < rows; r++) {
@@ -34,10 +34,10 @@ export const LogoWall = ({ cols = 6, rows = 5, base = 5, opacity = 0.6 }: LogoWa
       {cells.map((cell) => (
         <img
           key={cell.k}
-          src="/sweetardios-logo.svg"
+          src="/logos/sweetardio_neon_vector.svg"
           alt=""
           loading="lazy"
-          className="sw-float absolute object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.4)]"
+          className="sw-float absolute object-contain drop-shadow-[0_0_10px_rgba(247,21,171,0.45)]"
           style={{
             left: `calc(${cell.left}% + ${cell.offset}%)`,
             top: `${cell.top}%`,

@@ -111,15 +111,15 @@ export class GameEngine {
 
     // 3. Lighting (Brightened)
 
-    // Hemisphere Light — green-tinted sky, deep green ground
-    const hemiLight = new THREE.HemisphereLight(0xccffcc, 0x0d3d24, 1.5);
+    // Hemisphere Light — neutral cool sky, deep Oxford ground (no green cast)
+    const hemiLight = new THREE.HemisphereLight(0xdfe9ff, 0x0a1230, 1.1);
     this.scene.add(hemiLight);
 
-    // Main Spotlight — cool green-white
+    // Main Spotlight — KEY light from the TOP-LEFT (camera looks down -z, so -x is left)
     const dirLight = new THREE.SpotLight(COLORS.LIGHT_MAIN, 1000);
-    dirLight.position.set(5, 18, 5);
+    dirLight.position.set(-12, 18, 6);
     dirLight.angle = Math.PI / 3;
-    dirLight.penumbra = 0.2;
+    dirLight.penumbra = 0.25;
     dirLight.decay = 1.5;
     dirLight.distance = 60;
     dirLight.castShadow = true;
@@ -128,20 +128,13 @@ export class GameEngine {
     dirLight.shadow.mapSize.height = 2048;
     this.scene.add(dirLight);
 
-    // Fill Light — purple tint (Oscar Purple accent)
-    const fillLight = new THREE.DirectionalLight(0x9945FF, 0.6);
-    fillLight.position.set(-5, 10, -5);
+    // Fill Light — soft violet from the opposite (right) side to balance the key
+    const fillLight = new THREE.DirectionalLight(0x9201CB, 0.5);
+    fillLight.position.set(9, 9, 4);
     this.scene.add(fillLight);
 
-    // Accent Light — Oscar Magenta brand accent
-    const accentLight = new THREE.PointLight(0xFF00FF, 80, 20);
-    accentLight.position.set(0, 3, -2);
-    this.scene.add(accentLight);
-
-    // Neon Green point light for brand glow
-    const greenAccent = new THREE.PointLight(0x0099ff, 40, 15);
-    greenAccent.position.set(0, 2, 3);
-    this.scene.add(greenAccent);
+    // Cerise + cyan brand accents are provided by the neon edge rails
+    // (built in buildStaticGeometry: cyan on the left wall, cerise on the right).
 
     // 4. Build Level
     this.buildStaticGeometry();
@@ -294,7 +287,7 @@ export class GameEngine {
     const pfThickness = 1;
 
     // Floor Material — stained, grimy metal
-    const floorTex = this.makeGrungeTexture(256, '#1a2a1a', '#0d1a0d');
+    const floorTex = this.makeGrungeTexture(256, '#0a1230', '#06102a');
     floorTex.repeat.set(2, 2);
     const floorMat = new THREE.MeshStandardMaterial({
       color: COLORS.FLOOR,
@@ -323,7 +316,7 @@ export class GameEngine {
     // Walls — rusted, stained metal
     const wallThickness = 0.5;
     const wallHeight = DIMENSIONS.WALL_HEIGHT;
-    const wallTex = this.makeGrungeTexture(256, '#1a3a2a', '#0a1f12');
+    const wallTex = this.makeGrungeTexture(256, '#0c1745', '#070f34');
     wallTex.repeat.set(3, 1);
     const wallMat = new THREE.MeshStandardMaterial({
       color: COLORS.CABINET,
@@ -352,6 +345,36 @@ export class GameEngine {
     createWall(pfWidth / 2 + wallThickness / 2, 0, wallThickness, pfLength);
     createWall(0, -pfLength / 2 - wallThickness / 2, pfWidth + wallThickness * 2, wallThickness);
 
+    // ── Neon edge rails (Sweetardios palette): cyan left wall, cerise right wall ──
+    const railLen = pfLength;          // run the full playfield length (z)
+    const railY = wallHeight - 0.32;   // sit near the top of the 2-unit side walls
+    const innerX = pfWidth / 2;        // inner face of the side walls (±4)
+
+    const makeNeonRail = (x: number, hex: number) => {
+      // Visible glowing neon tube along the top inner edge.
+      const geo = new THREE.BoxGeometry(0.12, 0.3, railLen);
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        emissive: hex,
+        emissiveIntensity: 2.8,
+        roughness: 0.4,
+        metalness: 0,
+      });
+      const bar = new THREE.Mesh(geo, mat);
+      bar.position.set(x, railY, 0);
+      this.scene.add(bar);
+
+      // Colored wash onto the bed + walls — two lights down the length for an even glow.
+      const inward = x > 0 ? -0.5 : 0.5;
+      for (const z of [-railLen / 4, railLen / 4]) {
+        const glow = new THREE.PointLight(hex, 45, 10, 1.7);
+        glow.position.set(x + inward, railY - 0.1, z);
+        this.scene.add(glow);
+      }
+    };
+
+    makeNeonRail(-innerX + 0.06, 0x34EDF3); // left rail — cyan
+    makeNeonRail(innerX - 0.06, 0xF715AB);  // right rail — cerise
   }
 
   private buildOcclusionPanel() {

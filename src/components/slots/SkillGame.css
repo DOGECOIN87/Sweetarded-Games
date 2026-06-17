@@ -148,6 +148,15 @@
   box-shadow: 0 0 15px rgba(247, 21, 171, 0.2);
 }
 
+/* Animated neon logo pattern layer — sits behind the reel grid */
+.skill-reel-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .skill-grid-container {
   flex: 1;
   display: grid;
@@ -156,6 +165,7 @@
   gap: clamp(6px, 1.5vmin, 15px);
   padding: clamp(10px, 2vmin, 30px);
   position: relative;
+  z-index: 1;
   min-height: 0;
 }
 

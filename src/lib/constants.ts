@@ -23,9 +23,9 @@ export const DIMENSIONS = {
 export const COLORS = {
   COIN: 0xD4A574, // Cookie golden brown
   COIN_EMISSIVE: 0x8B6F47, // Cookie edge brown
-  FLOOR: 0x1a2a1a, // Dark green-tinted floor
-  PUSHER: 0x4a5a4a, // Grey-green pusher
-  CABINET: 0x1a3a2a, // Deep green cabinet walls
-  LIGHT_AMBIENT: 0xeeffee, // Greenish-white ambient
-  LIGHT_MAIN: 0xddffd0, // Cool green-white spotlight
+  FLOOR: 0x0a1230, // Dark Oxford floor (coins pop against it)
+  PUSHER: 0x24306b, // Oxford/zaffre slate pusher
+  CABINET: 0x0c1745, // Deep Oxford cabinet walls
+  LIGHT_AMBIENT: 0xeef2ff, // Cool neutral ambient
+  LIGHT_MAIN: 0xfff4e6, // Soft warm-white key light (neutral, no green cast)
 };

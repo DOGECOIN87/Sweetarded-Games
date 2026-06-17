@@ -14,6 +14,7 @@ import './SkillGame.css';
 import BonusRound from './BonusRound';
 import AudioPlayer from '../junk-pusher/AudioPlayer';
 import { SlotsLeaderboard } from './SlotsLeaderboard';
+import { LogoWall } from '../LogoPattern';
 import { subscribeToSlotsConfig, DEFAULT_SLOTS_WEIGHTS, SLOTS_OUTCOME_META } from '../../services/gameConfigService';
 
 const SYMBOL_IMAGES = [
@@ -969,6 +970,10 @@ export default function SkillGame() {
 
         {/* Play Area */}
         <div className="skill-play-area">
+          {/* Animated neon logo pattern behind the reels */}
+          <div className="skill-reel-bg">
+            <LogoWall cols={5} rows={4} base={3.2} opacity={0.45} />
+          </div>
           <div className="skill-grid-container">
             {Array.from({ length: 9 }, (_, index) => {
               const value = grid[index];
