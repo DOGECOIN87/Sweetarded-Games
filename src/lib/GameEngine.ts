@@ -261,50 +261,25 @@ export class GameEngine {
     return texture;
   }
 
-  /** Coin face: a rich gold SWEET token with a cerise rim and a bold S. */
+  /** Coin face: the Sweetardio Collection logo medallion, drawn to fill the face. */
   private makeCoinTexture(size: number): THREE.CanvasTexture {
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d')!;
-    const cx = size / 2;
-    const cy = size / 2;
-    const R = size / 2;
+    const texture = new THREE.CanvasTexture(canvas);
 
-    // Rich, saturated gold disc (won't blow out under bright scene lighting)
-    const disc = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R);
-    disc.addColorStop(0, '#ffd95e');
-    disc.addColorStop(0.5, '#e3a31c');
-    disc.addColorStop(1, '#8a5b0b');
-    ctx.fillStyle = disc;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.fill();
+    // The logo is already a circular medallion — draw it to fill the coin face.
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, size, size);
+      const s = size * 1.06; // slight overscale so the medallion fills edge-to-edge
+      ctx.drawImage(img, (size - s) / 2, (size - s) / 2, s, s);
+      texture.needsUpdate = true;
+    };
+    img.src = '/coin.svg';
 
-    // Bold cerise rim
-    ctx.lineWidth = size * 0.1;
-    ctx.strokeStyle = '#F715AB';
-    ctx.beginPath();
-    ctx.arc(cx, cy, R - ctx.lineWidth / 2, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Inner engraved ring
-    ctx.lineWidth = size * 0.022;
-    ctx.strokeStyle = 'rgba(70, 44, 6, 0.7)';
-    ctx.beginPath();
-    ctx.arc(cx, cy, R * 0.68, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Bold "S" emblem (engrave + highlight)
-    ctx.font = `900 ${Math.round(size * 0.6)}px 'Arial Black', 'JetBrains Mono', sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(64, 40, 4, 0.92)';
-    ctx.fillText('S', cx, cy + size * 0.035);
-    ctx.fillStyle = 'rgba(255, 233, 150, 0.9)';
-    ctx.fillText('S', cx - size * 0.01, cy + size * 0.02);
-
-    return new THREE.CanvasTexture(canvas);
+    return texture;
   }
 
   private buildStaticGeometry() {
@@ -485,7 +460,7 @@ export class GameEngine {
     // Sweetardios character-coin texture
     const coinTexture = this.makeCoinTexture(512);
 
-    const edgeColor = 0xcba53c; // metallic gold rim
+    const edgeColor = 0x123c2c; // dark teal rim (matches the logo ring)
 
     // Create materials for the cylinder: [side, top, bottom]
     const sideMaterial = new THREE.MeshStandardMaterial({
@@ -501,7 +476,7 @@ export class GameEngine {
       map: coinTexture,
       emissive: 0xffffff,
       emissiveMap: coinTexture,
-      emissiveIntensity: 0.85,
+      emissiveIntensity: 0.7,
       roughness: 0.6,
       metalness: 0.0,
     });
@@ -511,7 +486,7 @@ export class GameEngine {
       map: coinTexture,
       emissive: 0xffffff,
       emissiveMap: coinTexture,
-      emissiveIntensity: 0.85,
+      emissiveIntensity: 0.7,
       roughness: 0.6,
       metalness: 0.0,
     });
