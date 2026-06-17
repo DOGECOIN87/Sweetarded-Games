@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import GetStarted from './GetStarted';
 
-const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Gorbagana', 'Bonus Rounds', 'Leaderboards'];
+const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Cookie Chain', 'Bonus Rounds', 'Leaderboards'];
 
 const FEATURES = [
   { icon: '🎮', title: 'Free to Play', desc: 'Jump in and play for fun — no tokens needed right now.' },
   { icon: '🏆', title: 'Live Leaderboards', desc: 'Climb the ranks and flex your high scores.' },
   { icon: '🍬', title: 'Sweetardios Cast', desc: 'Stickers and characters from the Sweetardios collection.' },
-  { icon: '⚡', title: 'Instant & Snappy', desc: 'Fast arcade gameplay, built on Gorbagana.' },
+  { icon: '⚡', title: 'Instant & Snappy', desc: 'Fast arcade gameplay, built for the Cookie Chain.' },
 ];
 
 const REEL = ['🍒', '🍩', '🍫', '🍬', '7️⃣', '🍭'];
@@ -131,10 +131,10 @@ const Landing = () => (
           </span>
 
           <h1 className="sw-rise font-heading text-6xl leading-[0.92] sm:text-8xl" style={{ animationDelay: '0.05s' }}>
-            <span className="sw-glow-cerise">SWEET</span><span className="sw-glow-cyan">ARDED</span>
+            <span className="sw-glow-cerise">SWEET</span><span className="sw-glow-cyan">ARDIO</span>
           </h1>
-          <div className="sw-rise sw-gradient-text font-heading mt-3 text-3xl tracking-[0.55em] sm:text-5xl" style={{ animationDelay: '0.12s' }}>
-            GAMES
+          <div className="sw-rise sw-gradient-text font-heading mt-3 text-3xl tracking-[0.5em] sm:text-5xl" style={{ animationDelay: '0.12s' }}>
+            .FUN
           </div>
 
           <p className="sw-rise mt-7 max-w-md text-base leading-relaxed text-blue-100/70 sm:text-lg" style={{ animationDelay: '0.18s' }}>
@@ -220,14 +220,14 @@ const Landing = () => (
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
         <div className="font-heading text-xl">
           <span className="sw-glow-cerise text-sweetardios-cerise">SWEET</span>
-          <span className="sw-glow-cyan text-sweetardios-cyan">ARDED</span>
-          <span className="ml-2 align-middle text-xs font-normal uppercase tracking-widest text-white/40">Games</span>
+          <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
+          <span className="ml-2 align-middle text-xs font-normal uppercase tracking-widest text-white/40">.fun</span>
         </div>
         <div className="flex items-center gap-6 text-sm text-blue-100/70">
           <Link to="/slots" className="transition-colors hover:text-sweetardios-cerise">Slots</Link>
           <Link to="/coinpusher" className="transition-colors hover:text-sweetardios-cyan">Coinpusher</Link>
         </div>
-        <p className="text-xs text-white/40">© Sweetardios · Built on Gorbagana</p>
+        <p className="text-xs text-white/40">© Sweetardios · Cookie Chain</p>
       </div>
     </footer>
   </div>

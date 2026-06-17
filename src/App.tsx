@@ -25,7 +25,7 @@ const AppInner: React.FC = () => (
           <img src="/sweetardios-logo.svg" alt="Sweetardios" className="h-9 w-9" />
           <span className="hidden sm:inline">
             <span className="sw-glow-cerise text-sweetardios-cerise">SWEET</span>
-            <span className="sw-glow-cyan text-sweetardios-cyan">ARDED</span>
+            <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
           </span>
         </Link>
         <Link to="/slots" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">

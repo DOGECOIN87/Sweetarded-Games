@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
  */
 const TIPS: Record<string, string[]> = {
   '/': [
-    "Yo! Welcome to Sweetarded Games — pick a game below to jump in.",
+    "Yo! Welcome to Sweetardio.fun — pick a game below to jump in.",
     "Everything's free to play for fun right now. Go nuts. 🍦",
     "I'm Choppa Cone, your guide. Tap me anytime for tips.",
   ],

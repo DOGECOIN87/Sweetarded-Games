@@ -17,22 +17,22 @@ import { SlotsLeaderboard } from './SlotsLeaderboard';
 import { subscribeToSlotsConfig, DEFAULT_SLOTS_WEIGHTS, SLOTS_OUTCOME_META } from '../../services/gameConfigService';
 
 const SYMBOL_IMAGES = [
-  '/armz/Arms_Cash.png',                            // 0 — Cash (jackpot)
-  '/armz/Nerf_Blaster.png',                         // 1
-  '/armz/AK15.png',                                 // 2
-  '/armz/Armz_Twinkie_Katana.png',                  // 3
-  '/armz/Armz_Gummy_worms_katana.png',              // 4
-  '/armz/Armz_Gummy_Bear_Knives.png',               // 5
-  '/armz/Armz_Marshmallow_knives.png',              // 6
-  '/armz/Armz_Katana_for_ice_cream_character.png',  // 7
-  '/armz/Armz_choc_cookie_katana.png',              // 8
-  '/sweetardios-logo.svg', // index 9 — Sweetardios BONUS symbol (ultra-rare)
+  '/symbols/cone.png',         // 0 — Ice-cream cone (jackpot)
+  '/symbols/twins.png',        // 1
+  '/symbols/gummy.png',        // 2
+  '/symbols/churro.png',       // 3
+  '/symbols/cookie.png',       // 4
+  '/symbols/waffle-gold.png',  // 5
+  '/symbols/waffle.png',       // 6
+  '/symbols/jar.png',          // 7
+  '/symbols/twinkie.png',      // 8
+  '/sweetardios-logo.svg',     // 9 — Sweetardios BONUS symbol (ultra-rare)
 ];
 
-// Payout multipliers (×wager). Index 9 (TM logo) pays 0 cash — triggers BONUS instead.
+// Payout multipliers (×wager). Index 9 (Sweetardios logo) pays 0 cash — triggers BONUS instead.
 const BASE_PAYOUTS = [25, 8, 4, 2.5, 1.5, 1.0, 0.7, 0.4, 0.2, 0];
 
-// Symbol weights — index 9 (TM logo) weight=1 makes it ultra-rare in any cell.
+// Symbol weights — index 9 (Sweetardios logo) weight=1 makes it ultra-rare in any cell.
 const GRID_WEIGHTS = [3, 5, 8, 11, 13, 15, 17, 19, 20, 1];
 const GRID_TOTAL_WEIGHT = GRID_WEIGHTS.reduce((a, b) => a + b, 0);
 
@@ -1164,7 +1164,7 @@ export default function SkillGame() {
         </div>
 
         <div className="skill-footer">
-          <span>SWEETARDED SLOTS</span>
+          <span>SWEETARDIO SLOTS</span>
           <span>Currency: SWEET</span>
           <span>SKL 402 83 PEN</span>
         </div>
