@@ -84,7 +84,7 @@ const GameCard = ({ to, variant, kicker, title, blurb, features }: GameCardProps
 
         <div className="relative mt-7">
           <span className={`sw-shine inline-flex items-center gap-2 ${btn} px-5 py-2.5 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford`}>
-            Play free <span className="transition-transform group-hover:translate-x-1">→</span>
+            Walk up to it <span className="transition-transform group-hover:translate-x-1">→</span>
           </span>
         </div>
       </div>
@@ -141,13 +141,11 @@ const Landing = () => (
             A sugar-coated arcade starring the <span className="font-semibold text-white">Sweetardios</span>. Two games, free to play.
           </p>
 
-          <div className="sw-rise mt-10 flex w-full flex-col items-center gap-3.5 sm:w-auto sm:flex-row" style={{ animationDelay: '0.24s' }}>
-            <Link to="/slots" className="sw-shine group inline-flex w-full items-center justify-center gap-2 bg-gradient-to-r from-[#ff5cc8] to-[#d40d8f] px-8 py-4 text-sm font-extrabold uppercase tracking-wider text-white shadow-[0_12px_34px_-10px_rgba(247,21,171,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_-10px_rgba(247,21,171,0.95)] sm:w-auto">
-              🎰 Play Slots <span className="transition-transform group-hover:translate-x-1">→</span>
+          <div className="sw-rise mt-10 flex w-full flex-col items-center gap-3.5" style={{ animationDelay: '0.24s' }}>
+            <Link to="/arcade" className="sw-shine group inline-flex w-full items-center justify-center gap-2 bg-gradient-to-r from-sweetardios-violet via-sweetardios-cerise to-sweetardios-cyan px-12 py-5 text-base font-extrabold uppercase tracking-wider text-white shadow-[0_16px_46px_-12px_rgba(146,1,203,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(247,21,171,0.95)] sm:w-auto sm:text-lg">
+              🕹️ Enter the Arcade <span className="transition-transform group-hover:translate-x-1">→</span>
             </Link>
-            <Link to="/coinpusher" className="sw-shine group inline-flex w-full items-center justify-center gap-2 bg-gradient-to-r from-[#6ef4f9] to-[#1fc6d4] px-8 py-4 text-sm font-extrabold uppercase tracking-wider text-sweetardios-oxford shadow-[0_12px_34px_-10px_rgba(52,237,243,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_48px_-10px_rgba(52,237,243,0.9)] sm:w-auto">
-              🪙 Play Coinpusher <span className="transition-transform group-hover:translate-x-1">→</span>
-            </Link>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-blue-100/45">Walk the scene · follow the neon arrows</p>
           </div>
         </div>
       </div>
@@ -177,11 +175,12 @@ const Landing = () => (
       <header className="mb-12 text-center">
         <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">The Arcade</p>
         <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">Pick your poison</h2>
+        <p className="mt-3 text-sm text-blue-100/55">Step into the scene and walk up to a machine.</p>
       </header>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <GameCard
-          to="/slots"
+          to="/arcade?to=slots"
           variant="slots"
           kicker="Reels of riches"
           title="Slots"
@@ -189,7 +188,7 @@ const Landing = () => (
           features={['Bonus rounds', 'Free to play', 'Live leaderboard']}
         />
         <GameCard
-          to="/coinpusher"
+          to="/arcade?to=pusher"
           variant="pusher"
           kicker="Drop · push · win"
           title="Coinpusher"
@@ -224,8 +223,7 @@ const Landing = () => (
           <span className="ml-2 align-middle text-xs font-normal uppercase tracking-widest text-white/40">.fun</span>
         </div>
         <div className="flex items-center gap-6 text-sm text-blue-100/70">
-          <Link to="/slots" className="transition-colors hover:text-sweetardios-cerise">Slots</Link>
-          <Link to="/coinpusher" className="transition-colors hover:text-sweetardios-cyan">Coinpusher</Link>
+          <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>
         </div>
         <p className="text-xs text-white/40">© Sweetardios · Cookie Chain</p>
       </div>

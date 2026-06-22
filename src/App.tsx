@@ -11,6 +11,7 @@ import SiteMusic from './components/SiteMusic';
 // Lazy-load each game so they stay independent code-split bundles
 const SlotsPage = lazy(() => import('./pages/Slots'));
 const JunkPusherPage = lazy(() => import('./pages/JunkPusher'));
+const ArcadePage = lazy(() => import('./pages/Arcade'));
 
 const NAV_HEIGHT = 56;
 
@@ -28,11 +29,8 @@ const AppInner: React.FC = () => (
             <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
           </span>
         </Link>
-        <Link to="/slots" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">
-          Slots
-        </Link>
-        <Link to="/coinpusher" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan">
-          Coinpusher
+        <Link to="/arcade" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">
+          Arcade
         </Link>
       </div>
       <WalletMultiButton />
@@ -48,6 +46,7 @@ const AppInner: React.FC = () => (
       >
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/arcade" element={<ArcadePage />} />
           <Route path="/slots" element={<SlotsPage />} />
           <Route path="/coinpusher" element={<JunkPusherPage />} />
         </Routes>

@@ -187,10 +187,107 @@ body {
 }
 .sw-eq { transform-origin: bottom; animation: sw-eq 0.8s ease-in-out infinite; }
 
+/* ============================================================
+   SWEETARDIOS — Arcade scene navigation (recreated neon arrows)
+   Glowing neon-tube arrows used to walk through the scene.
+   ============================================================ */
+
+/* The arrow button: positioning + click target only (no transform). */
+.sw-arrow-btn {
+  background: transparent;
+  border: 0;
+  padding: 0.5rem;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* FX wrapper — owns the (optional) floor tilt + hover scale. */
+.sw-arrow-fx {
+  display: block;
+  transform: var(--sw-tilt, rotateX(0deg));
+  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.sw-arrow-btn:hover .sw-arrow-fx,
+.sw-arrow-btn:focus-visible .sw-arrow-fx { transform: var(--sw-tilt, rotateX(0deg)) scale(1.13); }
+
+/* Bob wrapper — owns the directional invitation bob (screen-space). */
+.sw-arrow-bob { display: block; }
+@keyframes sw-bob-up    { 0%, 100% { transform: translateY(0); }    50% { transform: translateY(-10px); } }
+@keyframes sw-bob-down  { 0%, 100% { transform: translateY(0); }    50% { transform: translateY(10px); } }
+@keyframes sw-bob-left  { 0%, 100% { transform: translateX(0); }    50% { transform: translateX(-10px); } }
+@keyframes sw-bob-right { 0%, 100% { transform: translateX(0); }    50% { transform: translateX(10px); } }
+.sw-bob-up    { animation: sw-bob-up    2.4s ease-in-out infinite; }
+.sw-bob-down  { animation: sw-bob-down  2.4s ease-in-out infinite; }
+.sw-bob-left  { animation: sw-bob-left  2.4s ease-in-out infinite; }
+.sw-bob-right { animation: sw-bob-right 2.4s ease-in-out infinite; }
+
+/* The neon tube itself — cerise glow by default, cyan variant. */
+.sw-neon-arrow {
+  filter:
+    drop-shadow(0 0 3px #F715AB)
+    drop-shadow(0 0 9px rgba(247, 21, 171, 0.95))
+    drop-shadow(0 0 22px rgba(247, 21, 171, 0.6))
+    drop-shadow(0 0 48px rgba(247, 21, 171, 0.32));
+  transition: filter 0.22s ease;
+  animation: sw-neon-buzz 5.5s linear infinite;
+}
+.sw-neon-arrow.is-cyan {
+  filter:
+    drop-shadow(0 0 3px #34EDF3)
+    drop-shadow(0 0 9px rgba(52, 237, 243, 0.95))
+    drop-shadow(0 0 22px rgba(52, 237, 243, 0.55))
+    drop-shadow(0 0 48px rgba(52, 237, 243, 0.3));
+}
+.sw-arrow-btn:hover .sw-neon-arrow,
+.sw-arrow-btn:focus-visible .sw-neon-arrow {
+  filter:
+    drop-shadow(0 0 4px #fff)
+    drop-shadow(0 0 13px #F715AB)
+    drop-shadow(0 0 30px rgba(247, 21, 171, 1))
+    drop-shadow(0 0 66px rgba(247, 21, 171, 0.6));
+}
+.sw-arrow-btn:hover .sw-neon-arrow.is-cyan,
+.sw-arrow-btn:focus-visible .sw-neon-arrow.is-cyan {
+  filter:
+    drop-shadow(0 0 4px #fff)
+    drop-shadow(0 0 13px #34EDF3)
+    drop-shadow(0 0 30px rgba(52, 237, 243, 1))
+    drop-shadow(0 0 66px rgba(52, 237, 243, 0.55));
+}
+
+/* Faint tube flicker so the neon feels alive. */
+@keyframes sw-neon-buzz {
+  0%, 18%, 22%, 100% { opacity: 1; }
+  20% { opacity: 0.82; }
+  60%, 64% { opacity: 1; }
+  62% { opacity: 0.9; }
+}
+
+/* Cinematic scene transitions — "walking" through the scene. */
+@keyframes sw-scene-zoom-in  { from { opacity: 0; transform: scale(1.09); } to { opacity: 1; transform: scale(1); } }
+@keyframes sw-scene-zoom-out { from { opacity: 0; transform: scale(0.93); } to { opacity: 1; transform: scale(1); } }
+@keyframes sw-scene-pan-left  { from { opacity: 0; transform: translateX(7%) scale(1.04); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes sw-scene-pan-right { from { opacity: 0; transform: translateX(-7%) scale(1.04); } to { opacity: 1; transform: translateX(0) scale(1); } }
+.sw-scene-in-up    { animation: sw-scene-zoom-in  0.62s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.sw-scene-in-down  { animation: sw-scene-zoom-out 0.5s  ease both; }
+.sw-scene-in-left  { animation: sw-scene-pan-left  0.55s ease both; }
+.sw-scene-in-right { animation: sw-scene-pan-right 0.55s ease both; }
+
+/* Arrows / HUD fade in once a scene settles. */
+@keyframes sw-hud-in { from { opacity: 0; } to { opacity: 1; } }
+.sw-hud-in { animation: sw-hud-in 0.55s ease 0.18s both; }
+
+/* Step-into-the-game fade-to-black. */
+@keyframes sw-to-black { from { opacity: 0; } to { opacity: 1; } }
+.sw-to-black { animation: sw-to-black 0.32s ease both; }
+
 @media (prefers-reduced-motion: reduce) {
   .sw-aurora, .sw-float, .sw-twinkle, .sw-flicker, .sw-spin-slow,
   .sw-marquee-track, .sw-marquee-rev, .sw-gradient-text, .sw-pulse-glow, .sw-reel-track,
-  .sw-drop, .sw-eq, .animate-float-slow, .animate-scan-bar {
+  .sw-drop, .sw-eq, .animate-float-slow, .animate-scan-bar,
+  .sw-bob-up, .sw-bob-down, .sw-bob-left, .sw-bob-right, .sw-neon-arrow,
+  .sw-scene-in-up, .sw-scene-in-down, .sw-scene-in-left, .sw-scene-in-right, .sw-hud-in {
     animation: none !important;
   }
 }
