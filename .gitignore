@@ -22,3 +22,7 @@ dist-ssr
 .idea
 .DS_Store
 *.sw?
+
+# Large render artifacts (regenerate with scripts/render_lineage.sh)
+# ProRes 4444 masters are hundreds of MB — kept out of git; webm/mp4 are tracked.
+*.mov
