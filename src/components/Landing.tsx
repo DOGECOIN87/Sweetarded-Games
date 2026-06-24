@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import GetStarted from './GetStarted';
+import NeonArrow from './scene/NeonArrow';
 
 const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Cookie Chain', 'Bonus Rounds', 'Leaderboards'];
 
@@ -46,9 +47,11 @@ interface GameCardProps {
   title: string;
   blurb: string;
   features: string[];
+  arrowDir: 'left' | 'right';
+  arrowColor: 'cerise' | 'cyan';
 }
 
-const GameCard = ({ to, variant, kicker, title, blurb, features }: GameCardProps) => {
+const GameCard = ({ to, variant, kicker, title, blurb, features, arrowDir, arrowColor }: GameCardProps) => {
   const isSlots = variant === 'slots';
   const accentText = isSlots ? 'text-sweetardios-cerise' : 'text-sweetardios-cyan';
   const glow = isSlots ? 'sw-glow-cerise' : 'sw-glow-cyan';
@@ -58,7 +61,6 @@ const GameCard = ({ to, variant, kicker, title, blurb, features }: GameCardProps
   const hoverShadow = isSlots
     ? 'hover:shadow-[0_24px_70px_-20px_rgba(247,21,171,0.65)]'
     : 'hover:shadow-[0_24px_70px_-20px_rgba(52,237,243,0.6)]';
-  const btn = isSlots ? 'bg-sweetardios-cerise' : 'bg-sweetardios-cyan';
 
   return (
     <Link
@@ -82,17 +84,29 @@ const GameCard = ({ to, variant, kicker, title, blurb, features }: GameCardProps
           ))}
         </ul>
 
-        <div className="relative mt-7">
-          <span className={`sw-shine inline-flex items-center gap-2 ${btn} px-5 py-2.5 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford`}>
-            Walk up to it <span className="transition-transform group-hover:translate-x-1">→</span>
+        <div className="relative mt-7 flex items-center justify-between">
+          <span className={`sw-shine inline-flex items-center gap-2 px-5 py-2.5 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford`} style={{
+            background: isSlots ? '#F715AB' : '#34EDF3'
+          }}>
+            Walk up <span className="transition-transform group-hover:translate-x-1">→</span>
           </span>
+          <div className="opacity-60 transition-opacity group-hover:opacity-100">
+            <NeonArrow
+              dir={arrowDir}
+              label={`Go to ${title}`}
+              color={arrowColor}
+              size={56}
+              onClick={() => {}}
+              className="pointer-events-none"
+            />
+          </div>
         </div>
       </div>
     </Link>
   );
 };
 
-/* ── Landing page ──────────────────────────────────────────── */
+/* ── Landing page (now navigation hub) ──────────────────────── */
 
 const Landing = () => (
   <div className="relative text-white">
@@ -116,7 +130,7 @@ const Landing = () => (
       />
 
       {/* gradient-bordered glass panel */}
-      <div className="relative z-10 w-full max-w-3xl bg-gradient-to-br from-sweetardios-cerise/50 via-sweetardios-violet/25 to-sweetardios-cyan/50 p-px shadow-[0_50px_140px_-40px_rgba(0,0,0,0.95)]">
+      <div className="relative z-10 w-full max-w-4xl bg-gradient-to-br from-sweetardios-cerise/50 via-sweetardios-violet/25 to-sweetardios-cyan/50 p-px shadow-[0_50px_140px_-40px_rgba(0,0,0,0.95)]">
         <div className="relative flex flex-col items-center overflow-hidden bg-sweetardios-oxford/80 px-8 py-12 text-center backdrop-blur-2xl sm:px-16 sm:py-16">
           {/* top edge highlight */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -141,18 +155,11 @@ const Landing = () => (
             A sugar-coated arcade starring the <span className="font-semibold text-white">Sweetardios</span>. Two games, free to play.
           </p>
 
-          <div className="sw-rise mt-10 flex w-full flex-col items-center gap-3.5" style={{ animationDelay: '0.24s' }}>
-            <Link to="/arcade" className="sw-shine group inline-flex w-full items-center justify-center gap-2 bg-gradient-to-r from-sweetardios-violet via-sweetardios-cerise to-sweetardios-cyan px-12 py-5 text-base font-extrabold uppercase tracking-wider text-white shadow-[0_16px_46px_-12px_rgba(146,1,203,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(247,21,171,0.95)] sm:w-auto sm:text-lg">
-              🕹️ Enter the Arcade <span className="transition-transform group-hover:translate-x-1">→</span>
-            </Link>
-            <p className="text-[11px] uppercase tracking-[0.22em] text-blue-100/45">Walk the scene · follow the neon arrows</p>
-          </div>
+          <p className="sw-rise mt-4 text-xs uppercase tracking-[0.22em] text-sweetardios-cyan/70" style={{ animationDelay: '0.24s' }}>
+            ↙ Pick a game below ↘
+          </p>
         </div>
       </div>
-
-      <a href="#games" aria-label="Scroll to games" className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-white/35 transition-colors hover:text-white">
-        <span className="block animate-bounce text-xl">↓</span>
-      </a>
     </section>
 
     {/* TICKER */}
@@ -170,9 +177,9 @@ const Landing = () => (
       </div>
     </div>
 
-    {/* GAMES */}
-    <section id="games" className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
-      <header className="mb-12 text-center">
+    {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
+    <section className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
+      <header className="mb-16 text-center">
         <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">The Arcade</p>
         <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">Pick your poison</h2>
         <p className="mt-3 text-sm text-blue-100/55">Step into the scene and walk up to a machine.</p>
@@ -186,6 +193,8 @@ const Landing = () => (
           title="Slots"
           blurb="Spin sugar-coated reels packed with Sweetardio symbols. Land combos, trigger the bonus round, and climb the leaderboard."
           features={['Bonus rounds', 'Free to play', 'Live leaderboard']}
+          arrowDir="left"
+          arrowColor="cerise"
         />
         <GameCard
           to="/arcade?to=pusher"
@@ -194,6 +203,8 @@ const Landing = () => (
           title="Coinpusher"
           blurb="Rain candy tokens into the machine, stack the pile high, and shove the jackpot over the edge. Real physics, real chaos."
           features={['Real physics', 'Free to play', 'High scores']}
+          arrowDir="right"
+          arrowColor="cyan"
         />
       </div>
     </section>
