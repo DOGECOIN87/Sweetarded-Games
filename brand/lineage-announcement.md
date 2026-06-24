@@ -1,12 +1,14 @@
 # Sweetardios — Launch Announcement Copy
 
 Pairs with `public/video/sweetardios-lineage.webm` (the "Lineage" title sequence).
-Voice: mythic, confident, a wink of degen. Native to **Gorbagana**; arcade at **sweetardio.fun**.
+Voice: mythic, confident, a wink of degen.
+**Home chain:** Solana — specifically the **Cookie Chain 🍪 ($COOK)**, a community hard-fork
+of Gorbagana (which forks Solana). Arcade at **sweetardio.fun**.
 
 > **Posting tip:** X throttles posts stuffed with @mentions + links. Keep the hero post
-> clean (one tag + the video), and distribute the rest of the tags/links across a thread
-> or the first reply. A thread also gives each tagged project its own contextual mention,
-> which makes a repost from them far more likely.
+> clean (one or two tags + the video) and distribute the rest of the tags/links across a
+> thread or the first reply. A thread also gives each tagged project its own contextual
+> mention, which makes a repost from them far more likely.
 
 ---
 
@@ -14,15 +16,15 @@ Voice: mythic, confident, a wink of degen. Native to **Gorbagana**; arcade at **
 
 | Project / person | Handle | Confidence |
 | --- | --- | --- |
+| Solana (home chain) | `@solana` | ✅ high |
+| Cookie Chain ($COOK) | `@cookiechain` ⚠️ **confirm** — `cookiechain.wtf` | ⚠️ search is polluted by unrelated "cookie" tokens; verify the exact handle |
 | Milady Maker | `@MiladyMaker` | ✅ high |
 | Charlotte Fang (founder) | `@CharlotteFang77` | ✅ high |
 | Remilia Corporation | `@remiliacorp333` | ⚠️ active 2025 acct (`@remiliacorp` also exists) |
 | Retardio Cousins | `@fakeretardio` | ⚠️ also `@retardionews` / `@retardiosolana` |
-| Gorbagana | `@Gorbagana_chain` | ✅ high (official) |
-| Anatoly "Toly" Yakovenko | `@aeyakovenko` | ✅ high (blessed Gorbagana) |
-| Solana | `@solana` | ✅ high |
 | Magic Eden | `@MagicEden` | ✅ high |
 | Tensor | `@tensor_hq` | ✅ high |
+| Anatoly "Toly" Yakovenko (optional) | `@aeyakovenko` | ✅ Solana founder |
 
 Fill before posting: `[@your_handle]`, `[mint date]`, `[supply]`.
 
@@ -38,7 +40,8 @@ Then Remilia. Then the Retardios. Then the Gorbagios.
 
 Every bloodline has a final form. 🍬
 
-Introducing SWEETARDIOS — the sweetest mutation on @Gorbagana_chain.
+Introducing SWEETARDIOS — the sweetest mutation on @solana,
+baked fresh on the Cookie Chain 🍪.
 
 sweetardio.fun
 ```
@@ -47,14 +50,14 @@ sweetardio.fun
 
 ```
 Standing on the shoulders of giants —
-@MiladyMaker · @CharlotteFang77 · @remiliacorp333 · @fakeretardio · @Gorbagana_chain
+@MiladyMaker · @CharlotteFang77 · @remiliacorp333 · @fakeretardio
 
-Born in the trash, blessed by @aeyakovenko. 🗑️
+Built on @solana · baked on the Cookie Chain 🍪 ($COOK) · cookiechain.wtf
 🎰 Free arcade live now: sweetardio.fun
 🛒 @MagicEden · @tensor_hq
 Mint: [mint date]
 
-#Gorbagana #Milady #NFT #Solana
+#Solana #CookieChain #Milady #NFT
 ```
 
 ---
@@ -77,15 +80,17 @@ a PFP into a culture. (2022)
 4/ Then the bloodline broke free and ran wild — the @fakeretardio cousins,
 absurdity worn as a crown. (2024)
 
-5/ And the degenerates found their kingdom in the garbage: @Gorbagana_chain,
-the trash chain @aeyakovenko himself blessed. 🗑️ (2025)
+5/ The degenerates built a kingdom in the garbage — and when the dumpster
+settled, the crumbs reassembled into the Cookie Chain 🍪 ($COOK),
+a @solana fork. (2025)
 
 6/ Now — the heir arrives.
-SWEETARDIOS. The sweetest mutation of them all, native to @Gorbagana_chain.
+SWEETARDIOS. The sweetest mutation of them all, baked fresh on the
+Cookie Chain, on @solana.
 🎰 Free arcade: sweetardio.fun
 🛒 @MagicEden · @tensor_hq
 Mint: [mint date] · Supply: [supply]
-#Gorbagana #Milady #NFT
+#Solana #CookieChain #Milady
 ```
 
 ---
@@ -95,7 +100,8 @@ Mint: [mint date] · Supply: [supply]
 ```
 Milady → Remilia → Retardios → Gorbagios → 🍬 SWEETARDIOS
 
-The bloodline's final form has arrived on @Gorbagana_chain.
+The bloodline's final form, baked fresh on the Cookie Chain 🍪 ($COOK) —
+a @solana fork.
 
 Free arcade: sweetardio.fun
 [attach video]
@@ -104,5 +110,5 @@ Free arcade: sweetardio.fun
 ---
 
 ## Hashtag bank
-Primary: `#Gorbagana` `#GOR` `#Milady` `#Solana` `#NFT`
-Secondary: `#Remilia` `#Retardio` `#PFP` `#SVM`
+Primary: `#Solana` `#CookieChain` `#COOK` `#Milady` `#NFT`
+Secondary: `#Remilia` `#Retardio` `#PFP` `#Gorbagana` `#SVM`
