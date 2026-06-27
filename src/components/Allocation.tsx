@@ -1,10 +1,9 @@
 import { useState } from 'react';
 
 /**
- * Mint-proceeds / treasury allocation.
- *
- * NOTE: the Creators & Team share (35%) is the arithmetic remainder to 100%
- * (45 + 5 + 15 = 65). Confirm the figure/label before relying on it publicly.
+ * Mint-proceeds / treasury allocation (totals 100%):
+ *   Cookie Chain community 40% · Creators 40% · Partners 15% · Marketing 5%.
+ * The Creators wallet address has not been provided yet.
  */
 interface Bucket {
   label: string;
@@ -16,18 +15,18 @@ interface Bucket {
 
 const BUCKETS: Bucket[] = [
   {
-    label: '$Cook Community',
-    pct: 45,
+    label: 'Cookie Chain Community',
+    pct: 40,
     color: '#F715AB',
     blurb:
-      '40% ownership for the $Cook community plus 5% marketing. This is a $Cook wallet and belongs to the Cook community.',
+      'Ownership for the $Cook / Cookie Chain community. This is a $Cook wallet and belongs to the Cook community.',
     wallet: 'FDQtSAh8Lz1JUNA9qB6yduPyTns4yxtVrqi248dWuARa',
   },
   {
-    label: 'Creators & Team',
-    pct: 35,
+    label: 'Creators',
+    pct: 40,
     color: '#9201CB',
-    blurb: 'Allocated to the Sweetardio creators and team.',
+    blurb: 'Allocated to the Sweetardio creators.',
   },
   {
     label: 'Partners',
@@ -37,11 +36,11 @@ const BUCKETS: Bucket[] = [
     wallet: '9sLDbv3wDiWkWjGkRRMGvBiSFwhTV4dVxZMCe8sfyHpw',
   },
   {
-    label: 'Specials, Airdrops & Rewards',
+    label: 'Marketing',
     pct: 5,
     color: '#F7C815',
     blurb:
-      'Specials, airdrops and rewards from Sweetardio (to be determined). Funds stay here as $Cook until distributed to Sweetardio owners.',
+      'Marketing, plus specials, airdrops and rewards. Held as $Cook in this wallet until distributed to Sweetardio owners.',
     wallet: '7pYJTEXY5fTuqe4yUNuwCtKFFvWM7oDJJ8USsKzcEnJd',
   },
 ];
