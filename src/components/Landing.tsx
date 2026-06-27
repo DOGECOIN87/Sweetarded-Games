@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
+import Allocation from './Allocation';
 import GetStarted from './GetStarted';
+import Lineage from './Lineage';
 import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
@@ -236,8 +238,14 @@ const Landing = () => {
       </div>
     </div>
 
+    {/* HERITAGE — neochibi lineage story leading into the mint */}
+    <Lineage />
+
     {/* UPCOMING MINT — LaunchMyNFT embed */}
     <MintSection />
+
+    {/* MINT ALLOCATION — treasury / proceeds breakdown */}
+    <Allocation />
 
     {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
     <section className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
@@ -313,6 +321,7 @@ const Landing = () => {
           >
             Music
           </a>
+          <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>
           <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>
         </div>
         <p className="text-xs text-white/40">© Sweetardios · Cookie Chain</p>

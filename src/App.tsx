@@ -12,6 +12,7 @@ import SiteMusic from './components/SiteMusic';
 const SlotsPage = lazy(() => import('./pages/Slots'));
 const JunkPusherPage = lazy(() => import('./pages/JunkPusher'));
 const ArcadePage = lazy(() => import('./pages/Arcade'));
+const WhitelistPage = lazy(() => import('./pages/Whitelist'));
 
 const NAV_HEIGHT = 56;
 
@@ -32,11 +33,14 @@ const AppInner: React.FC = () => (
         <Link to="/arcade" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">
           Arcade
         </Link>
+        <Link to="/whitelist" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan">
+          Whitelist
+        </Link>
         <a
           href="https://www.launchmynft.io/mint/sweetardio"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan"
+          className="hidden text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan sm:inline"
         >
           Mint
         </a>
@@ -62,6 +66,7 @@ const AppInner: React.FC = () => (
       >
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/whitelist" element={<WhitelistPage />} />
           <Route path="/arcade" element={<ArcadePage />} />
           <Route path="/slots" element={<SlotsPage />} />
           <Route path="/coinpusher" element={<JunkPusherPage />} />

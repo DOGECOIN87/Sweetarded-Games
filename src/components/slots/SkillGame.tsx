@@ -1043,6 +1043,11 @@ export default function SkillGame() {
                 {showDepositUI ? 'Close' : 'Deposit / Withdraw'}
               </button>
             </>
+          ) : FREE_PLAY ? (
+            <div className="skill-wallet-info">
+              <span className="skill-wallet-label">Mode</span>
+              <span className="skill-wallet-balance">Free Play</span>
+            </div>
           ) : (
             <button
               className="skill-connect-btn"
@@ -1164,7 +1169,7 @@ export default function SkillGame() {
             onClick={handlePlay}
             disabled={isPlayDisabled || stage === 'CHOOSING_WILD' || gamePaused || (!connected ? false : balance < playLevel)}
           >
-            {gamePaused ? 'Paused' : connected ? playButtonText : 'Connect'}
+            {gamePaused ? 'Paused' : connected || FREE_PLAY ? playButtonText : 'Connect'}
           </button>
         </div>
 
