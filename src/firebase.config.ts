@@ -3,15 +3,18 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAuth, TwitterAuthProvider } from 'firebase/auth';
 
-// Firebase configuration - uses Vite environment variables (import.meta.env)
-// Set these in your .env file with the VITE_ prefix
+// Firebase configuration.
+// Defaults below are the Sweetardio project's PUBLIC web config (a Firebase web
+// API key is meant to ship in the browser — it's not a secret; access is
+// controlled by Firestore security rules). Override any value via a VITE_
+// environment variable when you need to point at a different project.
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "trashmarket.fun",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "trashmarket-fun",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "trashmarket-fun.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || ""
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCM-j6N7elfsWz1JIOW2FnZZWiigsjncsE",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "sweetardio.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "sweetardio",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "sweetardio.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "35596243141",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:35596243141:web:519f5efd5936da4a5020ac"
 };
 
 // Initialize Firebase
