@@ -214,11 +214,11 @@ export const Overlay: React.FC<OverlayProps> = ({
                     {/* Stats Group - Compact on mobile */}
                     <div className="flex flex-row sm:flex-col gap-1.5 sm:gap-2">
 
-                        {/* Debris (Balance) */}
+                        {/* Sweets (Balance) */}
                         <div className="relative group w-[120px] sm:w-[200px]">
                             <div className="absolute inset-0 bg-black/60 skew-x-[-12deg] border-r-2 border-green-500/40 group-hover:border-green-400 transition-colors"></div>
                             <div className="relative flex flex-col items-end pr-3 sm:pr-5 py-1 sm:py-2">
-                                <div className="text-[7px] sm:text-[9px] text-green-400 uppercase tracking-[0.2em] sm:tracking-[0.25em] font-bold mb-0.5 opacity-80 font-[Inter]">Debris</div>
+                                <div className="text-[7px] sm:text-[9px] text-green-400 uppercase tracking-[0.2em] sm:tracking-[0.25em] font-bold mb-0.5 opacity-80 font-[Inter]">Sweets</div>
                                 <div className={`text-lg sm:text-3xl font-bold font-heading tracking-wider sm:tracking-widest drop-shadow-[0_0_10px_rgba(0,255,0,0.3)] ${gameState.balance <= 0 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
                                     {gameState.balance}
                                 </div>
@@ -263,7 +263,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                 ) : (
                     <div className="flex flex-col items-center justify-start h-full pt-[12vh] sm:pt-[15vh] opacity-20">
                         <div className="w-[1px] h-8 sm:h-12 bg-green-500/50 mb-1 sm:mb-2"></div>
-                        <div className="text-[7px] sm:text-[8px] uppercase tracking-[0.3em] text-green-500/50 font-medium font-[Inter]">Insert Debris</div>
+                        <div className="text-[7px] sm:text-[8px] uppercase tracking-[0.3em] text-green-500/50 font-medium font-[Inter]">Insert Sweets</div>
                     </div>
                 )}
             </div>

@@ -1,6 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import GetStarted from './GetStarted';
-import NeonArrow from './scene/NeonArrow';
+import MintSection from './MintSection';
+import MusicFeature from './MusicFeature';
+import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
 
 const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Cookie Chain', 'Bonus Rounds', 'Leaderboards'];
 
@@ -106,9 +108,37 @@ const GameCard = ({ to, variant, kicker, title, blurb, features, arrowDir, arrow
   );
 };
 
+/* ── Hero navigation arrow (walks you into the arcade) ──────── */
+
+interface HeroArrowProps {
+  dir: ArrowDir;
+  color: ArrowColor;
+  caption: string;
+  label: string;
+  size: number;
+  floor?: boolean;
+  onClick: () => void;
+}
+
+const HeroArrow = ({ dir, color, caption, label, size, floor, onClick }: HeroArrowProps) => (
+  <div className="flex flex-col items-center gap-2">
+    <NeonArrow dir={dir} color={color} label={label} size={size} floor={floor} onClick={onClick} />
+    <span
+      className={`text-[10px] font-bold uppercase tracking-[0.22em] ${
+        color === 'cyan' ? 'text-sweetardios-cyan' : 'text-sweetardios-cerise'
+      }`}
+    >
+      {caption}
+    </span>
+  </div>
+);
+
 /* ── Landing page (now navigation hub) ──────────────────────── */
 
-const Landing = () => (
+const Landing = () => {
+  const navigate = useNavigate();
+
+  return (
   <div className="relative text-white">
     {/* Background: Sweetardio shop scene + Oxford tint */}
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -156,8 +186,37 @@ const Landing = () => (
           </p>
 
           <p className="sw-rise mt-4 text-xs uppercase tracking-[0.22em] text-sweetardios-cyan/70" style={{ animationDelay: '0.24s' }}>
-            ↙ Pick a game below ↘
+            Follow the neon — pick your way in
           </p>
+
+          {/* Navigation begins here: neon arrows walk you into the arcade */}
+          <div className="sw-rise mt-8 flex items-end justify-center gap-8 sm:gap-14" style={{ animationDelay: '0.32s' }}>
+            <HeroArrow
+              dir="left"
+              color="cerise"
+              caption="Slots"
+              label="Go to Slots"
+              size={62}
+              onClick={() => navigate('/arcade?to=slots')}
+            />
+            <HeroArrow
+              dir="up"
+              color="cerise"
+              caption="Enter Arcade"
+              label="Enter the Arcade"
+              size={84}
+              floor
+              onClick={() => navigate('/arcade')}
+            />
+            <HeroArrow
+              dir="right"
+              color="cyan"
+              caption="Coinpusher"
+              label="Go to Coinpusher"
+              size={62}
+              onClick={() => navigate('/arcade?to=pusher')}
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -176,6 +235,9 @@ const Landing = () => (
         ))}
       </div>
     </div>
+
+    {/* UPCOMING MINT — LaunchMyNFT embed */}
+    <MintSection />
 
     {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
     <section className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
@@ -209,6 +271,9 @@ const Landing = () => (
       </div>
     </section>
 
+    {/* HIGHLIGHTED MUSIC FEATURE — Audius player */}
+    <MusicFeature />
+
     {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
 
@@ -234,12 +299,27 @@ const Landing = () => (
           <span className="ml-2 align-middle text-xs font-normal uppercase tracking-widest text-white/40">.fun</span>
         </div>
         <div className="flex items-center gap-6 text-sm text-blue-100/70">
+          <a
+            href="#mint"
+            onClick={(e) => { e.preventDefault(); document.getElementById('mint')?.scrollIntoView({ behavior: 'smooth' }); }}
+            className="transition-colors hover:text-sweetardios-cerise"
+          >
+            Mint
+          </a>
+          <a
+            href="#music"
+            onClick={(e) => { e.preventDefault(); document.getElementById('music')?.scrollIntoView({ behavior: 'smooth' }); }}
+            className="transition-colors hover:text-sweetardios-cyan"
+          >
+            Music
+          </a>
           <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>
         </div>
         <p className="text-xs text-white/40">© Sweetardios · Cookie Chain</p>
       </div>
     </footer>
   </div>
-);
+  );
+};
 
 export default Landing;

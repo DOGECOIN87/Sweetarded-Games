@@ -34,7 +34,7 @@ export default function SlotsPage() {
                         </ol>
                     </div>
                     <p className="text-xs text-gray-500 mt-6">
-                        This game operates exclusively on Gorbagana using DEBRIS tokens.
+                        This game operates exclusively on Gorbagana using SWEET tokens.
                     </p>
                 </div>
             </div>

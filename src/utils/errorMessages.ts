@@ -10,7 +10,7 @@ const ANCHOR_ERROR_MAP: Record<number, string> = {
   // Standard Anchor errors (6000+)
   6000: 'Insufficient balance for this action.',
   6001: 'Game session not initialized. Please deposit first.',
-  6002: 'Invalid token — only DEBRIS is accepted.',
+  6002: 'Invalid token — only SWEET is accepted.',
   6003: 'Withdrawal exceeds verified winnings.',
   6004: 'Score exceeds maximum allowed value.',
   6005: 'Deposit amount exceeds maximum limit.',
@@ -51,12 +51,12 @@ const ERROR_PATTERNS: [RegExp, string][] = [
   [/Blockhash not found/i, 'Transaction expired. Please try again.'],
   [/block height exceeded/i, 'Transaction expired. Please try again.'],
   // Don't swallow simulation errors — let the actual error message through
-  [/Account does not exist/i, 'Token account not found. Deposit DEBRIS first.'],
+  [/Account does not exist/i, 'Token account not found. Deposit SWEET first.'],
   [/custom program error: 0x1\b/, 'Insufficient token balance for this transaction.'],
   [/0x1$/, 'Insufficient funds for transaction fees.'],
   [/0x0$/, 'Transaction failed — check your balance.'],
-  [/Attempt to debit an account but found no record/i, 'No token account found. Make sure you have DEBRIS tokens.'],
-  [/TokenAccountNotFoundError/i, 'DEBRIS token account not found in your wallet.'],
+  [/Attempt to debit an account but found no record/i, 'No token account found. Make sure you have SWEET tokens.'],
+  [/TokenAccountNotFoundError/i, 'SWEET token account not found in your wallet.'],
 ];
 
 /**

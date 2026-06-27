@@ -8,7 +8,7 @@ const JunkPusherGame = lazy(() => import('../components/junk-pusher/JunkPusherGa
  * Coinpusher Game Page
  * 
  * A Web3 arcade game where players can:
- * - Drop coins using DEBRIS tokens
+ * - Drop coins using SWEET tokens
  * - Compete on leaderboards
  * - Connect with Backpack wallet
  * 

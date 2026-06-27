@@ -1,6 +1,6 @@
 import React, { useMemo, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { NetworkProvider } from './contexts/NetworkContext';
 import { WalletProvider } from './contexts/WalletContext';
 import { DynamicConnectionProvider } from './contexts/DynamicConnectionProvider';
@@ -32,8 +32,24 @@ const AppInner: React.FC = () => (
         <Link to="/arcade" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">
           Arcade
         </Link>
+        <a
+          href="https://www.launchmynft.io/mint/sweetardio"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan"
+        >
+          Mint
+        </a>
       </div>
-      <WalletMultiButton />
+      <a
+        href="https://www.launchmynft.io/mint/sweetardio"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="sw-shine inline-flex items-center gap-2 px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5"
+        style={{ background: '#F715AB' }}
+      >
+        Mint Now <span aria-hidden>↗</span>
+      </a>
     </nav>
 
     <main>

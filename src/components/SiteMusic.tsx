@@ -5,6 +5,13 @@ import React, { useEffect, useRef, useState } from 'react';
  * first user gesture, so we arm a one-shot listener to start playback on the
  * first click/keypress, plus a floating toggle to mute/unmute.
  */
+/** Pause every other <audio> on the page so two sources never overlap. */
+const pauseOtherAudio = (except: HTMLAudioElement | null) => {
+  document.querySelectorAll('audio').forEach((el) => {
+    if (el !== except && !el.paused) el.pause();
+  });
+};
+
 const SiteMusic: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -13,7 +20,7 @@ const SiteMusic: React.FC = () => {
     const a = audioRef.current;
     if (!a) return;
     if (a.paused) {
-      a.play().then(() => setPlaying(true)).catch(() => {});
+      a.play().then(() => { pauseOtherAudio(a); setPlaying(true); }).catch(() => {});
     } else {
       a.pause();
       setPlaying(false);
@@ -26,7 +33,11 @@ const SiteMusic: React.FC = () => {
     if (!a) return;
     a.volume = 0.35;
     const start = () => {
-      a.play().then(() => setPlaying(true)).catch(() => {});
+      // Don't barge in if another player (e.g. the Audius feature) is already going.
+      const otherPlaying = [...document.querySelectorAll('audio')].some((el) => el !== a && !el.paused);
+      if (!otherPlaying) {
+        a.play().then(() => { pauseOtherAudio(a); setPlaying(true); }).catch(() => {});
+      }
       window.removeEventListener('pointerdown', start);
       window.removeEventListener('keydown', start);
     };

@@ -19,7 +19,7 @@ interface LinkItem { name: string; url: string; logo: string; accent: Accent }
 const MARKETPLACES: LinkItem[] = [
   { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cerise' },
   { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cyan' },
-  { name: 'LaunchMyNFT', url: 'https://launchmynft.io/', logo: 'launchmynft', accent: 'cerise' },
+  { name: 'Mint on LaunchMyNFT', url: 'https://www.launchmynft.io/mint/sweetardio', logo: 'launchmynft', accent: 'cerise' },
 ];
 
 // Cookie Chain ecosystem (extend with the full cookiechain.wtf list)

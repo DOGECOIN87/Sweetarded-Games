@@ -36,13 +36,16 @@ interface SceneDef {
   exits: Exit[];
 }
 
-/** Where each arrow sits over the scene. Back lives top-left, clear of the
- *  mascot (bottom-left) and music (bottom-right) widgets. */
+/** Where each arrow sits over the scene. The forward arrow floats above the
+ *  controls hint / bottom widgets; the branch arrows sit a touch below the
+ *  vertical centre so they never collide with the title block up top. Back
+ *  lives in the top-left corner, clear of the mascot (bottom-left) and music
+ *  (bottom-right) widgets. */
 const POS: Record<ArrowDir, string> = {
-  up: 'absolute bottom-[7%] left-1/2 -translate-x-1/2',
-  left: 'absolute top-1/2 left-[6%] -translate-y-1/2 sm:left-[10%]',
-  right: 'absolute top-1/2 right-[6%] -translate-y-1/2 sm:right-[10%]',
-  down: 'absolute left-4 top-4',
+  up: 'absolute bottom-[13%] left-1/2 -translate-x-1/2 sm:bottom-[15%]',
+  left: 'absolute top-[54%] left-[5%] -translate-y-1/2 sm:left-[9%]',
+  right: 'absolute top-[54%] right-[5%] -translate-y-1/2 sm:right-[9%]',
+  down: 'absolute left-4 top-4 sm:left-6 sm:top-6',
 };
 
 const SCENES: Record<SceneId, SceneDef> = {

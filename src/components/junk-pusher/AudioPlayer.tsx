@@ -1,39 +1,104 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const API_KEY = '545aaa48076fa070f9c312a294558e18613c1f5b';
-const BEARER_TOKEN = 'iE4Lsu39D7f5RuCoXP_6KrTftUAqV_gAvsAxk4CbpEo=';
-const APP_NAME = 'TRASHMARKET_FUN';
-// Always proxy via /audius-api — Vite handles this in dev, Cloudflare Pages Function in prod.
-const API_BASE = '/audius-api';
+/**
+ * Audius music player.
+ *
+ * Talks to the public Audius API directly — host discovery via api.audius.co,
+ * then the chosen discovery node. Public read endpoints (user / tracks / stream)
+ * only need an `app_name` query param, so no API key or bearer token is sent.
+ *
+ * Defaults to streaming the featured artist's own catalogue, falling back to
+ * Audius trending if the artist can't be resolved or has no public tracks.
+ */
+const env = import.meta.env as Record<string, string | undefined>;
+const APP_NAME = env.VITE_AUDIUS_APP_NAME || 'Sweetardio.fun';
+const ARTIST_HANDLE = env.VITE_AUDIUS_HANDLE || 'MATTRICKBEATS';
+export const ARTIST_URL = `https://audius.co/${ARTIST_HANDLE}`;
+
+// Used only if host discovery (api.audius.co) is unreachable.
+const FALLBACK_HOSTS = [
+  'https://discoveryprovider.audius.co',
+  'https://discoveryprovider2.audius.co',
+  'https://discoveryprovider3.audius.co',
+];
 
 interface AudiusTrack {
   id: string;
   title: string;
-  user: { name: string };
+  user: { name: string; handle?: string };
   artwork: { '150x150'?: string; '480x480'?: string; '1000x1000'?: string } | null;
   duration: number;
-  stream?: { url?: string } | null;
+  permalink?: string;
+  is_streamable?: boolean;
+  is_premium?: boolean;
 }
 
-async function fetchTracks(): Promise<AudiusTrack[]> {
+const qs = (host: string, path: string) =>
+  `${host}/v1${path}${path.includes('?') ? '&' : '?'}app_name=${encodeURIComponent(APP_NAME)}`;
+
+const pickRandom = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+/** Pause every other <audio> on the page so two sources never overlap. */
+function pauseOtherAudio(except: HTMLAudioElement | null) {
+  document.querySelectorAll('audio').forEach((el) => {
+    if (el !== except && !el.paused) el.pause();
+  });
+}
+
+const playable = (t: AudiusTrack) => t.is_streamable !== false && !t.is_premium;
+
+/** Resolve a healthy Audius discovery node (falls back to a known list). */
+async function resolveHost(): Promise<string> {
   try {
-    const res = await fetch(
-      `${API_BASE}/v1/tracks/trending?app_name=${APP_NAME}&limit=30`,
-      { headers: { 'X-API-KEY': API_KEY, 'Authorization': `Bearer ${BEARER_TOKEN}` } }
-    );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    return data.data ?? [];
-  } catch (e) {
-    console.warn('[AudiusPlayer] Failed to fetch tracks:', e);
+    const res = await fetch('https://api.audius.co');
+    if (res.ok) {
+      const json = await res.json();
+      const hosts: string[] = json?.data ?? [];
+      if (hosts.length) return pickRandom(hosts);
+    }
+  } catch {
+    /* fall through to the static list */
+  }
+  return pickRandom(FALLBACK_HOSTS);
+}
+
+/** The featured artist's public tracks (newest first), or [] if unavailable. */
+async function fetchArtistTracks(host: string): Promise<AudiusTrack[]> {
+  try {
+    const userRes = await fetch(qs(host, `/users/handle/${encodeURIComponent(ARTIST_HANDLE)}`));
+    if (!userRes.ok) return [];
+    const userId = (await userRes.json())?.data?.id;
+    if (!userId) return [];
+    const res = await fetch(qs(host, `/users/${userId}/tracks?limit=50&sort=date`));
+    if (!res.ok) return [];
+    return ((await res.json())?.data ?? []).filter(playable);
+  } catch {
     return [];
   }
 }
 
-const AudioPlayer: React.FC = () => {
+/** Audius trending — the fallback playlist. */
+async function fetchTrending(host: string): Promise<AudiusTrack[]> {
+  try {
+    const res = await fetch(qs(host, '/tracks/trending?limit=30'));
+    if (!res.ok) return [];
+    return ((await res.json())?.data ?? []).filter(playable);
+  } catch {
+    return [];
+  }
+}
+
+interface AudioPlayerProps {
+  /** Render the expanded card immediately (used when featured on the landing). */
+  startExpanded?: boolean;
+}
+
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ startExpanded = false }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   // shouldPlayRef = user intent: true means "play when ready", false means "stay paused"
   const shouldPlayRef = useRef(false);
+  // Resolved discovery node — needed to build per-track stream URLs.
+  const hostRef = useRef<string>(FALLBACK_HOSTS[0]);
 
   const [tracks, setTracks] = useState<AudiusTrack[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -44,14 +109,25 @@ const AudioPlayer: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(startExpanded);
 
   // Keep a ref to tracks so audio event callbacks don't go stale
   const tracksRef = useRef<AudiusTrack[]>([]);
   tracksRef.current = tracks;
 
   useEffect(() => {
-    fetchTracks().then(setTracks);
+    let cancelled = false;
+    (async () => {
+      const host = await resolveHost();
+      if (cancelled) return;
+      hostRef.current = host;
+      let list = await fetchArtistTracks(host);
+      if (!list.length) list = await fetchTrending(host);
+      if (!cancelled) setTracks(list);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Wire audio events once — use refs so closures never go stale
@@ -69,7 +145,11 @@ const AudioPlayer: React.FC = () => {
       const len = tracksRef.current.length;
       if (len > 0) setCurrentIndex(i => (i + 1) % len);
     };
-    const onPlay = () => { setIsPlaying(true); setIsBuffering(false); };
+    const onPlay = () => {
+      setIsPlaying(true);
+      setIsBuffering(false);
+      pauseOtherAudio(audio); // never play over the ambient site music
+    };
     const onPause = () => setIsPlaying(false);
     const onWaiting = () => setIsBuffering(true);
     const onCanPlay = () => setIsBuffering(false);
@@ -108,10 +188,8 @@ const AudioPlayer: React.FC = () => {
     const track = tracks[currentIndex];
     if (!audio || !track) return;
 
-    // Always use the proxy path as audio.src so it appears same-origin to the browser.
-    // In dev: Vite proxies /audius-api → api.audius.co and follows the CDN redirect.
-    // In prod: direct to api.audius.co (no extension CSP interference on deployed site).
-    const url = `${API_BASE}/v1/tracks/${track.id}/stream?app_name=${APP_NAME}`;
+    // Stream endpoint 302-redirects to the CDN audio; <audio> follows it natively.
+    const url = qs(hostRef.current, `/tracks/${track.id}/stream`);
     setProgress(0); setCurrentTime(0); setTotalDuration(0); setIsBuffering(false);
     audio.src = url;
     audio.volume = volume;
@@ -224,13 +302,20 @@ const AudioPlayer: React.FC = () => {
       {isExpanded && (
         <div className="rounded-2xl overflow-hidden" style={{ ...glass, width: 'clamp(220px, 45vw, 256px)' }}>
           <div className="flex items-center justify-between px-3 pt-2.5 pb-1">
-            <div className="flex items-center gap-1.5">
+            <a
+              href={ARTIST_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 transition-opacity hover:opacity-80"
+              onClick={e => e.stopPropagation()}
+              title="Listen on Audius"
+            >
               <AudiusLogo />
               <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#CC147F' }}>Audius</span>
               {tracks.length > 0 && (
                 <span className="text-white/15 text-[8px] font-mono ml-0.5">{currentIndex + 1}/{tracks.length}</span>
               )}
-            </div>
+            </a>
             <button onClick={() => setIsExpanded(false)} className="text-white/25 hover:text-white/70 transition-colors" style={{ fontSize: 14, lineHeight: 1 }}>✕</button>
           </div>
 
