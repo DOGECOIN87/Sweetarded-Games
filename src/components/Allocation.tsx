@@ -41,7 +41,7 @@ const BUCKETS: Bucket[] = [
     color: '#F7C815',
     blurb:
       'Marketing, plus specials, airdrops and rewards. Held as $Cook in this wallet until distributed to Sweetardio owners.',
-    wallet: '7pYJTEXY5fTuqe4yUNuwCtKFFvWM7oDJJ8USsKzcEnJd',
+    wallet: 'MmKJ9wR2aD9U8zfc5wVXCsXCwxBdxjoaeD4ijhn1BXf',
   },
 ];
 
