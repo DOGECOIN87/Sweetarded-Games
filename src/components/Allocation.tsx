@@ -3,7 +3,6 @@ import { useState } from 'react';
 /**
  * Mint-proceeds / treasury allocation (totals 100%):
  *   Cookie Chain community 40% · Creators 40% · Partners 15% · Marketing 5%.
- * The Creators wallet address has not been provided yet.
  */
 interface Bucket {
   label: string;
@@ -27,6 +26,7 @@ const BUCKETS: Bucket[] = [
     pct: 40,
     color: '#9201CB',
     blurb: 'Allocated to the Sweetardio creators.',
+    wallet: 'Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo',
   },
   {
     label: 'Partners',
