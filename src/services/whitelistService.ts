@@ -6,7 +6,7 @@
  * Requires the VITE_FIREBASE_* env vars to be set and Firestore rules that
  * allow creating documents in the `whitelist` collection.
  */
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { PublicKey } from '@solana/web3.js';
 import { db } from '../firebase.config';
 
@@ -14,7 +14,6 @@ export const WHITELIST_COLLECTION = 'whitelist';
 
 export interface WhitelistResult {
   ok: boolean;
-  alreadyListed?: boolean;
   message: string;
 }
 
@@ -51,20 +50,15 @@ export async function submitWhitelist(
   }
 
   const xHandle = normalizeHandle(xHandleInput);
-  const ref = doc(db, WHITELIST_COLLECTION, wallet);
 
   try {
-    const existing = await getDoc(ref);
-    if (existing.exists()) {
-      // Refresh the handle if they added/changed one, but report as already in.
-      if (xHandle) await setDoc(ref, { xHandle }, { merge: true });
-      return { ok: true, alreadyListed: true, message: 'You’re already on the whitelist — see you at mint! 🍬' };
-    }
-
-    await setDoc(ref, {
+    // Keyed by wallet → re-submitting just overwrites (idempotent). Write-only:
+    // the client never reads the collection, so the list stays private and the
+    // Firestore rules can deny all client reads.
+    await setDoc(doc(db, WHITELIST_COLLECTION, wallet), {
       wallet,
       xHandle: xHandle || null,
-      createdAt: serverTimestamp(),
+      submittedAt: serverTimestamp(),
     });
     return { ok: true, message: 'You’re on the list! We’ll see you on July 4. 🇺🇸🍬' };
   } catch (err) {
