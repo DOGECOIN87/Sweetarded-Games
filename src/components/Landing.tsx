@@ -15,34 +15,7 @@ const FEATURES = [
   { icon: '⚡', title: 'Instant & Snappy', desc: 'Fast arcade gameplay, built for the Cookie Chain.' },
 ];
 
-const REEL = ['🍒', '🍩', '🍫', '🍬', '7️⃣', '🍭'];
-
-/* ── Mini card visuals ─────────────────────────────────────── */
-
-const ReelVisual = () => (
-  <div className="flex gap-1.5 border border-sweetardios-cerise/30 bg-sweetardios-oxford/80 p-1.5 shadow-inner">
-    {[0, 1, 2].map((c) => (
-      <div key={c} className="h-14 w-10 overflow-hidden">
-        <div className="sw-reel-track flex flex-col" style={{ animationDelay: `${c * 0.25}s`, animationDuration: `${3 + c}s` }}>
-          {[...REEL, ...REEL].map((e, i) => (
-            <span key={i} className="flex h-14 w-10 shrink-0 items-center justify-center text-2xl">{e}</span>
-          ))}
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const CoinVisual = () => (
-  <div className="relative h-14 w-24 overflow-hidden border border-sweetardios-cyan/30 bg-sweetardios-oxford/80">
-    {[0, 1, 2, 3].map((i) => (
-      <span key={i} className="sw-drop absolute text-xl" style={{ left: `${8 + i * 22}%`, animationDelay: `${i * 0.6}s`, animationDuration: `${2.4 + (i % 2) * 0.6}s` }}>🪙</span>
-    ))}
-    <div className="absolute inset-x-0 bottom-0 h-2 bg-sweetardios-cyan/40" />
-  </div>
-);
-
-/* ── Game card ─────────────────────────────────────────────── */
+/* ── Game card (real gameplay clip preview) ────────────────── */
 
 interface GameCardProps {
   to: string;
@@ -51,11 +24,13 @@ interface GameCardProps {
   title: string;
   blurb: string;
   features: string[];
+  video: string;
+  poster: string;
   arrowDir: 'left' | 'right';
   arrowColor: 'cerise' | 'cyan';
 }
 
-const GameCard = ({ to, variant, kicker, title, blurb, features, arrowDir, arrowColor }: GameCardProps) => {
+const GameCard = ({ to, variant, kicker, title, blurb, features, video, poster, arrowDir, arrowColor }: GameCardProps) => {
   const isSlots = variant === 'slots';
   const accentText = isSlots ? 'text-sweetardios-cerise' : 'text-sweetardios-cyan';
   const glow = isSlots ? 'sw-glow-cerise' : 'sw-glow-cyan';
@@ -71,38 +46,61 @@ const GameCard = ({ to, variant, kicker, title, blurb, features, arrowDir, arrow
       to={to}
       className={`group relative block bg-gradient-to-br ${grad} p-px transition-all duration-300 hover:-translate-y-1.5 ${hoverShadow}`}
     >
-      <div className="relative h-full overflow-hidden bg-[#080f33]/95 p-7 backdrop-blur">
-        <div className="relative mb-6 flex items-start justify-between gap-4">
-          <div>
-            <p className={`text-xs font-bold uppercase tracking-[0.25em] ${accentText}`}>{kicker}</p>
-            <h3 className={`font-heading mt-1 text-3xl text-white ${glow}`}>{title}</h3>
+      <div className="relative flex h-full flex-col overflow-hidden bg-[#080f33]/95 backdrop-blur">
+        {/* Real gameplay clip */}
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-sweetardios-oxford">
+          <video
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            src={video}
+            poster={poster}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-label={`${title} gameplay preview`}
+          />
+          {/* fade the clip into the card body */}
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#080f33] via-[#080f33]/40 to-transparent" />
+
+          {/* live badge */}
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 border border-white/15 bg-black/55 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.2em] text-white/85 backdrop-blur">
+            <span className="h-1.5 w-1.5 animate-pulse bg-red-500" style={{ borderRadius: '9999px' }} /> Live gameplay
+          </span>
+
+          {/* title overlay */}
+          <div className="absolute inset-x-0 bottom-0 p-5">
+            <p className={`text-[10px] font-bold uppercase tracking-[0.25em] ${accentText}`}>{kicker}</p>
+            <h3 className={`font-heading text-3xl text-white ${glow}`}>{title}</h3>
           </div>
-          {isSlots ? <ReelVisual /> : <CoinVisual />}
         </div>
 
-        <p className="relative text-sm leading-relaxed text-blue-100/70">{blurb}</p>
+        {/* Body */}
+        <div className="flex flex-1 flex-col p-7 pt-5">
+          <p className="text-sm leading-relaxed text-blue-100/70">{blurb}</p>
 
-        <ul className="relative mt-5 flex flex-wrap gap-2">
-          {features.map((f) => (
-            <li key={f} className={`border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${accentText}`}>{f}</li>
-          ))}
-        </ul>
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {features.map((f) => (
+              <li key={f} className={`border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${accentText}`}>{f}</li>
+            ))}
+          </ul>
 
-        <div className="relative mt-7 flex items-center justify-between">
-          <span className={`sw-shine inline-flex items-center gap-2 px-5 py-2.5 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford`} style={{
-            background: isSlots ? '#F715AB' : '#34EDF3'
-          }}>
-            Walk up <span className="transition-transform group-hover:translate-x-1">→</span>
-          </span>
-          <div className="opacity-60 transition-opacity group-hover:opacity-100">
-            <NeonArrow
-              dir={arrowDir}
-              label={`Go to ${title}`}
-              color={arrowColor}
-              size={56}
-              onClick={() => {}}
-              className="pointer-events-none"
-            />
+          <div className="mt-auto flex items-center justify-between pt-7">
+            <span className="sw-shine inline-flex items-center gap-2 px-5 py-2.5 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford" style={{
+              background: isSlots ? '#F715AB' : '#34EDF3'
+            }}>
+              Walk up <span className="transition-transform group-hover:translate-x-1">→</span>
+            </span>
+            <div className="opacity-60 transition-opacity group-hover:opacity-100">
+              <NeonArrow
+                dir={arrowDir}
+                label={`Go to ${title}`}
+                color={arrowColor}
+                size={56}
+                onClick={() => {}}
+                className="pointer-events-none"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -263,6 +261,8 @@ const Landing = () => {
           title="Slots"
           blurb="Spin sugar-coated reels packed with Sweetardio symbols. Land combos, trigger the bonus round, and climb the leaderboard."
           features={['Bonus rounds', 'Free to play', 'Live leaderboard']}
+          video="/previews/slots.webm"
+          poster="/previews/slots-poster.png"
           arrowDir="left"
           arrowColor="cerise"
         />
@@ -273,6 +273,8 @@ const Landing = () => {
           title="Coinpusher"
           blurb="Rain candy tokens into the machine, stack the pile high, and shove the jackpot over the edge. Real physics, real chaos."
           features={['Real physics', 'Free to play', 'High scores']}
+          video="/previews/coinpusher.webm"
+          poster="/previews/coinpusher-poster.png"
           arrowDir="right"
           arrowColor="cyan"
         />
