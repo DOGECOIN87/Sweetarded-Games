@@ -6,13 +6,13 @@ import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
 
-const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Cookie Chain', 'Bonus Rounds', 'Leaderboards'];
+const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Bonus Rounds', 'Leaderboards'];
 
 const FEATURES = [
   { icon: '🎮', title: 'Free to Play', desc: 'Jump in and play for fun — no tokens needed right now.' },
   { icon: '🏆', title: 'Live Leaderboards', desc: 'Climb the ranks and flex your high scores.' },
   { icon: '🍬', title: 'Sweetardios Cast', desc: 'Stickers and characters from the Sweetardios collection.' },
-  { icon: '⚡', title: 'Instant & Snappy', desc: 'Fast arcade gameplay, built for the Cookie Chain.' },
+  { icon: '⚡', title: 'Instant & Snappy', desc: 'Fast arcade gameplay with instant, responsive feedback.' },
 ];
 
 /* ── Game card (real gameplay clip preview) ────────────────── */
@@ -326,7 +326,7 @@ const Landing = () => {
           <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>
           <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>
         </div>
-        <p className="text-xs text-white/40">© Sweetardios · Cookie Chain</p>
+        <p className="text-xs text-white/40">© Sweetardios</p>
       </div>
     </footer>
   </div>

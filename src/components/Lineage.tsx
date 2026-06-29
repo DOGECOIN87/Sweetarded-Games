@@ -10,8 +10,7 @@ interface Collection {
 }
 
 /**
- * The lineage, in order. Each collection links to its X profile. (Gorbagana is
- * intentionally omitted — see the approved heritage copy.)
+ * The lineage, in order. Each collection links to its X profile.
  */
 const COLLECTIONS: Collection[] = [
   { handle: 'MiladyMaker',    name: 'Milady Maker',   role: 'The original muse that started it all', accent: 'cerise' },
@@ -22,7 +21,6 @@ const COLLECTIONS: Collection[] = [
   { handle: 'PixeladyMaker',  name: 'Pixelady Maker', role: 'House of Remilia',                       accent: 'cyan' },
   { handle: 'SCHIZO_POSTERS', name: 'Schizo Posters', role: 'The fusion',                            accent: 'cerise' },
   { handle: 'retardiosolana', name: 'Retardio',       role: 'The wild Solana mutation',              accent: 'cyan' },
-  { handle: 'TheCookieChain', name: 'The Cookie Chain', role: 'The rise of the chain',               accent: 'cerise' },
 ];
 
 const ACCENT = {

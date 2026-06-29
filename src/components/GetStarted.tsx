@@ -1,4 +1,4 @@
-/* Marketplace + Cookie Chain ecosystem links. Foreground accents on Oxford bg. */
+/* Solana NFT marketplace links. Foreground accents on Oxford bg. */
 const ACCENT = {
   cerise: {
     text: 'text-sweetardios-cerise',
@@ -20,12 +20,6 @@ const MARKETPLACES: LinkItem[] = [
   { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cerise' },
   { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cyan' },
   { name: 'Mint on LaunchMyNFT', url: 'https://www.launchmynft.io/mint/sweetardio', logo: 'launchmynft', accent: 'cerise' },
-];
-
-// Cookie Chain ecosystem (extend with the full cookiechain.wtf list)
-const ECOSYSTEM: LinkItem[] = [
-  { name: 'Cookie Chain', url: 'https://www.cookiechain.wtf/', logo: 'cookiechain', accent: 'cyan' },
-  { name: 'Cookiescan', url: 'https://cookiescan.io/', logo: 'cookiescan', accent: 'cerise' },
 ];
 
 const LinkButton = ({ item }: { item: LinkItem }) => {
@@ -73,22 +67,12 @@ const GetStarted = () => (
     </header>
 
     {/* Marketplaces */}
-    <div className="mb-10">
+    <div>
       <h3 className="mb-5 text-center text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cerise">
         Marketplaces · Grab a Sweetardio
       </h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {MARKETPLACES.map((m) => <LinkButton key={m.name} item={m} />)}
-      </div>
-    </div>
-
-    {/* Cookie Chain ecosystem */}
-    <div>
-      <h3 className="mb-5 text-center text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">
-        Cookie Chain
-      </h3>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {ECOSYSTEM.map((e) => <LinkButton key={e.name} item={e} />)}
       </div>
     </div>
   </section>

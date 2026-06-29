@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 /**
  * Mint-proceeds / treasury allocation (totals 100%):
- *   Cookie Chain community 40% · Creators 40% · Partners 15% · Marketing 5%.
+ *   Community 40% · Creators 40% · Partners 15% · Bonuses 5%.
  */
 interface Bucket {
   label: string;
@@ -14,11 +14,11 @@ interface Bucket {
 
 const BUCKETS: Bucket[] = [
   {
-    label: 'Cookie Chain Community',
+    label: 'Community',
     pct: 40,
     color: '#F715AB',
     blurb:
-      'Ownership for the $Cook / Cookie Chain community. This is a $Cook wallet and belongs to the Cook community.',
+      'Ownership reserved for the Sweetardio community.',
     wallet: 'FDQtSAh8Lz1JUNA9qB6yduPyTns4yxtVrqi248dWuARa',
   },
   {
@@ -36,11 +36,11 @@ const BUCKETS: Bucket[] = [
     wallet: '9sLDbv3wDiWkWjGkRRMGvBiSFwhTV4dVxZMCe8sfyHpw',
   },
   {
-    label: 'Marketing',
+    label: 'Bonuses',
     pct: 5,
     color: '#F7C815',
     blurb:
-      'Marketing, plus specials, airdrops and rewards. Held as $Cook in this wallet until distributed to Sweetardio owners.',
+      'Specials, airdrops and rewards, distributed to Sweetardio owners.',
     wallet: 'MmKJ9wR2aD9U8zfc5wVXCsXCwxBdxjoaeD4ijhn1BXf',
   },
 ];
