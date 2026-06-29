@@ -14,6 +14,8 @@ import './SkillGame.css';
 import BonusRound from './BonusRound';
 import AudioPlayer from '../junk-pusher/AudioPlayer';
 import { SlotsLeaderboard } from './SlotsLeaderboard';
+import { submitScore } from '../../services/leaderboardService';
+import { resolvePlayer } from '../../lib/playerIdentity';
 import { LogoWall } from '../LogoPattern';
 import { subscribeToSlotsConfig, DEFAULT_SLOTS_WEIGHTS, SLOTS_OUTCOME_META } from '../../services/gameConfigService';
 
@@ -304,6 +306,7 @@ export default function SkillGame() {
   const balanceRestoredRef = useRef(false);
   const lastSyncedBalanceRef = useRef(0);
   const spinCountRef = useRef(0);
+  const lastLeaderboardSubmitRef = useRef(0);
 
   const isAnimating = spinningCells.some(Boolean);
 
@@ -645,6 +648,25 @@ export default function SkillGame() {
       }
     } else if (!won) {
       setStatusMessage('Try Again');
+    }
+
+    // Submit standing to the leaderboard (fire-and-forget). Wins post
+    // immediately; otherwise throttle to avoid hammering Firestore on a
+    // rapid-fire session. Works in free play (anonymous handle) and when a
+    // wallet is connected (keyed by address).
+    const finalBalance = balance + (won && winAmount > 0 ? winAmount : 0);
+    const finalNetProfit = netProfit + (won && winAmount > 0 ? winAmount : 0);
+    const nowTs = Date.now();
+    if ((won && winAmount > 0) || nowTs - lastLeaderboardSubmitRef.current > 4000) {
+      lastLeaderboardSubmitRef.current = nowTs;
+      const { player, name } = resolvePlayer(publicKey?.toBase58() ?? null);
+      submitScore('slots', {
+        player,
+        name,
+        score: 0,
+        balance: finalBalance,
+        netProfit: finalNetProfit,
+      });
     }
 
     // Record spin result on-chain (fire-and-forget)

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getTopProfits, getHighScores, getPlayerRank, HighScoreEntry } from '../../lib/highScoreService';
-import { GORBAGANA_CONFIG } from '../../contexts/NetworkContext';
-import { PROGRAM_ID } from '../../lib/JunkPusherClient';
+import {
+  getLeaderboard,
+  findPlayerRank,
+  type LeaderboardEntry,
+  type SortField,
+} from '../../services/leaderboardService';
+import { currentPlayerId, shortAddress } from '../../lib/playerIdentity';
 
 interface SlotsLeaderboardProps {
   isOpen: boolean;
@@ -11,8 +14,8 @@ interface SlotsLeaderboardProps {
 }
 
 export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onClose }) => {
-  const { publicKey, connected } = useWallet();
-  const [scores, setScores] = useState<HighScoreEntry[]>([]);
+  const { publicKey } = useWallet();
+  const [scores, setScores] = useState<LeaderboardEntry[]>([]);
   const [playerRank, setPlayerRank] = useState<{ rank: number; total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'profit' | 'balance'>('profit');
@@ -28,33 +31,19 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
     setIsLoading(true);
     setError(null);
     try {
-      const connection = new Connection(GORBAGANA_CONFIG.rpcEndpoint, 'confirmed');
-      const programId = new PublicKey(import.meta.env.VITE_SOLANA_PROGRAM_ID || PROGRAM_ID.toBase58());
-
-      let data: HighScoreEntry[] = [];
-      if (activeTab === 'profit') {
-        data = await getTopProfits(connection, programId, 100);
-      } else {
-        // Sort by balance for the balance tab
-        data = await getHighScores(connection, programId, 100);
-        data = [...data].sort((a, b) => b.balance - a.balance).map((e, i) => ({ ...e, rank: i + 1 }));
-      }
+      const sortBy: SortField = activeTab === 'profit' ? 'netProfit' : 'balance';
+      const data = await getLeaderboard('slots', sortBy, 100);
       setScores(data);
 
-      if (connected && publicKey) {
-        const { rank, total } = await getPlayerRank(connection, programId, publicKey);
-        setPlayerRank({ rank, total });
-      }
+      const me = currentPlayerId(publicKey?.toBase58() ?? null);
+      setPlayerRank(findPlayerRank(data, me));
     } catch (err) {
       console.error('Error loading slots leaderboard:', err);
-      setError('Failed to load leaderboard data. The on-chain program may not be deployed yet.');
+      setError('Failed to load leaderboard data. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-
-  const formatAddress = (address: string) =>
-    `${address.slice(0, 4)}...${address.slice(-4)}`;
 
   const formatTimestamp = (timestamp: number) => {
     if (!timestamp || timestamp === 0) return '—';
@@ -62,6 +51,8 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
   };
 
   if (!isOpen) return null;
+
+  const me = currentPlayerId(publicKey?.toBase58() ?? null);
 
   return (
     <div
@@ -75,6 +66,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 text-gray-500 hover:text-white transition-colors"
+            aria-label="Close leaderboard"
             title="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,10 +85,10 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
             </h2>
           </div>
           <p className="text-gray-500 text-xs font-mono uppercase tracking-wider">
-            Skill Game · Top players on the Gorbagana blockchain
+            Skill Game · Top players
           </p>
 
-          {connected && playerRank && playerRank.rank > 0 && (
+          {playerRank && playerRank.rank > 0 && (
             <div className="mt-4 p-3 bg-black border border-magic-blue/30">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500 text-xs uppercase font-bold">Your Rank</span>
@@ -173,7 +165,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
 
               {/* Rows */}
               {scores.map((entry) => {
-                const isCurrentPlayer = publicKey?.toBase58() === entry.player;
+                const isCurrentPlayer = me === entry.player;
                 const primaryValue = activeTab === 'profit' ? entry.netProfit : entry.balance;
                 const secondaryValue = activeTab === 'profit' ? entry.balance : entry.netProfit;
                 return (
@@ -204,9 +196,9 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
                     <div className="p-3 min-w-0">
                       <div className="font-mono text-sm text-white truncate">
                         {isCurrentPlayer ? (
-                          <span className="text-magic-blue font-bold">You</span>
+                          <span className="text-magic-blue font-bold">{entry.name || 'You'}</span>
                         ) : (
-                          formatAddress(entry.player)
+                          entry.name || shortAddress(entry.player)
                         )}
                       </div>
                       <div className="text-[10px] text-gray-600 font-mono">
@@ -242,7 +234,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
         <div className="border-t border-white/20 bg-magic-card p-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-gray-600 font-mono uppercase tracking-wider">
-              Data from Gorbagana blockchain
+              Live leaderboard
             </span>
             <button
               onClick={loadScores}

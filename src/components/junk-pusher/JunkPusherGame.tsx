@@ -12,6 +12,8 @@ import { setupAutoSave, loadGameState, clearGameState } from '../../lib/statePer
 import { soundManager } from '../../lib/soundManager';
 import { pushGameEvent } from '../../services/activityService';
 import { subscribeToJunkPusherConfig } from '../../services/gameConfigService';
+import { submitScore } from '../../services/leaderboardService';
+import { resolvePlayer } from '../../lib/playerIdentity';
 import { PublicKey } from '@solana/web3.js';
 
 type MascotPhase = 'hidden' | 'rising' | 'visible' | 'falling';
@@ -109,6 +111,16 @@ const JunkPusherGame: React.FC = () => {
             if (next.score > 0 && Math.floor(next.score / 10) > lastScoreMilestoneRef.current) {
                 lastScoreMilestoneRef.current = Math.floor(next.score / 10);
                 pushGameEvent('WIN', `Player hit ${next.score} coins on Coinpusher (+${next.netProfit > 0 ? next.netProfit : 0} SWEET)`);
+                // Post standing to the leaderboard (fire-and-forget). Works in
+                // free play (anonymous handle) and when a wallet is connected.
+                const { player, name } = resolvePlayer(walletKeyRef.current);
+                submitScore('coinpusher', {
+                    player,
+                    name,
+                    score: next.score,
+                    balance: next.balance,
+                    netProfit: next.netProfit,
+                });
             }
             // Periodic on-chain balance sync every 50 coins
             if (next.score > 0 && Math.floor(next.score / 50) > lastSyncScoreRef.current) {

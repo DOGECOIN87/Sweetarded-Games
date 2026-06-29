@@ -34,8 +34,38 @@ service cloud.firestore {
         && d.submittedAt == request.time;             // server timestamp only
     }
 
+    // ── Arcade leaderboards ────────────────────────────────────────────
+    // One document per player (keyed by wallet address, or an anonymous
+    // free-play id). Publicly readable so the board renders for everyone;
+    // writes are validated for shape and clamped to sane ranges. The board is
+    // client-written, so it is NOT tamper-proof — these rules only stop
+    // malformed / absurd documents, which is the standard arcade trade-off.
+    match /leaderboard_slots/{player} {
+      allow read: if true;
+      allow create, update: if isValidLeaderboardEntry(player);
+    }
+
+    match /leaderboard_coinpusher/{player} {
+      allow read: if true;
+      allow create, update: if isValidLeaderboardEntry(player);
+    }
+
+    function isValidLeaderboardEntry(playerId) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['player', 'name', 'score', 'balance', 'netProfit', 'updatedAt'])
+        && d.player is string
+        && d.player == playerId                        // doc id must equal the player key
+        && d.player.size() >= 1 && d.player.size() <= 64
+        && d.name is string && d.name.size() <= 24
+        && d.score is int && d.score >= 0 && d.score <= 1000000000000000
+        && d.balance is int && d.balance >= 0 && d.balance <= 1000000000000000
+        && d.netProfit is int
+        && d.netProfit >= -1000000000000000 && d.netProfit <= 1000000000000000
+        && d.updatedAt == request.time;                // server timestamp only
+    }
+
     // ── Your other collections ─────────────────────────────────────────
-    // Keep whatever rules you already have for leaderboards, listings, etc.
+    // Keep whatever rules you already have for listings, game config, etc.
     // Anything not matched above is denied by default.
   }
 }

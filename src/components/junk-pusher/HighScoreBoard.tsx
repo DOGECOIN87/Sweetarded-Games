@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
 import { useGameWallet } from './WalletAdapter';
-import { getHighScores, getTopProfits, getPlayerRank, HighScoreEntry } from '../../lib/highScoreService';
+import {
+  getLeaderboard,
+  findPlayerRank,
+  type LeaderboardEntry,
+  type SortField,
+} from '../../services/leaderboardService';
+import { currentPlayerId, shortAddress } from '../../lib/playerIdentity';
 import { soundManager } from '../../lib/soundManager';
-import { GORBAGANA_CONFIG } from '../../contexts/NetworkContext';
 
 interface HighScoreBoardProps {
   isOpen: boolean;
@@ -12,7 +16,7 @@ interface HighScoreBoardProps {
 
 export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose }) => {
   const wallet = useGameWallet();
-  const [scores, setScores] = useState<HighScoreEntry[]>([]);
+  const [scores, setScores] = useState<LeaderboardEntry[]>([]);
   const [playerRank, setPlayerRank] = useState<{ rank: number; total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'score' | 'profit'>('score');
@@ -28,35 +32,18 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
     setIsLoading(true);
     setError(null);
     try {
-      const connection = new Connection(GORBAGANA_CONFIG.rpcEndpoint, 'confirmed');
-      const programId = new PublicKey(import.meta.env.VITE_SOLANA_PROGRAM_ID || '11111111111111111111111111111111');
-
-      let data: HighScoreEntry[] = [];
-      if (activeTab === 'score') {
-        data = await getHighScores(connection, programId, 100);
-      } else {
-        data = await getTopProfits(connection, programId, 100);
-      }
+      const sortBy: SortField = activeTab === 'score' ? 'score' : 'netProfit';
+      const data = await getLeaderboard('coinpusher', sortBy, 100);
       setScores(data);
 
-      if (wallet.isConnected && wallet.publicKey) {
-        const { rank, total } = await getPlayerRank(
-          connection,
-          programId,
-          new PublicKey(wallet.publicKey)
-        );
-        setPlayerRank({ rank, total });
-      }
+      const me = currentPlayerId(wallet.publicKey);
+      setPlayerRank(findPlayerRank(data, me));
     } catch (err) {
       console.error('Error loading high scores:', err);
-      setError('Failed to load leaderboard data. The on-chain program may not be deployed yet.');
+      setError('Failed to load leaderboard data. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
 
   const formatTimestamp = (timestamp: number) => {
@@ -72,6 +59,8 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
 
   if (!isOpen) return null;
 
+  const me = currentPlayerId(wallet.publicKey);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 pointer-events-auto"
@@ -85,6 +74,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
           <button
             onClick={handleClose}
             className="absolute top-4 right-4 p-2 text-gray-500 hover:text-white transition-colors"
+            aria-label="Close leaderboard"
             title="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,11 +93,11 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
             </h2>
           </div>
           <p className="text-gray-500 text-xs font-mono uppercase tracking-wider">
-            Top players on the Gorbagana blockchain
+            Coinpusher · Top players
           </p>
 
           {/* Player Rank */}
-          {wallet.isConnected && playerRank && playerRank.rank > 0 && (
+          {playerRank && playerRank.rank > 0 && (
             <div className="mt-4 p-3 bg-black border border-magic-blue/30">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500 text-xs uppercase font-bold">Your Rank</span>
@@ -189,7 +179,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
 
               {/* Table Rows */}
               {scores.map((entry) => {
-                const isCurrentPlayer = wallet.publicKey === entry.player;
+                const isCurrentPlayer = me === entry.player;
                 return (
                   <div
                     key={entry.player}
@@ -217,7 +207,11 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
                     {/* Player */}
                     <div className="p-3 min-w-0">
                       <div className="font-mono text-sm text-white truncate">
-                        {formatAddress(entry.player)}
+                        {isCurrentPlayer ? (
+                          <span className="text-magic-blue font-bold">{entry.name || 'You'}</span>
+                        ) : (
+                          entry.name || shortAddress(entry.player)
+                        )}
                       </div>
                       <div className="text-[10px] text-gray-600 font-mono">
                         {formatTimestamp(entry.lastUpdated)}
@@ -236,7 +230,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
                       <span className={`font-mono font-bold ${
                         entry.netProfit >= 0 ? 'text-magic-blue' : 'text-magic-red'
                       }`}>
-                        {entry.netProfit > 0 ? '+' : ''}{entry.netProfit}
+                        {entry.netProfit > 0 ? '+' : ''}{entry.netProfit.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -250,7 +244,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
         <div className="border-t border-white/20 bg-magic-card p-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-gray-600 font-mono uppercase tracking-wider">
-              Data from Gorbagana blockchain
+              Live leaderboard
             </span>
             <button
               onClick={() => {
