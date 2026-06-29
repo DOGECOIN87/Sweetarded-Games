@@ -1,26 +1,27 @@
 /**
  * Centralized RPC Configuration
  *
- * Single source of truth for all RPC endpoints used across the dApp.
- * Import from here instead of hardcoding RPC URLs anywhere else.
- *
- * Gorbagana RPC: rpc.cookiescan.io
- * Solana Mainnet: api.mainnet-beta.solana.com
- * Solana Devnet: api.devnet.solana.com
+ * The site is no longer a dapp — the games run in free play and make no
+ * on-chain calls. Solana wallet-adapter still requires a connection endpoint,
+ * so the default below is an inert placeholder (a public Solana RPC). It is not
+ * actually contacted during normal use; there is no project RPC to point at.
  */
 
+// Inert placeholder. Wallet-adapter needs a valid URL, but nothing on-chain is called.
+const PLACEHOLDER_RPC = 'https://api.mainnet-beta.solana.com';
+
 export const RPC_ENDPOINTS = {
-  /** Gorbagana L2 mainnet RPC */
-  GORBAGANA: 'https://rpc.cookiescan.io',
+  /** Default connection endpoint (inert placeholder — see note above) */
+  GORBAGANA: PLACEHOLDER_RPC,
 
-  /** Gorbagana WebSocket endpoint */
-  GORBAGANA_WS: 'wss://rpc.cookiescan.io',
+  /** WebSocket endpoint (unused) */
+  GORBAGANA_WS: '',
 
-  /** Gorbagana REST API */
-  GORBAGANA_API: import.meta.env?.VITE_API_BASE_URL || 'https://api.trashmarket.fun',
+  /** Legacy REST API base (used by the marketplace service only if re-enabled) */
+  GORBAGANA_API: import.meta.env?.VITE_API_BASE_URL || '',
 
   /** Solana mainnet-beta RPC */
-  SOLANA_MAINNET: 'https://api.mainnet-beta.solana.com',
+  SOLANA_MAINNET: PLACEHOLDER_RPC,
 
   /** Solana devnet RPC */
   SOLANA_DEVNET: 'https://api.devnet.solana.com',
