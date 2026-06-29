@@ -1,4 +1,4 @@
-import AudioPlayer, { ARTIST_URL } from './junk-pusher/AudioPlayer';
+import AudiusEmbed, { ARTIST_URL } from './AudiusEmbed';
 
 /**
  * Highlighted music feature — streams the Sweetardio soundtrack straight from
@@ -38,7 +38,7 @@ const MusicFeature = () => (
 
         {/* Player */}
         <div className="flex justify-center md:justify-end">
-          <AudioPlayer startExpanded />
+          <AudiusEmbed />
         </div>
       </div>
     </div>
