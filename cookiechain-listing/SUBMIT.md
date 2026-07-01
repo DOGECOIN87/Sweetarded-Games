@@ -12,14 +12,15 @@ This folder is a ready-to-submit kit for listing **Sweetardio.fun** in the
 {
   "title": "Sweetardio.fun",
   "description": "A sugar-coated arcade starring the Sweetardios. Slots & Coinpusher, free to play.",
-  "tag": "Meme",
+  "tag": "NFT",
   "href": "https://sweetardio.fun",
   "logo": "https://raw.githubusercontent.com/cookiechain/apps/main/logos/sweetardio.png"
 }
 ```
 
 > **`tag` options** (per the registry): `DeFi`, `Wallet`, `Infra`, `NFT`, `Meme`.
-> Switch to `NFT` if you'd rather lead with the Sweetardios collection.
+> Set to `NFT` to lead with the Sweetardios collection; switch to `Meme` if you'd
+> rather lead with the arcade vibe.
 
 ## Why this couldn't be auto-submitted from this session
 
@@ -48,7 +49,7 @@ cp "$LOGO" logos/sweetardio.png
 jq '. += [{
   "title": "Sweetardio.fun",
   "description": "A sugar-coated arcade starring the Sweetardios. Slots & Coinpusher, free to play.",
-  "tag": "Meme",
+  "tag": "NFT",
   "href": "https://sweetardio.fun",
   "logo": "https://raw.githubusercontent.com/cookiechain/apps/main/logos/sweetardio.png"
 }]' apps.json > apps.json.tmp && mv apps.json.tmp apps.json
@@ -79,5 +80,5 @@ gh pr create --repo cookiechain/apps \
 - [x] Cookie Chain-related project
 - [x] Working public website (https://sweetardio.fun)
 - [x] Clear description
-- [x] Category from the allowed set (`Meme`)
+- [x] Category from the allowed set (`NFT`)
 - [x] Logo asset (PNG, one of the supported formats: PNG/JPG/JPEG/SVG/WEBP)
