@@ -1,11 +1,11 @@
 {
-  "name": "Trashmarket.fun",
-  "short_name": "Trashmarket",
-  "description": "The official trashmarket.fun marketplace on Gorbagana.",
+  "name": "Sweetardio.fun",
+  "short_name": "Sweetardio",
+  "description": "Sweetardio.fun — a sugar-coated arcade starring the Sweetardios. Slots & Coinpusher, free to play.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#39FF14",
+  "background_color": "#070F34",
+  "theme_color": "#F715AB",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -13,7 +13,7 @@
       "type": "image/png"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/logos/sweetardio-collection-badge-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

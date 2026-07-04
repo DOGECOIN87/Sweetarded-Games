@@ -1,5 +1,5 @@
-import React, { useMemo, lazy, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useMemo, useState, lazy, Suspense } from 'react';
+import { HashRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { NetworkProvider } from './contexts/NetworkContext';
 import { WalletProvider } from './contexts/WalletContext';
@@ -13,47 +13,129 @@ const SlotsPage = lazy(() => import('./pages/Slots'));
 const JunkPusherPage = lazy(() => import('./pages/JunkPusher'));
 const ArcadePage = lazy(() => import('./pages/Arcade'));
 const WhitelistPage = lazy(() => import('./pages/Whitelist'));
+const BoardPage = lazy(() => import('./pages/Board'));
 
 const NAV_HEIGHT = 56;
 
-const AppInner: React.FC = () => (
+const MINT_URL = 'https://www.launchmynft.io/mint/sweetardio';
+
+/** Site navigation. Slots / Coinpusher deep-link into the arcade walk-through. */
+const NAV_LINKS: { label: string; to: string; hover: string }[] = [
+  { label: 'Arcade', to: '/arcade', hover: 'hover:text-sweetardios-cerise' },
+  { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise' },
+  { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan' },
+  { label: 'The Board', to: '/board', hover: 'hover:text-sweetardios-cyan' },
+  { label: 'Whitelist', to: '/whitelist', hover: 'hover:text-sweetardios-cyan' },
+];
+
+const AppInner: React.FC = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (to: string) => {
+    const [path, query] = to.split('?');
+    if (location.pathname !== path) return false;
+    return query ? location.search === `?${query}` : true;
+  };
+
+  return (
   <div
     className="min-h-screen text-white font-mono antialiased selection:bg-sweetardios-cerise selection:text-sweetardios-oxford"
     style={{ ['--navbar-height' as string]: `${NAV_HEIGHT}px` } as React.CSSProperties}
   >
-    <nav className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-sweetardios-violet/40 bg-sweetardios-oxford/80 px-4 backdrop-blur">
-      <div className="flex items-center gap-6">
-        <Link to="/" className="flex items-center gap-2 font-heading text-lg tracking-tight">
-          <img src="/sweetardios-logo.svg" alt="Sweetardios" className="h-9 w-9" />
-          <span className="hidden sm:inline">
-            <span className="sw-glow-cerise text-sweetardios-cerise">SWEET</span>
-            <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
-          </span>
-        </Link>
-        <Link to="/arcade" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cerise">
-          Arcade
-        </Link>
-        <Link to="/whitelist" className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan">
-          Whitelist
-        </Link>
-        <a
-          href="https://www.launchmynft.io/mint/sweetardio"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan sm:inline"
-        >
-          Mint
-        </a>
+    <nav className="sticky top-0 z-50 border-b border-sweetardios-violet/40 bg-sweetardios-oxford/80 backdrop-blur">
+      <div className="flex h-14 items-center justify-between px-4">
+        <div className="flex items-center gap-6">
+          <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 font-heading text-lg tracking-tight">
+            <img
+              src="/logos/sweetardio-collection-badge-512.png"
+              alt="Sweetardio Collection"
+              className="h-10 w-10 drop-shadow-[0_0_10px_rgba(247,21,171,0.45)]"
+            />
+            <span className="hidden sm:inline">
+              <span className="sw-glow-cerise text-sweetardios-cerise">SWEET</span>
+              <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
+            </span>
+          </Link>
+
+          {/* Desktop links */}
+          <div className="hidden items-center gap-5 lg:flex">
+            {NAV_LINKS.map((l) => (
+              <NavLink
+                key={l.label}
+                to={l.to}
+                className={`text-sm transition-colors ${l.hover} ${
+                  isActive(l.to) ? 'font-semibold text-white' : 'text-blue-100/70'
+                }`}
+              >
+                {l.label}
+              </NavLink>
+            ))}
+            <a
+              href={MINT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan"
+            >
+              Mint
+            </a>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <a
+            href={MINT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sw-shine inline-flex items-center gap-2 px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5"
+            style={{ background: '#F715AB' }}
+          >
+            Mint Now <span aria-hidden>↗</span>
+          </a>
+
+          {/* Mobile menu toggle */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            className="flex h-10 w-10 flex-col items-center justify-center gap-[5px] border border-white/15 bg-white/[0.04] lg:hidden"
+          >
+            <span className={`h-0.5 w-5 bg-sweetardios-cyan transition-transform ${menuOpen ? 'translate-y-[7px] rotate-45' : ''}`} />
+            <span className={`h-0.5 w-5 bg-sweetardios-cerise transition-opacity ${menuOpen ? 'opacity-0' : ''}`} />
+            <span className={`h-0.5 w-5 bg-sweetardios-cyan transition-transform ${menuOpen ? '-translate-y-[7px] -rotate-45' : ''}`} />
+          </button>
+        </div>
       </div>
-      <a
-        href="https://www.launchmynft.io/mint/sweetardio"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="sw-shine inline-flex items-center gap-2 px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5"
-        style={{ background: '#F715AB' }}
-      >
-        Mint Now <span aria-hidden>↗</span>
-      </a>
+
+      {/* Mobile menu panel */}
+      {menuOpen && (
+        <div className="border-t border-sweetardios-violet/30 bg-sweetardios-oxford/95 px-4 py-3 backdrop-blur lg:hidden">
+          <div className="flex flex-col">
+            {NAV_LINKS.map((l) => (
+              <NavLink
+                key={l.label}
+                to={l.to}
+                onClick={() => setMenuOpen(false)}
+                className={`border-b border-white/5 py-3 text-sm uppercase tracking-[0.18em] transition-colors ${l.hover} ${
+                  isActive(l.to) ? 'font-semibold text-white' : 'text-blue-100/70'
+                }`}
+              >
+                {l.label}
+              </NavLink>
+            ))}
+            <a
+              href={MINT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
+              className="py-3 text-sm uppercase tracking-[0.18em] text-blue-100/70 transition-colors hover:text-sweetardios-cyan"
+            >
+              Mint <span aria-hidden>↗</span>
+            </a>
+          </div>
+        </div>
+      )}
     </nav>
 
     <main>
@@ -68,6 +150,7 @@ const AppInner: React.FC = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/whitelist" element={<WhitelistPage />} />
           <Route path="/arcade" element={<ArcadePage />} />
+          <Route path="/board" element={<BoardPage />} />
           <Route path="/slots" element={<SlotsPage />} />
           <Route path="/coinpusher" element={<JunkPusherPage />} />
         </Routes>
@@ -77,7 +160,8 @@ const AppInner: React.FC = () => (
     <MascotGuide />
     <SiteMusic />
   </div>
-);
+  );
+};
 
 const App: React.FC = () => {
   const wallets = useMemo(() => [], []);

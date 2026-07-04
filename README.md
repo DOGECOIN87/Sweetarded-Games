@@ -16,6 +16,24 @@ from the main marketplace so the games can be redesigned in isolation.
 | `/slots`       | Slots       | `src/components/slots/SkillGame.tsx`             |
 | `/junk-pusher` | Junk Pusher | `src/components/junk-pusher/JunkPusherGame.tsx`  |
 
+## Site pages
+
+| Route        | Page                                                          |
+| ------------ | ------------------------------------------------------------- |
+| `/`          | Landing / navigation hub                                       |
+| `/arcade`    | Arcade walk-through scene                                      |
+| `/board`     | **The Board** — cork notice board with team announcements      |
+| `/whitelist` | Whitelist signup                                               |
+
+### Posting to The Board
+
+The board renders notes from the `board_posts` Firestore collection
+(publicly readable, client writes denied). To pin a new note, add a
+document in the Firebase console (Firestore → Data → `board_posts`) with
+the fields described in `src/services/boardService.ts` — or edit the
+starter notes in `src/content/boardPosts.ts`, which show whenever the
+collection is empty or unreachable.
+
 ## Getting started
 
 ```bash

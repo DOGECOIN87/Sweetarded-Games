@@ -64,6 +64,17 @@ service cloud.firestore {
         && d.updatedAt == request.time;                // server timestamp only
     }
 
+    // ── The Board (notice board posts) ─────────────────────────────────
+    // Publicly readable so every visitor sees the board. Client writes are
+    // denied — the team pins new notes from the Firebase console
+    // (Firestore → Data → board_posts → Add document). Fields used by the
+    // site: title, body, tag, link, linkLabel, image, paper, published,
+    // postedAt — see src/services/boardService.ts.
+    match /board_posts/{post} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // ── Your other collections ─────────────────────────────────────────
     // Keep whatever rules you already have for listings, game config, etc.
     // Anything not matched above is denied by default.

@@ -1,5 +1,4 @@
 import { Link, useNavigate } from 'react-router-dom';
-import Allocation from './Allocation';
 import GetStarted from './GetStarted';
 import Lineage from './Lineage';
 import MintSection from './MintSection';
@@ -167,7 +166,7 @@ const Landing = () => {
 
           <div className="sw-rise relative mb-7 flex justify-center">
             <div aria-hidden className="sw-blob absolute left-1/2 top-1/2 h-52 w-52 -translate-x-1/2 -translate-y-1/2" style={{ background: '#F715AB', opacity: 0.38 }} />
-            <img src="/sweetardios-logo.svg" alt="Sweetardios" className="sw-float relative h-32 w-32 drop-shadow-[0_16px_40px_rgba(52,237,243,0.4)] sm:h-40 sm:w-40" />
+            <img src="/logos/sweetardio-collection-badge-512.png" alt="Sweetardio Collection" className="sw-float relative h-32 w-32 drop-shadow-[0_16px_40px_rgba(52,237,243,0.4)] sm:h-40 sm:w-40" />
           </div>
 
           <span className="sw-rise mb-7 inline-flex items-center gap-2.5 border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-blue-100/75 backdrop-blur">
@@ -242,9 +241,6 @@ const Landing = () => {
     {/* UPCOMING MINT — LaunchMyNFT embed */}
     <MintSection />
 
-    {/* MINT ALLOCATION — treasury / proceeds breakdown */}
-    <Allocation />
-
     {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
     <section className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
       <header className="mb-16 text-center">
@@ -308,7 +304,7 @@ const Landing = () => {
           <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
           <span className="ml-2 align-middle text-xs font-normal uppercase tracking-widest text-white/40">.fun</span>
         </div>
-        <div className="flex items-center gap-6 text-sm text-blue-100/70">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-blue-100/70">
           <a
             href="#mint"
             onClick={(e) => { e.preventDefault(); document.getElementById('mint')?.scrollIntoView({ behavior: 'smooth' }); }}
@@ -323,10 +319,16 @@ const Landing = () => {
           >
             Music
           </a>
+          <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>
           <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>
           <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>
         </div>
         <p className="text-xs text-white/40">© Sweetardios</p>
+      </div>
+      <div className="border-t border-white/5 px-6 py-4">
+        <p className="mx-auto max-w-6xl text-center text-[11px] leading-relaxed text-white/35">
+          Disclaimer: We are not affiliated with the cookie chain.
+        </p>
       </div>
     </footer>
   </div>

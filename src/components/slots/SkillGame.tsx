@@ -29,7 +29,7 @@ const SYMBOL_IMAGES = [
   '/symbols/waffle.png',       // 6
   '/symbols/jar.png',          // 7
   '/symbols/twinkie.png',      // 8
-  '/sweetardios-logo.svg',     // 9 — Sweetardios BONUS symbol (ultra-rare)
+  '/logos/sweetardio-collection-badge-512.png', // 9 — Sweetardio Collection BONUS symbol (ultra-rare)
 ];
 
 // Payout multipliers (×wager). Index 9 (Sweetardios logo) pays 0 cash — triggers BONUS instead.
