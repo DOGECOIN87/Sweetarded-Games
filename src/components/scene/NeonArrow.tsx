@@ -26,9 +26,24 @@ interface NeonArrowProps {
   className?: string;
 }
 
+/** Arrow outline with rounded corners (radius 6), matched to the neon floor
+ *  arrow originally painted into the gallery artwork (since removed from the
+ *  image — this SVG is its 1:1 replacement). */
+const TUBE_PATH =
+  'M 86.76 45.76 Q 91 50 85 50 L 73 50 Q 67 50 67 56 L 67 115 Q 67 121 61 121 ' +
+  'L 39 121 Q 33 121 33 115 L 33 56 Q 33 50 27 50 L 15 50 Q 9 50 13.24 45.76 ' +
+  'L 45.76 13.24 Q 50 9 54.24 13.24 Z';
+
+/** Tube colors sampled from the painted arrow: a saturated magenta tube with a
+ *  near-white hot core (cyan variant mirrors the same treatment). */
+const TUBE = {
+  cerise: { outer: '#FA3AD3', core: '#FFEBFC' },
+  cyan: { outer: '#26D8E8', core: '#EDFEFF' },
+} as const;
+
 /**
- * A glowing neon-tube arrow — a hand-drawn recreation of the painted arrows in
- * the Sweetardio scene, turned into an interactive navigation control.
+ * A glowing neon-tube arrow — a 1:1 code recreation of the arrows painted in
+ * the Sweetardio scene art, turned into an interactive navigation control.
  *
  * Transforms are layered across nested elements so they never collide:
  *   button (hit area) → .sw-arrow-fx (floor tilt + hover scale)
@@ -43,7 +58,7 @@ const NeonArrow: React.FC<NeonArrowProps> = ({
   floor = false,
   className = '',
 }) => {
-  const stroke = color === 'cyan' ? '#c9f8fb' : '#ffc8ed';
+  const tube = TUBE[color];
   const tilt = floor ? 'perspective(560px) rotateX(48deg)' : 'rotateX(0deg)';
 
   return (
@@ -65,14 +80,9 @@ const NeonArrow: React.FC<NeonArrowProps> = ({
             className={`sw-neon-arrow ${color === 'cyan' ? 'is-cyan' : ''}`}
             style={{ transform: `rotate(${ROTATION[dir]}deg)`, display: 'block' }}
           >
-            {/* Hollow arrow outline drawn as a single rounded neon tube. */}
-            <path
-              d="M50 9 L91 50 L67 50 L67 121 L33 121 L33 50 L9 50 Z"
-              stroke={stroke}
-              strokeWidth={7}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
+            {/* Hollow rounded tube: saturated outer stroke + white-hot core. */}
+            <path d={TUBE_PATH} stroke={tube.outer} strokeWidth={6.5} strokeLinejoin="round" strokeLinecap="round" />
+            <path d={TUBE_PATH} stroke={tube.core} strokeWidth={2.8} strokeLinejoin="round" strokeLinecap="round" />
           </svg>
         </span>
       </span>

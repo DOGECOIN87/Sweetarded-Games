@@ -19,12 +19,14 @@ const NAV_HEIGHT = 56;
 
 const MINT_URL = 'https://www.launchmynft.io/mint/sweetardio';
 
-/** Site navigation. Slots / Coinpusher deep-link into the arcade walk-through. */
-const NAV_LINKS: { label: string; to: string; hover: string }[] = [
+/** Site navigation. Slots / Coinpusher / The Board deep-link into the arcade
+ *  walk-through; `also` keeps the item highlighted once you've stepped from
+ *  the scene into the destination itself. */
+const NAV_LINKS: { label: string; to: string; hover: string; also?: string[] }[] = [
   { label: 'Arcade', to: '/arcade', hover: 'hover:text-sweetardios-cerise' },
-  { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise' },
-  { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan' },
-  { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan' },
+  { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise', also: ['/slots'] },
+  { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan', also: ['/coinpusher'] },
+  { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan', also: ['/board'] },
   { label: 'Whitelist', to: '/whitelist', hover: 'hover:text-sweetardios-cyan' },
 ];
 
@@ -32,10 +34,11 @@ const AppInner: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
-  const isActive = (to: string) => {
+  const isActive = (to: string, also?: string[]) => {
+    if (also?.includes(location.pathname)) return true;
     const [path, query] = to.split('?');
     if (location.pathname !== path) return false;
-    return query ? location.search === `?${query}` : true;
+    return query ? location.search === `?${query}` : location.search === '';
   };
 
   return (
@@ -65,7 +68,7 @@ const AppInner: React.FC = () => {
                 key={l.label}
                 to={l.to}
                 className={`text-sm transition-colors ${l.hover} ${
-                  isActive(l.to) ? 'font-semibold text-white' : 'text-blue-100/70'
+                  isActive(l.to, l.also) ? 'font-semibold text-white' : 'text-blue-100/70'
                 }`}
               >
                 {l.label}
@@ -118,7 +121,7 @@ const AppInner: React.FC = () => {
                 to={l.to}
                 onClick={() => setMenuOpen(false)}
                 className={`border-b border-white/5 py-3 text-sm uppercase tracking-[0.18em] transition-colors ${l.hover} ${
-                  isActive(l.to) ? 'font-semibold text-white' : 'text-blue-100/70'
+                  isActive(l.to, l.also) ? 'font-semibold text-white' : 'text-blue-100/70'
                 }`}
               >
                 {l.label}

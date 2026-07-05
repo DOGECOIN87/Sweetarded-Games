@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { BoardPost, BoardPaper, fetchBoardPosts } from '../services/boardService';
 import { FALLBACK_BOARD_POSTS } from '../content/boardPosts';
 
@@ -179,6 +180,14 @@ export default function BoardPage() {
       </div>
 
       <section className="mx-auto max-w-5xl px-5 pb-20 pt-10 sm:px-8">
+        {/* Step back into the walk-through, mirroring the scene's back arrow */}
+        <Link
+          to="/arcade?to=gallery"
+          className="absolute left-4 top-4 inline-flex items-center gap-2 border border-sweetardios-cyan/40 bg-sweetardios-oxford/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-sweetardios-cyan backdrop-blur transition-colors hover:bg-sweetardios-cyan hover:text-sweetardios-oxford sm:left-6 sm:top-6"
+        >
+          <span aria-hidden>←</span> Back to the gallery
+        </Link>
+
         {/* Neon header */}
         <header className="text-center">
           <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">Sweetardio Diner</p>
