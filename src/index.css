@@ -275,6 +275,29 @@ body {
     drop-shadow(0 0 66px rgba(52, 237, 243, 0.55));
 }
 
+/* Invisible click region over a scene's main subject; glows softly on
+   hover/focus so people discover the machine/board itself is clickable. */
+.sw-subject-hotspot {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.sw-subject-hotspot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.sw-subject-hotspot:hover::after,
+.sw-subject-hotspot:focus-visible::after {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 36px rgba(247, 21, 171, 0.35), inset 0 0 36px rgba(247, 21, 171, 0.12);
+}
+
 /* Faint tube flicker so the neon feels alive. */
 @keyframes sw-neon-buzz {
   0%, 18%, 22%, 100% { opacity: 1; }

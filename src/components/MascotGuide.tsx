@@ -22,19 +22,31 @@ const TIPS: Record<string, string[]> = {
     "Bump the table to knock a fat stack loose.",
     "It's free to play — stack 'em sky high!",
   ],
+  '/arcade': [
+    "Follow the glowing arrows to walk around — or use your arrow keys.",
+    "You can also just click a machine (or the board) to step right up.",
+  ],
+  '/board': [
+    "This is the notice board — tap any note to read the whole thing.",
+    "Fresh news gets pinned here first. Check back often!",
+  ],
 };
 const FALLBACK = ["Need a hand? I'm Choppa Cone — your guide around the site."];
+
+/** Immersive walk-through pages: keep the bubble closed so it never covers
+ *  the navigation arrows (the mascot stays clickable for tips). */
+const START_CLOSED = ['/arcade', '/board'];
 
 const MascotGuide: React.FC = () => {
   const { pathname } = useLocation();
   const tips = useMemo(() => TIPS[pathname] ?? FALLBACK, [pathname]);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!START_CLOSED.includes(pathname));
   const [idx, setIdx] = useState(0);
 
   // reset to the first tip + reopen whenever the route changes
   useEffect(() => {
     setIdx(0);
-    setOpen(true);
+    setOpen(!START_CLOSED.includes(pathname));
   }, [pathname]);
 
   // rotate through the page's tips
