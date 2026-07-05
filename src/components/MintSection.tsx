@@ -3,17 +3,20 @@ import { Link } from 'react-router-dom';
 import MintEmbed, { MINT_URL } from './MintEmbed';
 
 /**
- * Mint day: July 4, 2026 · 2:50 PM ET — America's Semiquincentennial (250th)
- * Independence Day. The 2:50 start time nods to the 250 (2:50 → 250).
- * 2:50 PM EDT == 18:50 UTC, so the countdown target is timezone-safe.
+ * Mint day: rescheduled — new date TBA.
+ *
+ * When the new date is locked in, set both values below and the countdown
+ * comes back automatically (label shows everywhere the date is mentioned):
+ *   MINT_DATE_LABEL = 'August 1, 2026 · 2:00 PM ET'
+ *   MINT_TARGET_MS  = Date.UTC(2026, 7, 1, 18, 0, 0)   // month is 0-based; use UTC
  */
-export const MINT_DATE_LABEL = 'July 4, 2026 · 2:50 PM ET';
-const MINT_TARGET_MS = Date.UTC(2026, 6, 4, 18, 50, 0);
+export const MINT_DATE_LABEL = 'TBA';
+const MINT_TARGET_MS: number | null = null;
 
 interface Remaining { days: number; hours: number; minutes: number; seconds: number; done: boolean; }
 
 const getRemaining = (): Remaining => {
-  const diff = MINT_TARGET_MS - Date.now();
+  const diff = (MINT_TARGET_MS ?? 0) - Date.now();
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, done: true };
   return {
     days: Math.floor(diff / 86_400_000),
@@ -78,16 +81,28 @@ const MintSection = () => (
           <span className="sw-glow-cyan text-sweetardios-cyan">a Sweetardio</span>
         </h2>
 
-        {/* Mint day + Semiquincentennial framing */}
-        <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">{MINT_DATE_LABEL}</p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-blue-100/70">
-          Minting on America's <span className="font-semibold text-white">Semiquincentennial</span> — the
-          250th Independence Day. The 2:50 start is a nod to the 250. 🇺🇸
-        </p>
-
-        <div className="mt-8">
-          <Countdown />
-        </div>
+        {/* Mint day — countdown when a date is set, TBA note otherwise */}
+        {MINT_TARGET_MS === null ? (
+          <>
+            <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">
+              New mint date: <span className="sw-glow-cyan text-sweetardios-cyan">TBA</span>
+            </p>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-blue-100/70">
+              The mint has been rescheduled — the new date drops on{' '}
+              <Link to="/board" className="font-semibold text-sweetardios-cerise transition-colors hover:text-white">
+                The Board
+              </Link>{' '}
+              first. Join the whitelist below so you don't miss it.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">{MINT_DATE_LABEL}</p>
+            <div className="mt-8">
+              <Countdown />
+            </div>
+          </>
+        )}
 
         <div className="mt-10">
           <MintEmbed />

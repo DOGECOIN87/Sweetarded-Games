@@ -95,8 +95,7 @@ const Lineage = () => (
           <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
         </h3>
         <p className="mt-4 text-sm text-blue-100/70 sm:text-base">
-          Mint: <span className="font-semibold text-white">July 4, 2026 · 2:50 PM ET</span> — America's 250th
-          birthday (2:50 → 250) ·{' '}
+          Mint: <span className="font-semibold text-white">new date TBA</span> ·{' '}
           <a
             href="https://x.com/LaunchMyNFT"
             target="_blank"

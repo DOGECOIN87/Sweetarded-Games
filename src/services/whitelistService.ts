@@ -60,7 +60,7 @@ export async function submitWhitelist(
       xHandle: xHandle || null,
       submittedAt: serverTimestamp(),
     });
-    return { ok: true, message: 'You’re on the list! We’ll see you on July 4. 🇺🇸🍬' };
+    return { ok: true, message: 'You’re on the list! We’ll see you on mint day. 🍬' };
   } catch (err) {
     console.error('[whitelist] submit failed:', err);
     return { ok: false, message: 'Something went wrong saving your spot. Please try again.' };
