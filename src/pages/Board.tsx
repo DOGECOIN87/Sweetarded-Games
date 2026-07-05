@@ -47,7 +47,7 @@ const Note = ({ post, index, onOpen }: NoteProps) => {
     <button
       type="button"
       onClick={() => onOpen(post)}
-      className="sw-note relative block w-full cursor-pointer p-5 pt-6 text-left"
+      className="sw-note relative block w-full cursor-pointer p-3.5 pt-5 text-left sm:p-5 sm:pt-6"
       style={{
         ['--note-tilt' as string]: `${TILTS[index % TILTS.length]}deg`,
         background: paper.bg,
@@ -64,15 +64,15 @@ const Note = ({ post, index, onOpen }: NoteProps) => {
         </span>
       )}
 
-      <h3 className="font-heading text-xl leading-tight">{post.title}</h3>
+      <h3 className="font-heading text-lg leading-tight sm:text-xl">{post.title}</h3>
 
       {post.image && (
         <img src={post.image} alt="" className="mt-3 max-h-40 w-full object-cover" loading="lazy" />
       )}
 
-      <p className="mt-2 line-clamp-5 text-sm leading-relaxed opacity-85">{post.body}</p>
+      <p className="mt-2 line-clamp-4 text-[13px] leading-relaxed opacity-85 sm:line-clamp-5 sm:text-sm">{post.body}</p>
 
-      <div className="mt-4 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide opacity-60">
+      <div className="mt-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide opacity-60 sm:mt-4">
         <span>{post.dateLabel ?? ''}</span>
         <span>{post.link ? 'Read more ↗' : 'Tap to read'}</span>
       </div>
@@ -191,36 +191,31 @@ export default function BoardPage() {
           </p>
         </header>
 
-        {/* Neon tube mounted above the board */}
-        <div className="relative mt-10 px-2 sm:px-6">
-          <div className="mx-auto flex w-[92%] items-center gap-3">
-            <div className="sw-neon-tube h-1.5 flex-1" style={{ borderRadius: '9999px' }} />
-            <div className="sw-neon-tube h-1.5 flex-1" style={{ borderRadius: '9999px' }} />
-          </div>
-        </div>
-
-        {/* The cork board */}
+        {/* The board itself — painted diner backdrop, notes pinned onto its cork.
+            The overlay insets frame the cork area of /scenes/board-closeup.png;
+            when the board fills up, the cork area scrolls. */}
         <div
-          className="relative mt-5 p-2 sm:p-2.5"
-          style={{
-            background: 'linear-gradient(160deg, #d8dbe4 0%, #8d93a5 30%, #c6cad6 55%, #6f7488 85%, #b9bdcb 100%)',
-            boxShadow: '0 40px 100px -30px rgba(0,0,0,0.9), 0 0 60px -10px rgba(247,21,171,0.18)',
-          }}
+          className="relative mx-auto mt-8 w-full max-w-4xl"
+          style={{ filter: 'drop-shadow(0 40px 80px rgba(0,0,0,0.8))' }}
         >
-          <div className="sw-cork relative p-5 sm:p-8" style={{ boxShadow: 'inset 0 0 40px rgba(40,18,0,0.55)' }}>
+          <img src="/scenes/board-closeup.png" alt="" draggable={false} className="w-full select-none" />
+          <div
+            className="absolute overflow-y-auto"
+            style={{ left: '12%', right: '12%', top: '22.5%', bottom: '19.5%' }}
+          >
             {posts === null ? (
               /* Skeleton notes while the board loads */
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 p-2 sm:grid-cols-2 lg:grid-cols-3">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="h-44 animate-pulse bg-white/80"
+                    className="h-40 animate-pulse bg-white/80"
                     style={{ transform: `rotate(${TILTS[i]}deg)`, boxShadow: '0 10px 24px -8px rgba(0,0,0,0.55)' }}
                   />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 items-start gap-5 p-2 sm:grid-cols-2 lg:grid-cols-3">
                 {posts.map((post, i) => (
                   <Note key={post.id} post={post} index={i} onOpen={setOpen} />
                 ))}

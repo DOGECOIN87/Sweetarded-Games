@@ -24,7 +24,7 @@ const NAV_LINKS: { label: string; to: string; hover: string }[] = [
   { label: 'Arcade', to: '/arcade', hover: 'hover:text-sweetardios-cerise' },
   { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise' },
   { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan' },
-  { label: 'The Board', to: '/board', hover: 'hover:text-sweetardios-cyan' },
+  { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan' },
   { label: 'Whitelist', to: '/whitelist', hover: 'hover:text-sweetardios-cyan' },
 ];
 

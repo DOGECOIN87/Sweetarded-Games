@@ -191,27 +191,6 @@ body {
    SWEETARDIOS — The Board (neon-diner cork notice board)
    ============================================================ */
 
-/* Cork surface: fractal-noise grain over a warm, top-lit cork gradient. */
-.sw-cork {
-  background-color: #a96f38;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E"),
-    radial-gradient(130% 100% at 50% -10%, rgba(255, 186, 105, 0.5), transparent 58%),
-    linear-gradient(180deg, #c08a4b 0%, #a96f38 48%, #814f24 100%);
-  background-blend-mode: overlay, normal, normal;
-}
-
-/* Pink neon tube mounted above the board. */
-.sw-neon-tube {
-  background: linear-gradient(90deg, #ffb5f2, #ff4fd8 10%, #ff4fd8 90%, #ffb5f2);
-  box-shadow:
-    0 0 6px #ff5ce1,
-    0 0 18px rgba(255, 79, 216, 0.9),
-    0 0 44px rgba(247, 21, 171, 0.55),
-    0 10px 70px 10px rgba(247, 21, 171, 0.3);
-  animation: sw-neon-buzz 6.5s linear infinite;
-}
-
 /* Pinned note: tilted at rest, straightens + lifts on hover/focus. */
 .sw-note {
   transform: rotate(var(--note-tilt, 0deg));
@@ -224,7 +203,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sw-neon-tube { animation: none !important; }
   .sw-note, .sw-note:hover, .sw-note:focus-visible { transform: none; }
 }
 

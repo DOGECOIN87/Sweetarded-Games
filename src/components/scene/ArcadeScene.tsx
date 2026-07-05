@@ -6,7 +6,8 @@ import NeonArrow, { ArrowColor, ArrowDir } from './NeonArrow';
    The player walks through the painted Sweetardio scene by clicking
    the recreated neon arrows (or pressing the keyboard arrow keys):
 
-     lobby ─┬─up──▶ arcade ─┬─up──▶ member's only (VIP teaser)
+     lobby ─┬─up──▶ arcade ─┬─up──▶ gallery ─┬─up──▶ /board (notice board)
+            │               │                └─right▶ member's only (VIP)
             │               ├─left──▶ slots cabinet ─▶ /slots
             ├─left──▶ slots │
             └─right─▶ pusher└─right─▶ pusher cabinet ▶ /coinpusher
@@ -15,7 +16,7 @@ import NeonArrow, { ArrowColor, ArrowDir } from './NeonArrow';
    arrow in the top-left always steps back the way you came.
    ────────────────────────────────────────────────────────────── */
 
-type SceneId = 'lobby' | 'arcade' | 'slots' | 'pusher' | 'members';
+type SceneId = 'lobby' | 'arcade' | 'slots' | 'pusher' | 'gallery' | 'members';
 
 interface Exit {
   dir: Exclude<ArrowDir, 'down'>; // forward / branch arrows only; back is automatic
@@ -65,11 +66,21 @@ const SCENES: Record<SceneId, SceneDef> = {
     image: '/scenes/arcade.png',
     kicker: 'The Arcade',
     title: 'Pick Your Machine',
-    blurb: 'Slots on the left, coin pusher on the right — or slip past the rope.',
+    blurb: 'Slots on the left, coin pusher on the right — or head to the gallery in the back.',
     exits: [
       { dir: 'left', to: 'slots', label: 'Walk up to the slots', size: 92 },
       { dir: 'right', to: 'pusher', label: 'Walk up to the coin pusher', color: 'cyan', size: 92 },
-      { dir: 'up', to: 'members', label: "Member's Only", floor: true, size: 104 },
+      { dir: 'up', to: 'gallery', label: 'Into the gallery', floor: true, size: 104 },
+    ],
+  },
+  gallery: {
+    image: '/scenes/gallery.png',
+    kicker: 'The Gallery',
+    title: 'The Board',
+    blurb: 'News and updates get pinned to the cork — walk up and read them.',
+    exits: [
+      { dir: 'up', route: '/board', label: 'Read The Board', floor: true, size: 116 },
+      { dir: 'right', to: 'members', label: "Member's Only", color: 'cyan', size: 84 },
     ],
   },
   slots: {
@@ -129,7 +140,8 @@ const SEED: Record<string, SceneId[]> = {
   arcade: ['lobby', 'arcade'],
   slots: ['lobby', 'arcade', 'slots'],
   pusher: ['lobby', 'arcade', 'pusher'],
-  members: ['lobby', 'arcade', 'members'],
+  gallery: ['lobby', 'arcade', 'gallery'],
+  members: ['lobby', 'arcade', 'gallery', 'members'],
 };
 
 const ArcadeScene: React.FC = () => {
