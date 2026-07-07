@@ -3,14 +3,21 @@
  *
  * Stores Solana wallet submissions (plus an optional X/Twitter handle) in
  * Firestore, keyed by wallet address so re-submissions are idempotent.
- * Requires the VITE_FIREBASE_* env vars to be set and Firestore rules that
- * allow creating documents in the `whitelist` collection.
+ *
+ * Writes go through Firestore's plain REST `:commit` endpoint instead of the
+ * Firebase SDK: the SDK funnels writes over a streaming WebChannel that
+ * silently hangs on restrictive networks, proxies and ad blockers, leaving
+ * the form stuck on "Joining…" forever. The REST call is one ordinary HTTPS
+ * POST — it succeeds or fails fast, and we bound it with a timeout so the
+ * user always gets an answer. The same Firestore security rules validate the
+ * document either way (see firestore.rules → `whitelist`).
  */
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { PublicKey } from '@solana/web3.js';
-import { db } from '../firebase.config';
+import app from '../firebase.config';
 
 export const WHITELIST_COLLECTION = 'whitelist';
+
+const SUBMIT_TIMEOUT_MS = 12_000;
 
 export interface WhitelistResult {
   ok: boolean;
@@ -45,24 +52,66 @@ export async function submitWhitelist(
   if (!isValidSolanaAddress(wallet)) {
     return { ok: false, message: 'That doesn’t look like a valid Solana wallet address.' };
   }
-  if (!db) {
+
+  const { projectId, apiKey } = app.options;
+  if (!projectId || !apiKey) {
     return { ok: false, message: 'Signups are temporarily unavailable. Please try again later.' };
   }
 
   const xHandle = normalizeHandle(xHandleInput);
+  const docPath = `projects/${projectId}/databases/(default)/documents/${WHITELIST_COLLECTION}/${wallet}`;
 
+  // Keyed by wallet → re-submitting just overwrites (idempotent). Write-only:
+  // the client never reads the collection, so the list stays private and the
+  // Firestore rules can deny all client reads. `submittedAt` uses a server
+  // timestamp transform, which the rules require (d.submittedAt == request.time).
+  const body = {
+    writes: [
+      {
+        update: {
+          name: docPath,
+          fields: {
+            wallet: { stringValue: wallet },
+            xHandle: xHandle ? { stringValue: xHandle } : { nullValue: null },
+          },
+        },
+        updateTransforms: [{ fieldPath: 'submittedAt', setToServerValue: 'REQUEST_TIME' }],
+      },
+    ],
+  };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
   try {
-    // Keyed by wallet → re-submitting just overwrites (idempotent). Write-only:
-    // the client never reads the collection, so the list stays private and the
-    // Firestore rules can deny all client reads.
-    await setDoc(doc(db, WHITELIST_COLLECTION, wallet), {
-      wallet,
-      xHandle: xHandle || null,
-      submittedAt: serverTimestamp(),
-    });
-    return { ok: true, message: 'You’re on the list! We’ll see you on mint day. 🍬' };
+    const res = await fetch(
+      `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:commit?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      },
+    );
+    if (res.ok) {
+      return { ok: true, message: 'You’re on the list! We’ll see you on mint day. 🍬' };
+    }
+    const err = await res.json().catch(() => null);
+    console.error('[whitelist] submit rejected:', res.status, err);
+    return {
+      ok: false,
+      message:
+        res.status === 403
+          ? 'This signup was rejected — double-check the wallet address and try again.'
+          : 'Something went wrong saving your spot. Please try again.',
+    };
   } catch (err) {
     console.error('[whitelist] submit failed:', err);
-    return { ok: false, message: 'Something went wrong saving your spot. Please try again.' };
+    return {
+      ok: false,
+      message:
+        'We couldn’t reach the signup service — check your connection (or pause ad blockers) and try again.',
+    };
+  } finally {
+    clearTimeout(timer);
   }
 }
