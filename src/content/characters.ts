@@ -1,8 +1,10 @@
 /**
  * The Cast — the 3D candy characters of the Sweetardio collection, one of
- * each. Files live in public/characters/; the site renders the trimmed cuts
- * in public/characters/trimmed/ (the originals are ~1MB sheet canvases).
- * Add new cast members here.
+ * each. Files live in public/characters/ and are rendered EXACTLY as
+ * authored — the collection's assets are pre-sized and pre-placed on their
+ * canvases (relative scale and position are intentional), so nothing here
+ * crops, trims or repositions them. Face/eyes/mouth trait layers share the
+ * same canvas alignment and stack 1:1 on top when added.
  */
 export interface Character {
   file: string;
@@ -47,4 +49,4 @@ export const CHARACTERS: Character[] = [
   { file: 'sugar_cube.png', name: 'Sugar Cube' },
 ];
 
-export const characterSrc = (c: Character) => `/characters/trimmed/${c.file}`;
+export const characterSrc = (c: Character) => `/characters/${c.file}`;
