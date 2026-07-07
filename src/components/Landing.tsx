@@ -4,8 +4,7 @@ import Lineage from './Lineage';
 import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
-
-const TICKER = ['Slots', 'Coinpusher', 'Sweetardios', 'Free to Play', 'On-Chain', 'Bonus Rounds', 'Leaderboards'];
+import { CAST, stickerSrc } from '../content/cast';
 
 const FEATURES = [
   { icon: '🎮', title: 'Free to Play', desc: 'Jump in and play for fun — no tokens needed right now.' },
@@ -220,20 +219,33 @@ const Landing = () => {
       </div>
     </section>
 
-    {/* TICKER */}
-    <div className="relative overflow-hidden border-y border-white/10 bg-sweetardios-oxford/60 py-3 backdrop-blur">
-      <div className="sw-marquee-track flex w-max whitespace-nowrap">
+    {/* CAST STREAM — the sticker cast drifts slowly across the page.
+        Click anywhere on the stream to meet the whole cast; hovering pauses it. */}
+    <Link
+      to="/cast"
+      aria-label="Meet the Sweetardio cast"
+      className="sw-cast-stream group relative block overflow-hidden border-y border-white/10 bg-sweetardios-oxford/60 py-4 backdrop-blur"
+    >
+      <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.3em] text-blue-100/45 transition-colors group-hover:text-sweetardios-cerise">
+        The Cast — meet them <span aria-hidden>→</span>
+      </div>
+      <div className="sw-marquee-track mt-4 flex w-max" style={{ animationDuration: '80s' }}>
         {[0, 1].map((k) => (
-          <div key={k} className="flex items-center" aria-hidden={k === 1}>
-            {TICKER.map((t, i) => (
-              <span key={i} className="mx-5 text-xs font-semibold uppercase tracking-[0.28em] text-blue-100/55">
-                <span className="text-sweetardios-cerise/70">◆</span> {t}
-              </span>
+          <div key={k} className="flex items-end" aria-hidden={k === 1}>
+            {CAST.map((c) => (
+              <img
+                key={c.file}
+                src={stickerSrc(c)}
+                alt={k === 0 ? c.name : ''}
+                title={c.name}
+                loading="lazy"
+                className="mx-3 h-16 w-16 object-contain drop-shadow-[0_8px_14px_rgba(0,0,0,0.55)] transition-transform duration-200 hover:scale-125 sm:h-20 sm:w-20"
+              />
             ))}
           </div>
         ))}
       </div>
-    </div>
+    </Link>
 
     {/* HERITAGE — neochibi lineage story leading into the mint */}
     <Lineage />
@@ -319,6 +331,7 @@ const Landing = () => {
           >
             Music
           </a>
+          <Link to="/cast" className="transition-colors hover:text-sweetardios-cerise">The Cast</Link>
           <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>
           <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>
           <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>

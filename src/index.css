@@ -148,6 +148,9 @@ body {
 /* Marquee ticker (track holds two copies, shifts by -50%) */
 @keyframes sw-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .sw-marquee-track { animation: sw-marquee 24s linear infinite; }
+
+/* Cast stream: pause the drift while inspecting the sweeties */
+.sw-cast-stream:hover .sw-marquee-track { animation-play-state: paused; }
 @keyframes sw-marquee-rev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 .sw-marquee-rev { animation: sw-marquee-rev 26s linear infinite; }
 

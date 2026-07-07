@@ -14,6 +14,7 @@ const JunkPusherPage = lazy(() => import('./pages/JunkPusher'));
 const ArcadePage = lazy(() => import('./pages/Arcade'));
 const WhitelistPage = lazy(() => import('./pages/Whitelist'));
 const BoardPage = lazy(() => import('./pages/Board'));
+const CastPage = lazy(() => import('./pages/Cast'));
 
 const NAV_HEIGHT = 56;
 
@@ -26,6 +27,7 @@ const NAV_LINKS: { label: string; to: string; hover: string; also?: string[] }[]
   { label: 'Arcade', to: '/arcade', hover: 'hover:text-sweetardios-cerise' },
   { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise', also: ['/slots'] },
   { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan', also: ['/coinpusher'] },
+  { label: 'The Cast', to: '/cast', hover: 'hover:text-sweetardios-cerise' },
   { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan', also: ['/board'] },
   { label: 'Whitelist', to: '/whitelist', hover: 'hover:text-sweetardios-cyan' },
 ];
@@ -154,6 +156,7 @@ const AppInner: React.FC = () => {
           <Route path="/whitelist" element={<WhitelistPage />} />
           <Route path="/arcade" element={<ArcadePage />} />
           <Route path="/board" element={<BoardPage />} />
+          <Route path="/cast" element={<CastPage />} />
           <Route path="/slots" element={<SlotsPage />} />
           <Route path="/coinpusher" element={<JunkPusherPage />} />
         </Routes>

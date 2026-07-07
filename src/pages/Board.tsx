@@ -145,20 +145,20 @@ const NoteModal = ({ post, onClose }: { post: BoardPost; onClose: () => void }) 
   );
 };
 
-/** Guest list — who's signed up for the whitelist, pinned under the board.
+/** Whitelist roster — who's signed up, pinned under the board.
  *  Renders nothing while the roster is unreadable (e.g. Firestore rules still
  *  deny public reads), so the page never looks broken. */
-const GuestList = ({ roster }: { roster: WhitelistRoster | null }) => {
+const WhitelistSection = ({ roster }: { roster: WhitelistRoster | null }) => {
   if (roster === null) return null;
   const { entries, more } = roster;
 
   return (
-    <section aria-label="Whitelist guest list" className="mx-auto mt-14 w-full max-w-3xl">
+    <section aria-label="Whitelist" className="mx-auto mt-14 w-full max-w-3xl">
       <header className="text-center">
         <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">On the list</p>
         <h2 className="font-heading mt-1 text-3xl text-white sm:text-4xl">
-          <span className="sw-glow-cerise text-sweetardios-cerise">Guest</span>{' '}
-          <span className="sw-glow-cyan text-sweetardios-cyan">List</span>
+          <span className="sw-glow-cerise text-sweetardios-cerise">White</span>
+          <span className="sw-glow-cyan text-sweetardios-cyan">list</span>
         </h2>
       </header>
 
@@ -321,7 +321,7 @@ export default function BoardPage() {
           Fresh notes get pinned here — check back often
         </p>
 
-        <GuestList roster={roster} />
+        <WhitelistSection roster={roster} />
       </section>
 
       {open && <NoteModal post={open} onClose={close} />}
