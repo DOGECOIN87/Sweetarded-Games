@@ -4,7 +4,7 @@ import Lineage from './Lineage';
 import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
-import { CAST, stickerSrc } from '../content/cast';
+import { STICKERS, stickerSrc } from '../content/stickers';
 
 const FEATURES = [
   { icon: '🎮', title: 'Free to Play', desc: 'Jump in and play for fun — no tokens needed right now.' },
@@ -219,20 +219,20 @@ const Landing = () => {
       </div>
     </section>
 
-    {/* CAST STREAM — the sticker cast drifts slowly across the page.
-        Click anywhere on the stream to meet the whole cast; hovering pauses it. */}
+    {/* STICKER STREAM — the sticker set drifts slowly across the page.
+        Click anywhere on the stream to see them all; hovering pauses it. */}
     <Link
-      to="/cast"
-      aria-label="Meet the Sweetardio cast"
+      to="/stickers"
+      aria-label="See all Sweetardio stickers"
       className="sw-cast-stream group relative block overflow-hidden border-y border-white/10 bg-sweetardios-oxford/60 py-4 backdrop-blur"
     >
       <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.3em] text-blue-100/45 transition-colors group-hover:text-sweetardios-cerise">
-        The Cast — meet them <span aria-hidden>→</span>
+        Stickers — see them all <span aria-hidden>→</span>
       </div>
       <div className="sw-marquee-track mt-4 flex w-max" style={{ animationDuration: '80s' }}>
         {[0, 1].map((k) => (
           <div key={k} className="flex items-end" aria-hidden={k === 1}>
-            {CAST.map((c) => (
+            {STICKERS.map((c) => (
               <img
                 key={c.file}
                 src={stickerSrc(c)}
@@ -332,6 +332,7 @@ const Landing = () => {
             Music
           </a>
           <Link to="/cast" className="transition-colors hover:text-sweetardios-cerise">The Cast</Link>
+          <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>
           <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>
           <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>
           <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>

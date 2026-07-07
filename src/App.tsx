@@ -15,6 +15,7 @@ const ArcadePage = lazy(() => import('./pages/Arcade'));
 const WhitelistPage = lazy(() => import('./pages/Whitelist'));
 const BoardPage = lazy(() => import('./pages/Board'));
 const CastPage = lazy(() => import('./pages/Cast'));
+const StickersPage = lazy(() => import('./pages/Stickers'));
 
 const NAV_HEIGHT = 56;
 
@@ -28,6 +29,7 @@ const NAV_LINKS: { label: string; to: string; hover: string; also?: string[] }[]
   { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise', also: ['/slots'] },
   { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan', also: ['/coinpusher'] },
   { label: 'The Cast', to: '/cast', hover: 'hover:text-sweetardios-cerise' },
+  { label: 'Stickers', to: '/stickers', hover: 'hover:text-sweetardios-cerise' },
   { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan', also: ['/board'] },
   { label: 'Whitelist', to: '/whitelist', hover: 'hover:text-sweetardios-cyan' },
 ];
@@ -64,7 +66,7 @@ const AppInner: React.FC = () => {
           </Link>
 
           {/* Desktop links */}
-          <div className="hidden items-center gap-5 lg:flex">
+          <div className="hidden items-center gap-4 lg:flex">
             {NAV_LINKS.map((l) => (
               <NavLink
                 key={l.label}
@@ -76,11 +78,12 @@ const AppInner: React.FC = () => {
                 {l.label}
               </NavLink>
             ))}
+            {/* Mint Now button covers this below xl */}
             <a
               href={MINT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan"
+              className="hidden text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan xl:inline"
             >
               Mint
             </a>
@@ -157,6 +160,7 @@ const AppInner: React.FC = () => {
           <Route path="/arcade" element={<ArcadePage />} />
           <Route path="/board" element={<BoardPage />} />
           <Route path="/cast" element={<CastPage />} />
+          <Route path="/stickers" element={<StickersPage />} />
           <Route path="/slots" element={<SlotsPage />} />
           <Route path="/coinpusher" element={<JunkPusherPage />} />
         </Routes>

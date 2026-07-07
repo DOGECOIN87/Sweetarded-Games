@@ -1,14 +1,14 @@
 /**
- * The Cast — every sticker character in the Sweetardio collection.
+ * The Stickers — every sticker character in the Sweetardio collection.
  * Files live in public/stickers/; names are the display labels used by the
- * landing-page cast stream and the /cast page. Add new cast members here.
+ * landing-page sticker stream and the /stickers page. Add new cast members here.
  */
-export interface CastMember {
+export interface Sticker {
   file: string;
   name: string;
 }
 
-export const CAST: CastMember[] = [
+export const STICKERS: Sticker[] = [
   { file: '01_Peppermint_Butler.png', name: 'Peppermint Butler' },
   { file: '02_Mr_Owl.png', name: 'Mr Owl' },
   { file: '03_Benson.png', name: 'Benson' },
@@ -43,4 +43,4 @@ export const CAST: CastMember[] = [
 
 /** The originals in public/stickers/ are huge sticker-sheet canvases with the
  *  art tucked in one corner — the site renders the trimmed cuts instead. */
-export const stickerSrc = (member: CastMember) => `/stickers/trimmed/${member.file}`;
+export const stickerSrc = (member: Sticker) => `/stickers/trimmed/${member.file}`;
