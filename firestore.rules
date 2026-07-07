@@ -15,12 +15,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ── Whitelist signups ──────────────────────────────────────────────
-    // Anyone may submit (no auth required). Nobody can read / list / delete
-    // from the client, so the wallet list stays private — view submissions in
-    // the Firebase console (Firestore → Data → whitelist). Re-submitting the
-    // same wallet just overwrites the document (idempotent).
+    // Anyone may submit (no auth required). Reads are PUBLIC so The Board's
+    // guest list can show who's whitelisted — note this makes every stored
+    // wallet address and handle publicly queryable. If you'd rather keep the
+    // list private again, set `allow read: if false;` (the guest-list section
+    // on /board hides itself automatically when reads are denied).
+    // Re-submitting the same wallet just overwrites the document (idempotent).
     match /whitelist/{wallet} {
-      allow read, delete: if false;
+      allow read: if true;
+      allow delete: if false;
       allow create, update: if isValidWhitelistSignup(wallet);
     }
 

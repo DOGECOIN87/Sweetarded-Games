@@ -34,6 +34,10 @@ the fields described in `src/services/boardService.ts` — or edit the
 starter notes in `src/content/boardPosts.ts`, which show whenever the
 collection is empty or unreachable.
 
+The board also shows a **Guest List** of whitelist signups. It requires
+public reads on the `whitelist` collection (see `firestore.rules`); until
+those rules are applied in the Firebase console the section hides itself.
+
 ## Getting started
 
 ```bash

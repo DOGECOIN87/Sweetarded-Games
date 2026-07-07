@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BoardPost, BoardPaper, fetchBoardPosts } from '../services/boardService';
+import { WhitelistRoster, fetchWhitelistRoster, shortWallet } from '../services/whitelistService';
 import { FALLBACK_BOARD_POSTS } from '../content/boardPosts';
 
 /**
@@ -144,14 +145,97 @@ const NoteModal = ({ post, onClose }: { post: BoardPost; onClose: () => void }) 
   );
 };
 
+/** Guest list — who's signed up for the whitelist, pinned under the board.
+ *  Renders nothing while the roster is unreadable (e.g. Firestore rules still
+ *  deny public reads), so the page never looks broken. */
+const GuestList = ({ roster }: { roster: WhitelistRoster | null }) => {
+  if (roster === null) return null;
+  const { entries, more } = roster;
+
+  return (
+    <section aria-label="Whitelist guest list" className="mx-auto mt-14 w-full max-w-3xl">
+      <header className="text-center">
+        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">On the list</p>
+        <h2 className="font-heading mt-1 text-3xl text-white sm:text-4xl">
+          <span className="sw-glow-cerise text-sweetardios-cerise">Guest</span>{' '}
+          <span className="sw-glow-cyan text-sweetardios-cyan">List</span>
+        </h2>
+      </header>
+
+      {/* Paper sheet pinned to the wall */}
+      <div
+        className="relative mx-auto mt-6 p-6 sm:p-8"
+        style={{
+          background: 'linear-gradient(180deg, #fffdf7 0%, #f2ecdb 100%)',
+          color: '#1c2245',
+          boxShadow: '0 24px 60px -18px rgba(0,0,0,0.75), 0 2px 5px rgba(0,0,0,0.35)',
+        }}
+      >
+        <span
+          aria-hidden
+          className="absolute -top-3 left-1/2 h-6 w-6 -translate-x-1/2"
+          style={{
+            borderRadius: '9999px',
+            background: 'radial-gradient(circle at 32% 28%, #ffffffcc, #34EDF3 45%, #34EDF3)',
+            boxShadow: '0 6px 6px -2px rgba(0,0,0,0.45), 0 0 10px #34EDF366',
+          }}
+        />
+
+        <div className="flex items-baseline justify-between gap-3 border-b-2 border-current/15 pb-3">
+          <h3 className="font-heading text-xl">Whitelisted sweeties</h3>
+          <span className="text-xs font-bold uppercase tracking-wide opacity-60">
+            {entries.length}{more ? '+' : ''} signed up
+          </span>
+        </div>
+
+        {entries.length === 0 ? (
+          <p className="mt-5 text-sm opacity-75">
+            Nobody's signed the list yet — be the first!
+          </p>
+        ) : (
+          <ul className="mt-5 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+            {entries.map((e) => (
+              <li key={e.wallet} className="flex min-w-0 items-baseline gap-2 text-[13px]">
+                <span aria-hidden className="shrink-0 text-sweetardios-cerise">✦</span>
+                {e.xHandle ? (
+                  <>
+                    <span className="truncate font-semibold">@{e.xHandle}</span>
+                    <code className="shrink-0 font-mono text-[11px] opacity-50">{shortWallet(e.wallet)}</code>
+                  </>
+                ) : (
+                  <code className="truncate font-mono">{shortWallet(e.wallet)}</code>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-7 text-center">
+          <Link
+            to="/whitelist"
+            className="sw-shine inline-flex items-center gap-2 px-6 py-2.5 text-xs font-extrabold uppercase tracking-wide text-white"
+            style={{ background: '#F715AB' }}
+          >
+            Get on the list <span aria-hidden>→</span>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default function BoardPage() {
   const [posts, setPosts] = useState<BoardPost[] | null>(null);
+  const [roster, setRoster] = useState<WhitelistRoster | null>(null);
   const [open, setOpen] = useState<BoardPost | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     fetchBoardPosts().then((remote) => {
       if (!cancelled) setPosts(remote.length > 0 ? remote : FALLBACK_BOARD_POSTS);
+    });
+    fetchWhitelistRoster().then((r) => {
+      if (!cancelled) setRoster(r);
     });
     return () => {
       cancelled = true;
@@ -236,6 +320,8 @@ export default function BoardPage() {
         <p className="mt-6 text-center text-[11px] uppercase tracking-[0.24em] text-white/35">
           Fresh notes get pinned here — check back often
         </p>
+
+        <GuestList roster={roster} />
       </section>
 
       {open && <NoteModal post={open} onClose={close} />}
