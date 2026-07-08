@@ -13,7 +13,11 @@ interface OverlayProps {
     onDropCoin: () => void;
     onDeposit: (amount: number) => Promise<string | null>;
     onWithdraw: (amount: number) => Promise<string | null>;
+    /** Free off-chain refill back to the starting credit stack */
+    onRefill: () => void;
     wallet: any;
+    /** True only when a real on-chain program is configured (enables deposit/withdraw) */
+    onChainReady?: boolean;
 }
 
 export const Overlay: React.FC<OverlayProps> = ({
@@ -24,7 +28,9 @@ export const Overlay: React.FC<OverlayProps> = ({
     onDropCoin,
     onDeposit,
     onWithdraw,
-    wallet
+    onRefill,
+    wallet,
+    onChainReady = false,
 }) => {
     const walletMenuRef = useRef<HTMLDivElement>(null);
     const [showWalletMenu, setShowWalletMenu] = useState(false);
@@ -85,7 +91,15 @@ export const Overlay: React.FC<OverlayProps> = ({
     const handlePopupDepositClick = async () => {
         if (txStatus !== 'idle') return;
         if (gameState.balance <= 0) {
-            await doDeposit(setTxStatus);
+            if (onChainReady) {
+                await doDeposit(setTxStatus);
+            } else {
+                // Off-chain arcade: refill the stack for free. The popup hides
+                // itself as soon as the balance goes positive.
+                soundManager.initialize();
+                soundManager.play('button_click');
+                onRefill();
+            }
         } else {
             onBump();
         }
@@ -201,10 +215,17 @@ export const Overlay: React.FC<OverlayProps> = ({
                                     </>
                                 ) : (
                                     <div className="px-3 sm:px-4 py-3 sm:py-4">
-                                        <p className="text-xs sm:text-sm text-green-300/50 mb-3 sm:mb-4 font-[Inter]">Wallet connection coming soon. Gorbagana testnet support enabled.</p>
-                                        <div className="text-[10px] sm:text-xs text-green-400/40 font-[Inter]">
-                                            Network: <span className="text-green-300">Devnet (Gorbagana)</span>
-                                        </div>
+                                        <p className="text-xs sm:text-sm text-green-300/60 mb-3 font-[Inter]">
+                                            Connect a wallet (Phantom, Backpack, Nightly, Solflare…) to tie your
+                                            credits and leaderboard rank to your address. Top players earn perks
+                                            when the NFT collection mints.
+                                        </p>
+                                        <button
+                                            onClick={() => { wallet.connectWallet(); setShowWalletMenu(false); }}
+                                            className="w-full py-2 bg-green-900/60 border border-green-500/50 text-green-200 hover:bg-green-800/70 hover:text-white transition-colors text-xs sm:text-sm font-bold uppercase tracking-widest"
+                                        >
+                                            Connect Wallet
+                                        </button>
                                     </div>
                                 )}
                             </div>
@@ -301,22 +322,20 @@ export const Overlay: React.FC<OverlayProps> = ({
 
                     {/* Controls */}
                     <div className="flex flex-wrap justify-center gap-1.5 sm:gap-3 pointer-events-auto">
-                        {wallet.isConnected && (
-                            <button
-                                onClick={() => {
-                                    soundManager.initialize();
-                                    soundManager.play('ui_open');
-                                    setShowHighScores(true);
-                                }}
-                                className="group h-9 sm:h-12 min-w-[72px] sm:min-w-[120px] bg-cyan-950/30 border border-cyan-500/30 hover:bg-cyan-900/50 hover:border-cyan-400 transition-all skew-x-[-15deg] backdrop-blur-sm"
-                            >
-                                <div className="skew-x-[15deg] flex items-center justify-center h-full px-2 sm:px-0">
-                                    <span className="font-heading text-[8px] sm:text-[10px] text-cyan-200 font-bold tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-white group-hover:drop-shadow-[0_0_5px_#00FFFF] uppercase">
-                                        Scores
-                                    </span>
-                                </div>
-                            </button>
-                        )}
+                        <button
+                            onClick={() => {
+                                soundManager.initialize();
+                                soundManager.play('ui_open');
+                                setShowHighScores(true);
+                            }}
+                            className="group h-9 sm:h-12 min-w-[72px] sm:min-w-[120px] bg-cyan-950/30 border border-cyan-500/30 hover:bg-cyan-900/50 hover:border-cyan-400 transition-all skew-x-[-15deg] backdrop-blur-sm"
+                        >
+                            <div className="skew-x-[15deg] flex items-center justify-center h-full px-2 sm:px-0">
+                                <span className="font-heading text-[8px] sm:text-[10px] text-cyan-200 font-bold tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-white group-hover:drop-shadow-[0_0_5px_#00FFFF] uppercase">
+                                    Scores
+                                </span>
+                            </div>
+                        </button>
                         <button
                             onClick={() => {
                                 soundManager.initialize();
@@ -347,8 +366,8 @@ export const Overlay: React.FC<OverlayProps> = ({
                             </div>
                         </button>
 
-                        {/* Deposit Button */}
-                        {wallet.isConnected && (
+                        {/* Deposit Button (on-chain only) */}
+                        {wallet.isConnected && onChainReady && (
                             <button
                                 onClick={() => {
                                     soundManager.initialize();
@@ -383,8 +402,8 @@ export const Overlay: React.FC<OverlayProps> = ({
                             </button>
                         )}
 
-                        {/* Withdraw Controls */}
-                        {wallet.isConnected && gameState.balance > 0 && (
+                        {/* Withdraw Controls (on-chain only) */}
+                        {wallet.isConnected && onChainReady && gameState.balance > 0 && (
                             <>
                                 <button
                                     onClick={() => {
@@ -478,14 +497,16 @@ export const Overlay: React.FC<OverlayProps> = ({
                             </h2>
 
                             <p className="text-green-200/60 text-xs sm:text-sm mb-5 sm:mb-8 font-[Inter] leading-relaxed max-w-[90%] sm:max-w-[80%]">
-                                {gameState.balance <= 0 
-                                    ? 'Resource depletion detected. Production halted.' 
-                                    : 'Running low on SWEET tokens. Consider refilling to continue.'}
+                                {gameState.balance <= 0
+                                    ? 'Resource depletion detected. Production halted.'
+                                    : 'Running low on SWEET credits. Consider refilling to continue.'}
                                 <br />
                                 <span className="text-green-400 font-bold">
-                                    {wallet.isConnected
-                                        ? 'Deposit SWEET tokens to continue playing.'
-                                        : 'Connect wallet to deposit SWEET and continue.'}
+                                    {onChainReady
+                                        ? (wallet.isConnected
+                                            ? 'Deposit SWEET tokens to continue playing.'
+                                            : 'Connect wallet to deposit SWEET and continue.')
+                                        : 'Refill your credit stack on the house — refills never boost your Net Profit rank.'}
                                 </span>
                             </p>
 
@@ -501,13 +522,21 @@ export const Overlay: React.FC<OverlayProps> = ({
                                     {txStatus === 'idle' && (
                                         <>
                                             <span className="font-heading font-bold text-white tracking-[0.15em] sm:tracking-[0.2em] text-base sm:text-xl group-hover:text-white drop-shadow-md">
-                                                {!wallet.isConnected 
+                                                {!onChainReady
+                                                    ? 'REFILL CREDITS'
+                                                    : !wallet.isConnected
                                                     ? 'CONNECT WALLET'
                                                     : gameState.balance <= 0
                                                     ? 'DEPOSIT SWEET'
                                                     : 'BUMP'}
                                             </span>
-                                            {wallet.isConnected && (
+                                            {!onChainReady ? (
+                                                <div className="flex items-center gap-1 mt-0.5 sm:mt-1">
+                                                    <span className="text-[9px] sm:text-[10px] text-green-200 font-mono bg-black/40 px-1.5 py-0.5 rounded border border-green-500/30">
+                                                        Free · back to full stack
+                                                    </span>
+                                                </div>
+                                            ) : wallet.isConnected && (
                                                 <div className="flex items-center gap-1 mt-0.5 sm:mt-1">
                                                     <span className="text-[9px] sm:text-[10px] text-green-200 font-mono bg-black/40 px-1.5 py-0.5 rounded border border-green-500/30">
                                                         {gameState.balance <= 0 ? `${DEPOSIT_AMOUNT} SWEET` : '20 SWEET'}

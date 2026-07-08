@@ -18,7 +18,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
   const [scores, setScores] = useState<LeaderboardEntry[]>([]);
   const [playerRank, setPlayerRank] = useState<{ rank: number; total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profit' | 'balance'>('profit');
+  const [activeTab, setActiveTab] = useState<'profit' | 'win' | 'balance'>('profit');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,7 +31,8 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
     setIsLoading(true);
     setError(null);
     try {
-      const sortBy: SortField = activeTab === 'profit' ? 'netProfit' : 'balance';
+      const sortBy: SortField =
+        activeTab === 'profit' ? 'netProfit' : activeTab === 'win' ? 'score' : 'balance';
       const data = await getLeaderboard('slots', sortBy, 100);
       setScores(data);
 
@@ -59,10 +60,10 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 pointer-events-auto"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="relative w-full max-w-2xl max-h-[85vh] bg-black border border-magic-blue/40 overflow-hidden shadow-[0_0_40px_rgba(0,212,255,0.1)]">
+      <div className="relative w-full max-w-2xl max-h-[85vh] bg-sweetardios-oxford border border-sweetardios-violet/60 overflow-hidden shadow-[0_0_40px_rgba(52,237,243,0.18)]">
 
         {/* Header */}
-        <div className="relative bg-magic-card border-b border-magic-blue/30 px-6 py-5">
+        <div className="relative bg-[#0a1544] border-b border-sweetardios-violet/40 px-6 py-5">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 text-gray-500 hover:text-white transition-colors"
@@ -75,7 +76,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
           </button>
 
           <div className="flex items-center gap-3 mb-1">
-            <div className="bg-magic-blue text-black p-1.5">
+            <div className="bg-sweetardios-cerise text-black p-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
@@ -84,12 +85,12 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
               Leaderboard
             </h2>
           </div>
-          <p className="text-gray-500 text-xs font-mono uppercase tracking-wider">
-            Skill Game · Top players
+          <p className="text-blue-100/50 text-xs font-mono uppercase tracking-wider">
+            Sweetardio Slots · Top players earn perks at mint
           </p>
 
           {playerRank && playerRank.rank > 0 && (
-            <div className="mt-4 p-3 bg-black border border-magic-blue/30">
+            <div className="mt-4 p-3 bg-black border border-sweetardios-violet/40">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500 text-xs uppercase font-bold">Your Rank</span>
                 <span className="text-white font-mono font-bold text-lg">
@@ -101,27 +102,24 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-white/20 bg-magic-card">
-          <button
-            onClick={() => setActiveTab('profit')}
-            className={`flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest transition-colors border-b-2 ${
-              activeTab === 'profit'
-                ? 'bg-white text-black border-white'
-                : 'text-gray-400 border-transparent hover:text-white hover:bg-white/5'
-            }`}
-          >
-            Top Profits
-          </button>
-          <button
-            onClick={() => setActiveTab('balance')}
-            className={`flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest transition-colors border-b-2 ${
-              activeTab === 'balance'
-                ? 'bg-white text-black border-white'
-                : 'text-gray-400 border-transparent hover:text-white hover:bg-white/5'
-            }`}
-          >
-            Top Balances
-          </button>
+        <div className="flex border-b border-white/20 bg-[#0a1544]">
+          {([
+            { id: 'profit', label: 'Net Profit' },
+            { id: 'win', label: 'Biggest Win' },
+            { id: 'balance', label: 'Credits' },
+          ] as const).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-3 px-4 text-xs font-bold uppercase tracking-widest transition-colors border-b-2 ${
+                activeTab === tab.id
+                  ? 'bg-white/[0.06] text-sweetardios-cyan border-sweetardios-cyan'
+                  : 'text-gray-400 border-transparent hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Content */}
@@ -129,7 +127,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <div className="text-center">
-                <div className="w-8 h-8 border-2 border-magic-blue border-t-transparent animate-spin mx-auto mb-4" />
+                <div className="w-8 h-8 border-2 border-sweetardios-cyan border-t-transparent animate-spin mx-auto mb-4" />
                 <p className="text-gray-500 font-mono text-xs uppercase tracking-wider">Loading scores...</p>
               </div>
             </div>
@@ -139,7 +137,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
               <p className="text-gray-500 font-mono text-sm mb-4">{error}</p>
               <button
                 onClick={loadScores}
-                className="bg-magic-blue text-black px-6 py-2 font-bold uppercase tracking-wider text-xs hover:bg-white transition-colors"
+                className="bg-sweetardios-cerise text-black px-6 py-2 font-bold uppercase tracking-wider text-xs hover:bg-white transition-colors"
               >
                 Retry
               </button>
@@ -156,24 +154,25 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
                 <div className="p-3 text-center">#</div>
                 <div className="p-3">Player</div>
                 <div className="p-3 text-right">
-                  {activeTab === 'profit' ? 'Net Profit' : 'Balance'}
+                  {activeTab === 'profit' ? 'Net Profit' : activeTab === 'win' ? 'Biggest Win' : 'Credits'}
                 </div>
                 <div className="p-3 text-right">
-                  {activeTab === 'profit' ? 'Balance' : 'Net Profit'}
+                  {activeTab === 'profit' ? 'Biggest Win' : 'Net Profit'}
                 </div>
               </div>
 
               {/* Rows */}
               {scores.map((entry) => {
                 const isCurrentPlayer = me === entry.player;
-                const primaryValue = activeTab === 'profit' ? entry.netProfit : entry.balance;
-                const secondaryValue = activeTab === 'profit' ? entry.balance : entry.netProfit;
+                const primaryValue =
+                  activeTab === 'profit' ? entry.netProfit : activeTab === 'win' ? entry.score : entry.balance;
+                const secondaryValue = activeTab === 'profit' ? entry.score : entry.netProfit;
                 return (
                   <div
                     key={entry.player}
                     className={`grid grid-cols-[48px_1fr_120px_120px] border-b border-white/5 transition-colors ${
                       isCurrentPlayer
-                        ? 'bg-magic-blue/10 border-l-2 border-l-magic-blue'
+                        ? 'bg-sweetardios-cyan/10 border-l-2 border-l-sweetardios-cyan'
                         : 'hover:bg-white/5'
                     }`}
                   >
@@ -196,7 +195,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
                     <div className="p-3 min-w-0">
                       <div className="font-mono text-sm text-white truncate">
                         {isCurrentPlayer ? (
-                          <span className="text-magic-blue font-bold">{entry.name || 'You'}</span>
+                          <span className="text-sweetardios-cyan font-bold">{entry.name || 'You'}</span>
                         ) : (
                           entry.name || shortAddress(entry.player)
                         )}
@@ -209,9 +208,9 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
                     {/* Primary value */}
                     <div className="p-3 text-right">
                       <span className={`font-mono font-bold ${
-                        primaryValue >= 0 ? 'text-magic-blue' : 'text-red-400'
+                        primaryValue >= 0 ? 'text-sweetardios-cyan' : 'text-red-400'
                       }`}>
-                        {primaryValue > 0 ? '+' : ''}{primaryValue.toLocaleString()}
+                        {activeTab === 'profit' && primaryValue > 0 ? '+' : ''}{primaryValue.toLocaleString()}
                       </span>
                     </div>
 
@@ -220,7 +219,7 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
                       <span className={`font-mono text-sm ${
                         secondaryValue >= 0 ? 'text-white' : 'text-red-400'
                       }`}>
-                        {secondaryValue > 0 && activeTab === 'balance' ? '+' : ''}{secondaryValue.toLocaleString()}
+                        {activeTab !== 'profit' && secondaryValue > 0 ? '+' : ''}{secondaryValue.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -231,11 +230,14 @@ export const SlotsLeaderboard: React.FC<SlotsLeaderboardProps> = ({ isOpen, onCl
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/20 bg-magic-card p-4">
+        <div className="border-t border-white/20 bg-[#0a1544] p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-gray-600 font-mono uppercase tracking-wider">
-              Live leaderboard
-            </span>
+            <a
+              href="#/leaderboard"
+              className="text-[10px] font-mono uppercase tracking-wider text-sweetardios-cerise hover:text-white transition-colors"
+            >
+              Full leaderboards →
+            </a>
             <button
               onClick={loadScores}
               className="bg-white/10 text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-white/20 transition-colors border border-white/20"

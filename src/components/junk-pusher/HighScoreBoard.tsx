@@ -66,10 +66,10 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 pointer-events-auto"
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >
-      <div className="relative w-full max-w-2xl max-h-[85vh] bg-black border border-magic-blue/40 overflow-hidden shadow-[0_0_40px_rgba(0,212,255,0.1)]">
+      <div className="relative w-full max-w-2xl max-h-[85vh] bg-sweetardios-oxford border border-sweetardios-violet/60 overflow-hidden shadow-[0_0_40px_rgba(52,237,243,0.18)]">
 
         {/* Header */}
-        <div className="relative bg-magic-card border-b border-magic-blue/30 px-6 py-5">
+        <div className="relative bg-[#0a1544] border-b border-sweetardios-violet/40 px-6 py-5">
           {/* Close Button */}
           <button
             onClick={handleClose}
@@ -83,7 +83,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
           </button>
 
           <div className="flex items-center gap-3 mb-1">
-            <div className="bg-magic-blue text-black p-1.5">
+            <div className="bg-sweetardios-cerise text-black p-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
@@ -92,13 +92,13 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
               Leaderboard
             </h2>
           </div>
-          <p className="text-gray-500 text-xs font-mono uppercase tracking-wider">
-            Coinpusher · Top players
+          <p className="text-blue-100/50 text-xs font-mono uppercase tracking-wider">
+            Coinpusher · Top players earn perks at mint
           </p>
 
           {/* Player Rank */}
           {playerRank && playerRank.rank > 0 && (
-            <div className="mt-4 p-3 bg-black border border-magic-blue/30">
+            <div className="mt-4 p-3 bg-black border border-sweetardios-violet/40">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500 text-xs uppercase font-bold">Your Rank</span>
                 <span className="text-white font-mono font-bold text-lg">
@@ -110,7 +110,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-white/20 bg-magic-card">
+        <div className="flex border-b border-white/20 bg-[#0a1544]">
           <button
             onClick={() => {
               soundManager.play('button_click');
@@ -144,7 +144,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <div className="text-center">
-                <div className="w-8 h-8 border-2 border-magic-blue border-t-transparent animate-spin mx-auto mb-4" />
+                <div className="w-8 h-8 border-2 border-sweetardios-cyan border-t-transparent animate-spin mx-auto mb-4" />
                 <p className="text-gray-500 font-mono text-xs uppercase tracking-wider">Loading scores...</p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
                   soundManager.play('button_click');
                   loadHighScores();
                 }}
-                className="bg-magic-blue text-black px-6 py-2 font-bold uppercase tracking-wider text-xs hover:bg-white transition-colors"
+                className="bg-sweetardios-cerise text-black px-6 py-2 font-bold uppercase tracking-wider text-xs hover:bg-white transition-colors"
               >
                 Retry
               </button>
@@ -185,7 +185,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
                     key={entry.player}
                     className={`grid grid-cols-[48px_1fr_100px_100px] sm:grid-cols-[48px_1fr_120px_120px] border-b border-white/5 transition-colors ${
                       isCurrentPlayer
-                        ? 'bg-magic-blue/10 border-l-2 border-l-magic-blue'
+                        ? 'bg-sweetardios-cyan/10 border-l-2 border-l-sweetardios-cyan'
                         : 'hover:bg-white/5'
                     }`}
                   >
@@ -208,7 +208,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
                     <div className="p-3 min-w-0">
                       <div className="font-mono text-sm text-white truncate">
                         {isCurrentPlayer ? (
-                          <span className="text-magic-blue font-bold">{entry.name || 'You'}</span>
+                          <span className="text-sweetardios-cyan font-bold">{entry.name || 'You'}</span>
                         ) : (
                           entry.name || shortAddress(entry.player)
                         )}
@@ -228,7 +228,7 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
                     {/* Profit */}
                     <div className="p-3 text-right">
                       <span className={`font-mono font-bold ${
-                        entry.netProfit >= 0 ? 'text-magic-blue' : 'text-magic-red'
+                        entry.netProfit >= 0 ? 'text-sweetardios-cyan' : 'text-red-400'
                       }`}>
                         {entry.netProfit > 0 ? '+' : ''}{entry.netProfit.toLocaleString()}
                       </span>
@@ -241,11 +241,14 @@ export const HighScoreBoard: React.FC<HighScoreBoardProps> = ({ isOpen, onClose 
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/20 bg-magic-card p-4">
+        <div className="border-t border-white/20 bg-[#0a1544] p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-gray-600 font-mono uppercase tracking-wider">
-              Live leaderboard
-            </span>
+            <a
+              href="#/leaderboard"
+              className="text-[10px] font-mono uppercase tracking-wider text-sweetardios-cyan hover:text-white transition-colors"
+            >
+              Full leaderboards →
+            </a>
             <button
               onClick={() => {
                 soundManager.play('button_click');

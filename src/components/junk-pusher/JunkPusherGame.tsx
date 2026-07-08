@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useConnection } from '@solana/wallet-adapter-react';
 import { GameEngine } from '../../lib/GameEngine';
 import { Overlay } from './Overlay';
 import RainOverlay from './RainOverlay';
 import { GameState } from '../../lib/types';
 import { useGameWallet } from './WalletAdapter';
 import { useJunkPusherOnChain } from '../../lib/useJunkPusherOnChain';
-import { getPlayerGameBalance } from '../../lib/highScoreService';
-import { PROGRAM_ID } from '../../lib/JunkPusherClient';
+import { STARTING_CREDITS, getCredits, setCredits } from '../../lib/credits';
 import { setupAutoSave, loadGameState, clearGameState } from '../../lib/statePersistence';
 import { soundManager } from '../../lib/soundManager';
 import { pushGameEvent } from '../../services/activityService';
 import { subscribeToJunkPusherConfig } from '../../services/gameConfigService';
 import { submitScore } from '../../services/leaderboardService';
-import { resolvePlayer } from '../../lib/playerIdentity';
-import { PublicKey } from '@solana/web3.js';
+import { resolvePlayer, currentPlayerId } from '../../lib/playerIdentity';
 
 type MascotPhase = 'hidden' | 'rising' | 'visible' | 'falling';
 
@@ -22,7 +19,6 @@ const JunkPusherGame: React.FC = () => {
     const gameCanvasRef = useRef<HTMLCanvasElement>(null);
     const engineRef = useRef<GameEngine | null>(null);
     const wallet = useGameWallet();
-    const { connection } = useConnection();
 
     // On-chain integration hook
     const onChain = useJunkPusherOnChain();
@@ -85,7 +81,7 @@ const JunkPusherGame: React.FC = () => {
 
     const [gameState, setGameState] = useState<GameState>({
         score: 0,
-        balance: 100, // Start with 100 free SWEET tokens to try the game
+        balance: STARTING_CREDITS, // shared credit stack — restored per player below
         netProfit: 0,
         fps: 0,
         isPaused: false,
@@ -136,59 +132,33 @@ const JunkPusherGame: React.FC = () => {
         });
     }, [wallet.isConnected]);
 
-    // Silently restore saved state on mount to protect player coins
-    // Priority: 1) On-chain PDA balance  2) localStorage fallback
+    // Silently restore saved state so a refresh (or crash) never eats coins.
+    // Balance comes from the shared arcade credits stack (per player identity —
+    // wallet address or anon id); score / net profit from the local game save.
     const recoveredRef = useRef<{ balance: number; score: number; netProfit: number } | null>(null);
-    const hasRestoredRef = useRef(false);
     useEffect(() => {
-        if (hasRestoredRef.current) return;
-        hasRestoredRef.current = true;
+        const playerId = currentPlayerId(wallet.publicKey);
+        let cancelled = false;
 
         const restore = async () => {
-            // 1. Try reading on-chain game state PDA balance
-            if (wallet.publicKey && connection) {
-                try {
-                    const playerPubkey = new PublicKey(wallet.publicKey);
-                    const pdaBalance = await getPlayerGameBalance(connection, PROGRAM_ID, playerPubkey);
-                    if (pdaBalance !== null && pdaBalance > 0) {
-                        const recovered = { balance: pdaBalance, score: 0, netProfit: 0 };
-                        // Also pull score/netProfit from localStorage if available
-                        const local = loadGameState(wallet.publicKey);
-                        if (local) {
-                            recovered.score = local.score;
-                            recovered.netProfit = local.netProfit;
-                        }
-                        recoveredRef.current = recovered;
-                        setGameState(prev => ({
-                            ...prev,
-                            balance: recovered.balance,
-                            score: recovered.score,
-                            netProfit: recovered.netProfit,
-                        }));
-                        engineRef.current?.restoreState(recovered.balance, recovered.score, recovered.netProfit);
-                        return;
-                    }
-                } catch (err) {
-                    console.warn('[JunkPusher] PDA balance read failed, using localStorage:', err);
-                }
-            }
-
-            // 2. Fallback: localStorage
-            const recovered = loadGameState(wallet.publicKey);
-            if (recovered) {
-                recoveredRef.current = recovered;
-                setGameState(prev => ({
-                    ...prev,
-                    balance: recovered.balance,
-                    score: recovered.score,
-                    netProfit: recovered.netProfit,
-                }));
-                engineRef.current?.restoreState(recovered.balance, recovered.score, recovered.netProfit);
-            }
+            const credits = await getCredits(playerId); // mints STARTING_CREDITS on first play
+            if (cancelled) return;
+            const local = loadGameState(playerId) ?? loadGameState(wallet.publicKey);
+            const recovered = {
+                balance: credits,
+                score: local?.score ?? 0,
+                netProfit: local?.netProfit ?? 0,
+            };
+            recoveredRef.current = recovered;
+            setGameState(prev => ({ ...prev, ...recovered }));
+            engineRef.current?.restoreState(recovered.balance, recovered.score, recovered.netProfit);
         };
 
         restore();
-    }, [wallet.publicKey, connection]);
+        return () => {
+            cancelled = true;
+        };
+    }, [wallet.publicKey]);
 
     // Initialize sound manager on first user interaction with the game
     useEffect(() => {
@@ -200,13 +170,23 @@ const JunkPusherGame: React.FC = () => {
         return () => window.removeEventListener('pointerdown', initSound);
     }, []);
 
-    // Setup auto-save (uses refs to avoid re-registering on every state change)
+    // Setup auto-save (uses refs to avoid re-registering on every state change).
+    // Persists score/netProfit to the game save and the balance to the shared
+    // credits stack, keyed by the player identity (wallet or anon id).
     useEffect(() => {
         const cleanup = setupAutoSave(
             () => gameStateRef.current,
-            () => walletKeyRef.current
+            () => currentPlayerId(walletKeyRef.current)
         );
-        return cleanup;
+        const creditsInterval = setInterval(() => {
+            setCredits(currentPlayerId(walletKeyRef.current), gameStateRef.current.balance);
+        }, 5000);
+        return () => {
+            cleanup();
+            clearInterval(creditsInterval);
+            // Final flush so leaving the page mid-run keeps your stack current
+            setCredits(currentPlayerId(walletKeyRef.current), gameStateRef.current.balance);
+        };
     }, []);
 
     useEffect(() => {
@@ -321,12 +301,13 @@ const JunkPusherGame: React.FC = () => {
             engineRef.current.reset();
             setGameState({
                 score: 0,
-                balance: 100, // Reset with 100 free SWEET tokens
+                balance: STARTING_CREDITS, // fresh run, fresh starting stack
                 netProfit: 0,
                 fps: currentState.fps,
                 isPaused: false,
             });
             clearGameState();
+            setCredits(currentPlayerId(walletKeyRef.current), STARTING_CREDITS);
         }
     }, [wallet.isConnected]);
 
@@ -382,6 +363,19 @@ const JunkPusherGame: React.FC = () => {
             txInFlightRef.current = false;
         }
     }, [wallet.isConnected]);
+
+    /** Off-chain refill: top the shared stack back up to STARTING_CREDITS, free. */
+    const handleRefill = useCallback(() => {
+        const delta = STARTING_CREDITS - gameStateRef.current.balance;
+        if (delta <= 0) return;
+        if (engineRef.current) {
+            engineRef.current.addBalance(delta);
+        } else {
+            setGameState(prev => ({ ...prev, balance: prev.balance + delta }));
+        }
+        setCredits(currentPlayerId(walletKeyRef.current), STARTING_CREDITS);
+        pushGameEvent('DEPOSIT', 'Player refilled their SWEET credit stack');
+    }, []);
 
     const handlePauseToggle = () => {
         if (engineRef.current) {
@@ -563,8 +557,10 @@ const JunkPusherGame: React.FC = () => {
                     onReset={handleReset}
                     onDeposit={handleDeposit}
                     onWithdraw={handleWithdraw}
+                    onRefill={handleRefill}
                     onPauseToggle={handlePauseToggle}
                     wallet={wallet}
+                    onChainReady={onChain.isProgramReady}
                 />
             </div>
             {adminPaused && (

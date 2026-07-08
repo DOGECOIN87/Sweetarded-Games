@@ -14,8 +14,11 @@
  *   leaderboard_coinpusher/{player}
  *
  * NOTE: scores are written from the client, so the board is not tamper-proof.
- * Firestore rules validate document shape and clamp value ranges; for a launch
- * arcade this is the standard trade-off. See firestore.rules.
+ * Firestore rules validate document shape, clamp value ranges, enforce a
+ * minimum interval between writes, and cap how much any single write can move
+ * a player's numbers; for a launch arcade this is the standard trade-off. See
+ * firestore.rules — and review top standings manually before paying out any
+ * NFT-launch rewards.
  */
 import {
   collection,
@@ -52,7 +55,11 @@ export interface ScoreSubmission {
   netProfit: number;
 }
 
-const MAX_VALUE = 1e15;
+const MAX_VALUE = 1e12; // must match the caps in firestore.rules
+
+// Firestore rules reject writes that land < 2s after the previous one, so we
+// throttle client-side with a trailing flush: the latest standing always lands.
+const MIN_SUBMIT_INTERVAL_MS = 3000;
 
 function collectionName(game: LeaderboardGame): string {
   return `leaderboard_${game}`;
@@ -87,12 +94,44 @@ function toEntry(data: Record<string, unknown>, rank: number): LeaderboardEntry 
   };
 }
 
+/** Strip control characters and trim — display names go straight onto the board. */
+function sanitizeName(name: string): string {
+  // eslint-disable-next-line no-control-regex
+  return (name || 'Anon').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 24) || 'Anon';
+}
+
 /**
  * Upsert a player's standing. Keeps the best `score` ever seen and the latest
  * `balance` / `netProfit`. Fire-and-forget: never throws to the caller.
+ * Throttled per game with a trailing flush so rapid play still ends with the
+ * final standing on the board without tripping the Firestore rate-limit rules.
  */
-export async function submitScore(game: LeaderboardGame, sub: ScoreSubmission): Promise<void> {
+const pendingSubmits = new Map<LeaderboardGame, ScoreSubmission>();
+const flushTimers = new Map<LeaderboardGame, ReturnType<typeof setTimeout>>();
+const lastSubmitAt = new Map<LeaderboardGame, number>();
+
+export function submitScore(game: LeaderboardGame, sub: ScoreSubmission): void {
   if (!db || !sub.player) return;
+  pendingSubmits.set(game, sub);
+  if (flushTimers.has(game)) return; // a trailing flush is already scheduled
+
+  const elapsed = Date.now() - (lastSubmitAt.get(game) ?? 0);
+  const delay = Math.max(0, MIN_SUBMIT_INTERVAL_MS - elapsed);
+  flushTimers.set(
+    game,
+    setTimeout(() => {
+      flushTimers.delete(game);
+      const latest = pendingSubmits.get(game);
+      pendingSubmits.delete(game);
+      if (latest) {
+        lastSubmitAt.set(game, Date.now());
+        writeScore(game, latest);
+      }
+    }, delay)
+  );
+}
+
+async function writeScore(game: LeaderboardGame, sub: ScoreSubmission): Promise<void> {
   try {
     const ref = doc(db, collectionName(game), sub.player);
 
@@ -111,7 +150,7 @@ export async function submitScore(game: LeaderboardGame, sub: ScoreSubmission): 
       ref,
       {
         player: sub.player,
-        name: (sub.name || 'Anon').slice(0, 24),
+        name: sanitizeName(sub.name),
         score: Math.max(bestScore, clampUint(sub.score)),
         balance: clampUint(sub.balance),
         netProfit: clampInt(sub.netProfit),

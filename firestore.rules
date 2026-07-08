@@ -39,18 +39,33 @@ service cloud.firestore {
 
     // ── Arcade leaderboards ────────────────────────────────────────────
     // One document per player (keyed by wallet address, or an anonymous
-    // free-play id). Publicly readable so the board renders for everyone;
-    // writes are validated for shape and clamped to sane ranges. The board is
-    // client-written, so it is NOT tamper-proof — these rules only stop
-    // malformed / absurd documents, which is the standard arcade trade-off.
+    // free-play id). Publicly readable so the board renders for everyone.
+    //
+    // Anti-tamper posture (be honest about it): the games run entirely in the
+    // browser, so a determined user can always call Firestore directly — a
+    // client-written board can never be cryptographically tamper-proof
+    // without a server. These rules instead BOUND the damage:
+    //   • strict document shape + server-timestamp-only `updatedAt`
+    //   • hard caps on every value (1e12)
+    //   • rate limit: updates rejected within 2 s of the previous write
+    //   • per-write delta caps: no single write can move score/balance/
+    //     netProfit by more than 50 M (far above any legitimate jackpot,
+    //     far below "type in a trillion")
+    //   • score is monotonic — it can never be written downwards
+    // Combined with the client HMAC on stored balances, casual DevTools
+    // editing fails and scripted abuse is slow, capped, and obvious.
+    // ALWAYS manually review top standings before paying out NFT-launch
+    // rewards to specific wallets.
     match /leaderboard_slots/{player} {
       allow read: if true;
-      allow create, update: if isValidLeaderboardEntry(player);
+      allow create: if isValidLeaderboardEntry(player) && isSaneFirstEntry();
+      allow update: if isValidLeaderboardEntry(player) && isSaneUpdate();
     }
 
     match /leaderboard_coinpusher/{player} {
       allow read: if true;
-      allow create, update: if isValidLeaderboardEntry(player);
+      allow create: if isValidLeaderboardEntry(player) && isSaneFirstEntry();
+      allow update: if isValidLeaderboardEntry(player) && isSaneUpdate();
     }
 
     function isValidLeaderboardEntry(playerId) {
@@ -60,11 +75,36 @@ service cloud.firestore {
         && d.player == playerId                        // doc id must equal the player key
         && d.player.size() >= 1 && d.player.size() <= 64
         && d.name is string && d.name.size() <= 24
-        && d.score is int && d.score >= 0 && d.score <= 1000000000000000
-        && d.balance is int && d.balance >= 0 && d.balance <= 1000000000000000
+        && d.score is int && d.score >= 0 && d.score <= 1000000000000
+        && d.balance is int && d.balance >= 0 && d.balance <= 1000000000000
         && d.netProfit is int
-        && d.netProfit >= -1000000000000000 && d.netProfit <= 1000000000000000
+        && d.netProfit >= -1000000000000 && d.netProfit <= 1000000000000
         && d.updatedAt == request.time;                // server timestamp only
+    }
+
+    // A brand-new row can't claim more than one monster jackpot's worth.
+    function isSaneFirstEntry() {
+      let d = request.resource.data;
+      return d.score <= 50000000
+        && d.balance <= 50000000
+        && d.netProfit >= -50000000 && d.netProfit <= 50000000;
+    }
+
+    // Updates: minimum 2 s since the last accepted write, bounded movement
+    // per write, and the best score never goes down. Legacy docs written
+    // before these rules may lack fields — treat missing values leniently
+    // (the incoming write is still shape-validated and capped above).
+    function isSaneUpdate() {
+      let d = request.resource.data;
+      let prev = resource.data;
+      return (!('updatedAt' in prev) || prev.updatedAt == null
+              || request.time.toMillis() >= prev.updatedAt.toMillis() + 2000)
+        && (!('score' in prev) || !(prev.score is int)
+            || (d.score >= prev.score && d.score - prev.score <= 50000000))
+        && (!('balance' in prev) || !(prev.balance is int)
+            || (d.balance - prev.balance <= 50000000 && prev.balance - d.balance <= 50000000))
+        && (!('netProfit' in prev) || !(prev.netProfit is int)
+            || (d.netProfit - prev.netProfit <= 50000000 && prev.netProfit - d.netProfit <= 50000000));
     }
 
     // ── The Board (notice board posts) ─────────────────────────────────

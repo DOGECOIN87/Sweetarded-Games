@@ -1,12 +1,16 @@
 import React, { useMemo, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
+import { NightlyWalletAdapter } from '@solana/wallet-adapter-nightly';
 import { NetworkProvider } from './contexts/NetworkContext';
 import { WalletProvider } from './contexts/WalletContext';
 import { DynamicConnectionProvider } from './contexts/DynamicConnectionProvider';
 import Landing from './components/Landing';
 import MascotGuide from './components/MascotGuide';
 import SiteMusic from './components/SiteMusic';
+import WalletButton from './components/WalletButton';
 
 // Lazy-load each game so they stay independent code-split bundles
 const SlotsPage = lazy(() => import('./pages/Slots'));
@@ -16,6 +20,7 @@ const WhitelistPage = lazy(() => import('./pages/Whitelist'));
 const BoardPage = lazy(() => import('./pages/Board'));
 const CastPage = lazy(() => import('./pages/Cast'));
 const StickersPage = lazy(() => import('./pages/Stickers'));
+const LeaderboardPage = lazy(() => import('./pages/Leaderboard'));
 
 const NAV_HEIGHT = 56;
 
@@ -28,6 +33,7 @@ const NAV_LINKS: { label: string; to: string; hover: string; also?: string[] }[]
   { label: 'Arcade', to: '/arcade', hover: 'hover:text-sweetardios-cerise' },
   { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise', also: ['/slots'] },
   { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan', also: ['/coinpusher'] },
+  { label: 'Leaderboard', to: '/leaderboard', hover: 'hover:text-sweetardios-cyan' },
   { label: 'The Cast', to: '/cast', hover: 'hover:text-sweetardios-cerise' },
   { label: 'Stickers', to: '/stickers', hover: 'hover:text-sweetardios-cerise' },
   { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan', also: ['/board'] },
@@ -91,6 +97,9 @@ const AppInner: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <div className="hidden sm:block">
+            <WalletButton />
+          </div>
           <a
             href={MINT_URL}
             target="_blank"
@@ -119,6 +128,9 @@ const AppInner: React.FC = () => {
       {/* Mobile menu panel */}
       {menuOpen && (
         <div className="border-t border-sweetardios-violet/30 bg-sweetardios-oxford/95 px-4 py-3 backdrop-blur lg:hidden">
+          <div className="pb-3 pt-1 sm:hidden">
+            <WalletButton compact />
+          </div>
           <div className="flex flex-col">
             {NAV_LINKS.map((l) => (
               <NavLink
@@ -161,6 +173,7 @@ const AppInner: React.FC = () => {
           <Route path="/board" element={<BoardPage />} />
           <Route path="/cast" element={<CastPage />} />
           <Route path="/stickers" element={<StickersPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/slots" element={<SlotsPage />} />
           <Route path="/coinpusher" element={<JunkPusherPage />} />
         </Routes>
@@ -174,7 +187,14 @@ const AppInner: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const wallets = useMemo(() => [], []);
+  // Explicit adapters guarantee Phantom / Solflare / Nightly always appear in
+  // the connect modal (with install links when missing). Wallets implementing
+  // the Wallet Standard — Backpack, and installed copies of these three — are
+  // auto-detected on top and deduplicated by the adapter library.
+  const wallets = useMemo(
+    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new NightlyWalletAdapter()],
+    []
+  );
 
   return (
     <NetworkProvider>

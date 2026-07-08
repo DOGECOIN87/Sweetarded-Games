@@ -18,12 +18,47 @@ from the main marketplace so the games can be redesigned in isolation.
 
 ## Site pages
 
-| Route        | Page                                                          |
-| ------------ | ------------------------------------------------------------- |
-| `/`          | Landing / navigation hub                                       |
-| `/arcade`    | Arcade walk-through scene                                      |
-| `/board`     | **The Board** — cork notice board with team announcements      |
-| `/whitelist` | Whitelist signup                                               |
+| Route          | Page                                                          |
+| -------------- | ------------------------------------------------------------- |
+| `/`            | Landing / navigation hub                                       |
+| `/arcade`      | Arcade walk-through scene                                      |
+| `/leaderboard` | **Leaderboards** — site-wide standings for both games          |
+| `/board`       | **The Board** — cork notice board with team announcements      |
+| `/whitelist`   | Whitelist signup                                               |
+
+## Wallets, credits & leaderboards
+
+- **Wallet connect** (top nav + in-game) uses the Solana wallet adapter with
+  Phantom, Solflare and Nightly registered explicitly, plus auto-detection of
+  any Wallet Standard wallet the visitor has installed (Backpack, etc.).
+  Connecting is optional and used **only as identity** — the games are
+  off-chain and free.
+- **SWEET credits**: every player starts with `STARTING_CREDITS` (10,000, see
+  `src/lib/credits.ts`) — one shared stack across both games, persisted per
+  player (wallet address when connected, anonymous handle otherwise). Busted
+  stacks refill for free; refills never improve Net Profit, so the boards stay
+  fair.
+- **Leaderboards** (`/leaderboard`, plus in-game modals) are Firestore-backed:
+  `leaderboard_slots` / `leaderboard_coinpusher`, one doc per player. Slots
+  ranks Net Profit / Biggest Win / Credits; Coinpusher ranks Coins Pushed /
+  Net Profit / Credits. Standings keyed to a wallet are the basis for perks
+  when the NFT collection launches.
+
+### Anti-tamper posture (read before paying out rewards)
+
+The games run entirely in the browser, so scores can never be fully
+tamper-proof without a server. The damage is bounded instead:
+
+- Balances/credits in localStorage are HMAC-wrapped (`localStorageIntegrity`);
+  editing them in DevTools invalidates the value.
+- `firestore.rules` enforce document shape, server-timestamp-only writes,
+  hard value caps (1e12), a 2-second minimum interval between writes,
+  per-write movement caps (±50 M) and monotonic scores. Apply them in the
+  Firebase console for the leaderboards to accept writes.
+- The client throttles submissions (trailing flush) to stay inside the rules.
+
+**Always manually review top standings before granting NFT-launch rewards** —
+a determined cheater can still inch numbers up within the caps.
 
 ### Posting to The Board
 

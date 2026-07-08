@@ -5,12 +5,13 @@ import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
 import { STICKERS, stickerSrc } from '../content/stickers';
+import { STARTING_CREDITS } from '../lib/credits';
 
-const FEATURES = [
-  { icon: '🎮', title: 'Free to Play', desc: 'Jump in and play for fun — no tokens needed right now.' },
-  { icon: '🏆', title: 'Live Leaderboards', desc: 'Climb the ranks and flex your high scores.' },
-  { icon: '🍬', title: 'Sweetardios Cast', desc: 'Stickers and characters from the Sweetardios collection.' },
-  { icon: '⚡', title: 'Instant & Snappy', desc: 'Fast arcade gameplay with instant, responsive feedback.' },
+const FEATURES: { icon: string; title: string; desc: string; to?: string }[] = [
+  { icon: '🎮', title: 'Free to Play', desc: `Every player starts with ${STARTING_CREDITS.toLocaleString()} SWEET credits — off-chain, just for fun.` },
+  { icon: '🏆', title: 'Live Leaderboards', desc: 'Net profit, biggest wins and coins pushed — tracked live, per player.', to: '/leaderboard' },
+  { icon: '👛', title: 'Any Solana Wallet', desc: 'Phantom, Backpack, Nightly, Solflare and more — connect to save your rank.' },
+  { icon: '🍬', title: 'Perks at Mint', desc: 'Top players when the Sweetardios collection launches get rewarded.', to: '/leaderboard' },
 ];
 
 /* ── Game card (real gameplay clip preview) ────────────────── */
@@ -295,16 +296,54 @@ const Landing = () => {
     {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
 
+    {/* LEADERBOARD / MINT PERKS CTA */}
+    <section className="relative mx-auto max-w-6xl px-6 pb-4 pt-8">
+      <div className="bg-gradient-to-br from-sweetardios-cyan/60 via-sweetardios-violet/30 to-sweetardios-cerise/60 p-px">
+        <div className="flex flex-col items-center gap-8 bg-sweetardios-oxford/90 px-8 py-10 backdrop-blur md:flex-row md:gap-10 md:px-12">
+          <div className="text-6xl drop-shadow-[0_0_25px_rgba(52,237,243,0.5)]" aria-hidden>🏆</div>
+          <div className="flex-1 text-center md:text-left">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">Season zero is live</p>
+            <h2 className="font-heading mt-2 text-3xl text-white sm:text-4xl">Grind now, feast at mint</h2>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-blue-100/70">
+              Both games feed live leaderboards. When the Sweetardios NFT collection launches, the top
+              players on the boards get launch perks. Connect any Solana wallet so your standings are
+              tied to your address — then go break the arcade.
+            </p>
+          </div>
+          <Link
+            to="/leaderboard"
+            className="sw-shine inline-flex shrink-0 items-center gap-2 px-6 py-3 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5"
+            style={{ background: '#34EDF3' }}
+          >
+            View Leaderboards <span aria-hidden>→</span>
+          </Link>
+        </div>
+      </div>
+    </section>
+
     {/* FEATURES */}
     <section className="relative mx-auto max-w-6xl px-6 py-16">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map((f) => (
-          <div key={f.title} className="group border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-sweetardios-cyan/50 hover:bg-white/[0.05]">
-            <div className="text-3xl transition-transform group-hover:scale-110">{f.icon}</div>
-            <h4 className="font-heading mt-3 text-lg text-white">{f.title}</h4>
-            <p className="mt-1.5 text-sm text-blue-100/60">{f.desc}</p>
-          </div>
-        ))}
+        {FEATURES.map((f) => {
+          const card = (
+            <>
+              <div className="text-3xl transition-transform group-hover:scale-110">{f.icon}</div>
+              <h4 className="font-heading mt-3 text-lg text-white">{f.title}</h4>
+              <p className="mt-1.5 text-sm text-blue-100/60">{f.desc}</p>
+            </>
+          );
+          const className =
+            'group block border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-sweetardios-cyan/50 hover:bg-white/[0.05]';
+          return f.to ? (
+            <Link key={f.title} to={f.to} className={className}>
+              {card}
+            </Link>
+          ) : (
+            <div key={f.title} className={className}>
+              {card}
+            </div>
+          );
+        })}
       </div>
     </section>
 
@@ -331,6 +370,7 @@ const Landing = () => {
           >
             Music
           </a>
+          <Link to="/leaderboard" className="transition-colors hover:text-sweetardios-cyan">Leaderboard</Link>
           <Link to="/cast" className="transition-colors hover:text-sweetardios-cerise">The Cast</Link>
           <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>
           <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>

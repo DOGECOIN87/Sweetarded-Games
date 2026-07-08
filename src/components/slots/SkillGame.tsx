@@ -4,7 +4,8 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { getDebrisBalance } from '../../lib/tokenService';
 import { TOKEN_CONFIG } from '../../lib/tokenConfig';
 import { useJunkPusherOnChain } from '../../lib/useJunkPusherOnChain';
-import { FREE_PLAY, FREE_PLAY_BALANCE } from '../../lib/freePlay';
+import { FREE_PLAY } from '../../lib/freePlay';
+import { STARTING_CREDITS, getCredits, setCredits } from '../../lib/credits';
 import { getPlayerGameBalance } from '../../lib/highScoreService';
 import { PROGRAM_ID } from '../../lib/JunkPusherClient';
 import { pushGameEvent } from '../../services/activityService';
@@ -15,7 +16,7 @@ import BonusRound from './BonusRound';
 import AudioPlayer from '../junk-pusher/AudioPlayer';
 import { SlotsLeaderboard } from './SlotsLeaderboard';
 import { submitScore } from '../../services/leaderboardService';
-import { resolvePlayer } from '../../lib/playerIdentity';
+import { resolvePlayer, currentPlayerId, shortAddress } from '../../lib/playerIdentity';
 import { LogoWall } from '../LogoPattern';
 import { subscribeToSlotsConfig, DEFAULT_SLOTS_WEIGHTS, SLOTS_OUTCOME_META } from '../../services/gameConfigService';
 
@@ -257,9 +258,12 @@ export default function SkillGame() {
   const [txPending, setTxPending] = useState(false);
   const [txMessage, setTxMessage] = useState<string | null>(null);
 
+  // Shared arcade identity — wallet address when connected, anon id otherwise.
+  const playerId = currentPlayerId(publicKey?.toBase58() ?? null);
+
   // Core game state
   const [grid, setGrid] = useState<CellValue[]>(Array(9).fill(null));
-  const [balance, setBalance] = useState(FREE_PLAY ? FREE_PLAY_BALANCE : 0);
+  const [balance, setBalance] = useState(0); // restored from the shared credits store on mount
   const [netProfit, setNetProfit] = useState(0); // Track cumulative net profit for withdrawal verification
   const [levelIndex, setLevelIndex] = useState(0);
   const playLevel = PLAY_LEVELS[levelIndex];
@@ -357,16 +361,10 @@ export default function SkillGame() {
   useEffect(() => {
     if (connected && publicKey) {
       refreshDebrisBalance();
-      setStatusMessage("Adjust 'Play Level'");
+      setStatusMessage('Wallet linked — press Play to spin');
     } else {
       setDebrisBalance(0);
-      if (FREE_PLAY) {
-        setBalance((b) => (b > 0 ? b : FREE_PLAY_BALANCE));
-        setStatusMessage('Free play — press Play to spin');
-      } else {
-        setBalance(0);
-        setStatusMessage('Connect Wallet to Play');
-      }
+      setStatusMessage('Free play — press Play to spin');
     }
   }, [connected, publicKey, refreshDebrisBalance]);
 
@@ -388,59 +386,50 @@ export default function SkillGame() {
   }, [publicKey, connection]);
 
   useEffect(() => {
-    if (!publicKey || !connection) return;
+    let cancelled = false;
+    balanceRestoredRef.current = false;
 
     const restore = async () => {
-      // 1. Try localStorage first (HMAC-protected) — this is the most current balance,
-      // updated every spin. PDA balance is stale (only updated on deposit/withdraw).
-      // Using localStorage first prevents refresh-cheating (balance already reflects deductions).
-      const key = `slots_balance_${publicKey.toBase58()}`;
-      const npKey = `slots_netprofit_${publicKey.toBase58()}`;
-      const saved = await getWithIntegrity(key);
-      const savedNp = await getWithIntegrity(npKey);
-      if (saved) {
-        const parsed = parseFloat(saved);
-        if (!isNaN(parsed) && parsed >= 0) {
-          setBalance(parsed);
-          if (savedNp) {
-            const parsedNp = parseFloat(savedNp);
-            if (!isNaN(parsedNp)) setNetProfit(parsedNp);
-          }
-          balanceRestoredRef.current = true;
-          return;
-        }
-      }
+      // Shared credits stack (per player — wallet address or anon id). Mints
+      // the starting stack on first play; HMAC-protected in localStorage.
+      const credits = await getCredits(playerId);
+      const savedNp = await getWithIntegrity(`slots_netprofit_${playerId}`);
+      if (cancelled) return;
 
-      // 2. Fallback: on-chain game state PDA balance (first session or corrupted localStorage)
-      const pdaBal = await refreshGameBalance();
-      if (pdaBal !== null) return;
-
+      setBalance(credits);
+      const parsedNp = savedNp !== null ? parseFloat(savedNp) : NaN;
+      setNetProfit(!isNaN(parsedNp) ? parsedNp : 0);
       balanceRestoredRef.current = true;
+
+      // Legacy on-chain PDA restore — only when a real program is configured.
+      if (onChain.isProgramReady && publicKey && connection) {
+        refreshGameBalance().catch(() => {});
+      }
     };
 
     restore();
-  }, [publicKey, connection, refreshGameBalance]);
+    return () => {
+      cancelled = true;
+    };
+  }, [playerId, publicKey, connection, refreshGameBalance, onChain.isProgramReady]);
 
-  // Auto-save in-game balance and netProfit — only after restore has run to prevent clobbering
+  // Auto-save credits and netProfit — only after restore has run to prevent clobbering
   useEffect(() => {
-    if (!publicKey || !balanceRestoredRef.current) return;
-    const key = `slots_balance_${publicKey.toBase58()}`;
-    setWithIntegrity(key, balance.toString()).catch((err) =>
-      console.error('[Slots] HMAC save failed:', err)
-    );
-  }, [balance, publicKey]);
+    if (!balanceRestoredRef.current) return;
+    setCredits(playerId, balance);
+  }, [balance, playerId]);
 
   useEffect(() => {
-    if (!publicKey || !balanceRestoredRef.current) return;
-    const key = `slots_netprofit_${publicKey.toBase58()}`;
-    setWithIntegrity(key, netProfit.toString()).catch((err) =>
+    if (!balanceRestoredRef.current) return;
+    setWithIntegrity(`slots_netprofit_${playerId}`, netProfit.toString()).catch((err) =>
       console.error('[Slots] netProfit HMAC save failed:', err)
     );
-  }, [netProfit, publicKey]);
+  }, [netProfit, playerId]);
 
   // ─── Persist per-level grids to localStorage (anti-refresh reroll) ───
-  const GRID_STORAGE_KEY = publicKey ? `slots_grids_${publicKey.toBase58()}` : null;
-  const COOLDOWN_KEY = publicKey ? `slots_cooldown_${publicKey.toBase58()}` : null;
+  // Keyed by player id so anonymous free-play gets the same protection.
+  const GRID_STORAGE_KEY = `slots_grids_${playerId}`;
+  const COOLDOWN_KEY = `slots_cooldown_${playerId}`;
 
   const saveLevelGrids = useCallback(async () => {
     if (!GRID_STORAGE_KEY) return;
@@ -457,9 +446,8 @@ export default function SkillGame() {
     }
   }, [GRID_STORAGE_KEY]);
 
-  // Restore grids + check cooldown on wallet connect
+  // Restore grids + check cooldown for the current player identity
   useEffect(() => {
-    if (!publicKey || !GRID_STORAGE_KEY || !COOLDOWN_KEY) return;
     gridsRestoredRef.current = false;
 
     const restoreGrids = async () => {
@@ -505,7 +493,7 @@ export default function SkillGame() {
     };
 
     restoreGrids();
-  }, [publicKey, GRID_STORAGE_KEY, COOLDOWN_KEY]);
+  }, [GRID_STORAGE_KEY, COOLDOWN_KEY]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -663,7 +651,7 @@ export default function SkillGame() {
       submitScore('slots', {
         player,
         name,
-        score: 0,
+        score: won && winAmount > 0 ? winAmount : 0, // biggest single win — the service keeps the max
         balance: finalBalance,
         netProfit: finalNetProfit,
       });
@@ -862,7 +850,8 @@ export default function SkillGame() {
     }
     if (balance < playLevel) {
       if (FREE_PLAY) {
-        setBalance(FREE_PLAY_BALANCE); // top up free credits so you never get stuck
+        setBalance(STARTING_CREDITS); // busted — refill the stack so you never get stuck
+        setStatusMessage('Stack refilled — on the house');
       } else {
         setStatusMessage('Deposit SWEET to Play!');
         setShowDepositUI(true);
@@ -1049,39 +1038,45 @@ export default function SkillGame() {
       <div className="skill-control-section">
         {/* Wallet & SWEET Balance Bar */}
         <div className="skill-wallet-bar">
-          {connected ? (
+          {connected && publicKey ? (
             <>
               <div className="skill-wallet-info">
-                <span className="skill-wallet-label">SWEET</span>
-                <span className="skill-wallet-balance">
-                  {isLoadingBalance ? '...' : debrisBalance.toFixed(2)}
-                </span>
+                <span className="skill-wallet-label">Wallet</span>
+                <span className="skill-wallet-balance">{shortAddress(publicKey.toBase58())}</span>
+              </div>
+              {onChain.isProgramReady ? (
+                <button
+                  className="skill-deposit-btn"
+                  onClick={() => setShowDepositUI(!showDepositUI)}
+                  disabled={txPending}
+                >
+                  {showDepositUI ? 'Close' : 'Deposit / Withdraw'}
+                </button>
+              ) : (
+                <div className="skill-wallet-info">
+                  <span className="skill-wallet-label">Mode</span>
+                  <span className="skill-wallet-balance">Off-chain · For fun</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="skill-wallet-info">
+                <span className="skill-wallet-label">Mode</span>
+                <span className="skill-wallet-balance">Free Play</span>
               </div>
               <button
-                className="skill-deposit-btn"
-                onClick={() => setShowDepositUI(!showDepositUI)}
-                disabled={txPending}
+                className="skill-connect-btn"
+                onClick={() => showWalletModal(true)}
               >
-                {showDepositUI ? 'Close' : 'Deposit / Withdraw'}
+                Connect Wallet — save your rank
               </button>
             </>
-          ) : FREE_PLAY ? (
-            <div className="skill-wallet-info">
-              <span className="skill-wallet-label">Mode</span>
-              <span className="skill-wallet-balance">Free Play</span>
-            </div>
-          ) : (
-            <button
-              className="skill-connect-btn"
-              onClick={() => showWalletModal(true)}
-            >
-              Connect Wallet to Play
-            </button>
           )}
         </div>
 
-        {/* Deposit/Withdraw Panel */}
-        {showDepositUI && connected && (
+        {/* Deposit/Withdraw Panel (only when a real on-chain program is configured) */}
+        {showDepositUI && connected && onChain.isProgramReady && (
           <div className="skill-deposit-panel">
             <div className="skill-deposit-row">
               <input
@@ -1135,21 +1130,10 @@ export default function SkillGame() {
             </span>
           </div>
           <div className="skill-status-group">
-            <span className="skill-status-label">SWEET</span>
-            <div className="flex items-center gap-2">
-              <span className="skill-status-value skill-points-value">
-                {balance.toFixed(2)}
-              </span>
-              <button
-                onClick={() => { refreshDebrisBalance(); }}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors text-sweetardios-cerise"
-                title="Refresh Wallet Balance"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-            </div>
+            <span className="skill-status-label">SWEET Credits</span>
+            <span className="skill-status-value skill-points-value">
+              {Math.floor(balance).toLocaleString()}
+            </span>
           </div>
         </div>
 
@@ -1214,6 +1198,14 @@ export default function SkillGame() {
               setCurrentWin(totalWin);
               setStatusMessage(`BONUS WIN: ${totalWin.toLocaleString()}!`);
               pushGameEvent('WIN', `Player won ${totalWin} SWEET in Bonus Round`);
+              const { player, name } = resolvePlayer(publicKey?.toBase58() ?? null);
+              submitScore('slots', {
+                player,
+                name,
+                score: totalWin,
+                balance: balance + totalWin,
+                netProfit: netProfit + totalWin,
+              });
               setTimeout(() => {
                 setCurrentWin(0);
                 setStatusMessage(null);
@@ -1239,8 +1231,8 @@ export default function SkillGame() {
               <p><strong>Gameplay:</strong> After the spin, tap a cell to place your WILD symbol. If it completes a 3-in-a-row line, you win! Find the best spot for the highest payout. Only the best single line pays out.</p>
               <p><strong>Fairness:</strong> Game outcomes are pre-determined using a weighted random pool before the grid is constructed (patent-inspired method US20070232385A1). The grid is then built to match the outcome. Your skill determines <em>where</em> to place the WILD to maximize winnings.</p>
               <p><strong>RTP:</strong> Approximately 91% Return-To-Player assuming optimal WILD placement. House edge is ~9%. About 1 in 4 spins is profitable, and big wins (up to 25x your wager) are rare but rewarding!</p>
-              <p><strong>On-Chain:</strong> All deposits, withdrawals, and spin results are recorded on the Gorbagana blockchain. Balances are verified against your on-chain game state PDA.</p>
-              <p><strong>Currency:</strong> SWEET token (9 decimals) on Gorbagana network.</p>
+              <p><strong>Credits:</strong> The arcade runs on off-chain SWEET credits — free and just for fun. Every player starts with {STARTING_CREDITS.toLocaleString()} credits shared across both games, and a busted stack refills on the house.</p>
+              <p><strong>Why connect a wallet?</strong> Your leaderboard standing is keyed to your wallet address. When the Sweetardios NFT collection launches, top players on the boards get launch perks — connect before you grind so your run counts.</p>
             </div>
           </div>
         </div>

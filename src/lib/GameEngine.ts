@@ -632,8 +632,8 @@ export class GameEngine {
   }
 
   public bump() {
-    // Apply fee (50 DEBRIS)
-    this.balance -= 50;
+    // Apply fee (20 SWEET — matches the paytable and button labels)
+    this.balance -= 20;
 
     this.updateGameState();
 
@@ -684,7 +684,7 @@ export class GameEngine {
 
   public reset() {
     this.score = 0;
-    this.balance = 100; // Reset with 100 free DEBRIS tokens
+    this.balance = FREE_PLAY_BALANCE; // Reset back to the starting credit stack
     this.netProfit = 0;
     this.coinBodies.forEach(c => this.world.removeRigidBody(c.body));
     this.coinBodies = [];
