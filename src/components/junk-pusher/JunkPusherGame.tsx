@@ -438,9 +438,9 @@ const JunkPusherGame: React.FC = () => {
                             )}
                         </div>
                     ) : (
-                        <div className="flex items-center gap-1.5 bg-black/80 border border-yellow-500/20 px-2.5 py-1 rounded-full text-[9px] backdrop-blur-sm">
-                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                            <span className="text-yellow-300/70 font-bold tracking-widest uppercase">Local Mode</span>
+                        <div className="flex items-center gap-1.5 bg-black/80 border border-sweetardios-cyan/30 px-2.5 py-1 rounded-full text-[9px] backdrop-blur-sm">
+                            <div className="w-1.5 h-1.5 rounded-full bg-sweetardios-cyan shadow-[0_0_6px_#34EDF3]" />
+                            <span className="text-sweetardios-cyan/80 font-bold tracking-widest uppercase">Wallet Linked · Off-chain play</span>
                         </div>
                     )}
                 </div>
