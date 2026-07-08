@@ -1,0 +1,50 @@
+name: Deploy Firestore Rules
+
+# Deploys firestore.rules (and index definitions) to the `sweetardio` Firebase
+# project whenever they change on main — so the rules in this repo are always
+# the rules in production.
+#
+# One-time setup: add a repo secret named FIREBASE_SERVICE_ACCOUNT containing
+# a service-account key JSON (Firebase console → Project settings → Service
+# accounts → Generate new private key). The account needs the
+# "Firebase Rules Admin" + "Cloud Datastore Index Admin" roles (the default
+# firebase-adminsdk account works).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - firestore.rules
+      - firestore.indexes.json
+      - firebase.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Write service account key
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret is not set. Add a service-account key JSON as a repo secret with that name (see comments in this workflow)."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-sa.json"
+
+      - name: Deploy Firestore rules & indexes
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
+        run: npx -y firebase-tools deploy --only firestore --project sweetardio --non-interactive --force

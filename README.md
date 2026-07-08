@@ -53,8 +53,13 @@ tamper-proof without a server. The damage is bounded instead:
   editing them in DevTools invalidates the value.
 - `firestore.rules` enforce document shape, server-timestamp-only writes,
   hard value caps (1e12), a 2-second minimum interval between writes,
-  per-write movement caps (±50 M) and monotonic scores. Apply them in the
-  Firebase console for the leaderboards to accept writes.
+  per-write movement caps (±50 M) and monotonic scores. The file is the
+  complete ruleset for the project and is wired for deployment: run
+  `npm run deploy:rules` locally (after `npx firebase-tools login`), or add
+  the `FIREBASE_SERVICE_ACCOUNT` repo secret and the
+  `.github/workflows/firestore-rules.yml` workflow deploys automatically
+  whenever the rules change on `main`. (Pasting the file into the Firebase
+  console works too.)
 - The client throttles submissions (trailing flush) to stay inside the rules.
 
 **Always manually review top standings before granting NFT-launch rewards** —

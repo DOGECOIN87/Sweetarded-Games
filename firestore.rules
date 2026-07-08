@@ -1,14 +1,20 @@
 rules_version = '2';
 
 // ─────────────────────────────────────────────────────────────────────────
-// Firestore security rules — REFERENCE for the whitelist signup form.
+// Firestore security rules — the COMPLETE ruleset for the Sweetardio project.
 //
-// ⚠️  This repo manages rules in the Firebase console (there is no firebase.json
-//     deploy here). If you ALREADY have rules for other collections
-//     (leaderboards, listings, game config, …), do NOT replace your whole
-//     ruleset with this file — copy just the `match /whitelist/{wallet}` block
-//     and the isValidWhitelistSignup() function into your existing
-//     `match /databases/{database}/documents { … }`.
+// This file covers every collection the site touches (whitelist, both
+// leaderboards, board posts, game config, marketplace listings) and is wired
+// up for deployment via firebase.json:
+//
+//     npm run deploy:rules          # local (needs `firebase login` once)
+//
+// …or automatically by .github/workflows/firestore-rules.yml when this file
+// changes on main (needs the FIREBASE_SERVICE_ACCOUNT repo secret).
+// You can also paste it wholesale into Firebase console → Firestore → Rules.
+//
+// ⚠️  If you have added collections in the console that are NOT listed here,
+//     add matching blocks before deploying — anything unmatched is denied.
 // ─────────────────────────────────────────────────────────────────────────
 
 service cloud.firestore {
@@ -118,8 +124,23 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // ── Your other collections ─────────────────────────────────────────
-    // Keep whatever rules you already have for listings, game config, etc.
+    // ── Game config (admin-controlled pause / odds) ────────────────────
+    // The games subscribe live to game_config/slots and
+    // game_config/junk-pusher. Publicly readable; writes only from the
+    // Firebase console (or an authenticated admin tool).
+    match /game_config/{game} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── Marketplace listings (legacy trashmarket activity feed) ────────
+    // Read-only for the site's activity ticker; written by backend tooling,
+    // never from the browser.
+    match /gorbagio_listings/{listing} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Anything not matched above is denied by default.
   }
 }
