@@ -33,6 +33,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Build wallet-free Radbro games
+        run: npm run build:radbro
+
+      - name: Stage hosted Radbro games
+        run: |
+          mkdir -p dist/radbro
+          cp -R dist-radbro/slots dist/radbro/slots
+          cp -R dist-radbro/coinpusher dist/radbro/coinpusher
+          test -f dist/radbro/slots/index.html
+          test -f dist/radbro/coinpusher/index.html
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

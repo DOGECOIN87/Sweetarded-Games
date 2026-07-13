@@ -12,6 +12,12 @@ Outputs:
 - `dist-radbro/slots/`
 - `dist-radbro/coinpusher/`
 
+The GitHub Pages workflow also stages those directories at these stable hosted
+paths, which can be supplied to Radbro as `playableUrl` builds:
+
+- `https://sweetardio.fun/radbro/slots/`
+- `https://sweetardio.fun/radbro/coinpusher/`
+
 Each directory has `index.html` at its root, uses relative asset paths, and is
 kept below Radbro's production upload limits. Zip the *contents* of each folder
 so `index.html` remains at the ZIP root.
