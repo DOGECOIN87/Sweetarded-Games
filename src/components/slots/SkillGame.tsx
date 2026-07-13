@@ -11,6 +11,7 @@ import { PROGRAM_ID } from '../../lib/JunkPusherClient';
 import { pushGameEvent } from '../../services/activityService';
 import { parseTransactionError } from '../../utils/errorMessages';
 import { setWithIntegrity, getWithIntegrity } from '../../utils/localStorageIntegrity';
+import { safeLocalStorage } from '../../utils/safeStorage';
 import './SkillGame.css';
 import BonusRound from './BonusRound';
 import AudioPlayer from '../junk-pusher/AudioPlayer';
@@ -19,18 +20,19 @@ import { submitScore } from '../../services/leaderboardService';
 import { resolvePlayer, currentPlayerId, shortAddress } from '../../lib/playerIdentity';
 import { LogoWall } from '../LogoPattern';
 import { subscribeToSlotsConfig, DEFAULT_SLOTS_WEIGHTS, SLOTS_OUTCOME_META } from '../../services/gameConfigService';
+import { gameAsset, isRadbroRuntime, postRadbroResult } from '../../radbro/bridge';
 
 const SYMBOL_IMAGES = [
-  '/symbols/cone.png',         // 0 — Ice-cream cone (jackpot)
-  '/symbols/twins.png',        // 1
-  '/symbols/gummy.png',        // 2
-  '/symbols/churro.png',       // 3
-  '/symbols/cookie.png',       // 4
-  '/symbols/waffle-gold.png',  // 5
-  '/symbols/waffle.png',       // 6
-  '/symbols/jar.png',          // 7
-  '/symbols/twinkie.png',      // 8
-  '/logos/sweetardio-collection-badge-512.png', // 9 — Sweetardio Collection BONUS symbol (ultra-rare)
+  gameAsset('symbols/cone.png'),
+  gameAsset('symbols/twins.png'),
+  gameAsset('symbols/gummy.png'),
+  gameAsset('symbols/churro.png'),
+  gameAsset('symbols/cookie.png'),
+  gameAsset('symbols/waffle-gold.png'),
+  gameAsset('symbols/waffle.png'),
+  gameAsset('symbols/jar.png'),
+  gameAsset('symbols/twinkie.png'),
+  gameAsset('logos/sweetardio-collection-badge-512.png'),
 ];
 
 // Payout multipliers (×wager). Index 9 (Sweetardios logo) pays 0 cash — triggers BONUS instead.
@@ -440,9 +442,9 @@ export default function SkillGame() {
     );
     // Track that grids exist — used to detect manual localStorage clearing
     if (levelGridsRef.current.size > 0) {
-      localStorage.setItem(`${GRID_STORAGE_KEY}_active`, 'true');
+      safeLocalStorage.setItem(`${GRID_STORAGE_KEY}_active`, 'true');
     } else {
-      localStorage.removeItem(`${GRID_STORAGE_KEY}_active`);
+      safeLocalStorage.removeItem(`${GRID_STORAGE_KEY}_active`);
     }
   }, [GRID_STORAGE_KEY]);
 
@@ -452,13 +454,13 @@ export default function SkillGame() {
 
     const restoreGrids = async () => {
       // Check for active cooldown (set when grids were tampered with or cleared)
-      const cooldownUntil = localStorage.getItem(COOLDOWN_KEY);
+      const cooldownUntil = safeLocalStorage.getItem(COOLDOWN_KEY);
       if (cooldownUntil) {
         const remaining = Math.ceil((parseInt(cooldownUntil) - Date.now()) / 1000);
         if (remaining > 0) {
           setPreviewCooldown(remaining);
         } else {
-          localStorage.removeItem(COOLDOWN_KEY);
+          safeLocalStorage.removeItem(COOLDOWN_KEY);
         }
       }
 
@@ -474,17 +476,17 @@ export default function SkillGame() {
         } catch {
           // Corrupted — apply cooldown as anti-tampering measure
           const cooldownEnd = Date.now() + 30_000;
-          localStorage.setItem(COOLDOWN_KEY, String(cooldownEnd));
+          safeLocalStorage.setItem(COOLDOWN_KEY, String(cooldownEnd));
           setPreviewCooldown(30);
           levelGridsRef.current = new Map();
         }
       } else {
         // No saved grids — check if grids were previously saved (detect manual clear)
-        const hadGrids = localStorage.getItem(`${GRID_STORAGE_KEY}_active`);
+        const hadGrids = safeLocalStorage.getItem(`${GRID_STORAGE_KEY}_active`);
         if (hadGrids === 'true') {
           // User cleared localStorage to reroll — apply cooldown
           const cooldownEnd = Date.now() + 30_000;
-          localStorage.setItem(COOLDOWN_KEY!, String(cooldownEnd));
+          safeLocalStorage.setItem(COOLDOWN_KEY, String(cooldownEnd));
           setPreviewCooldown(30);
         }
         levelGridsRef.current = new Map();
@@ -501,7 +503,7 @@ export default function SkillGame() {
     const interval = setInterval(() => {
       setPreviewCooldown((prev) => {
         if (prev <= 1) {
-          if (COOLDOWN_KEY) localStorage.removeItem(COOLDOWN_KEY);
+          if (COOLDOWN_KEY) safeLocalStorage.removeItem(COOLDOWN_KEY);
           clearInterval(interval);
           return 0;
         }
@@ -618,6 +620,7 @@ export default function SkillGame() {
     setPlayButtonText('Play');
 
     if (won && winAmount > 0) {
+      postRadbroResult('clear', winAmount);
       setBalance((prev) => prev + winAmount);
       setNetProfit((prev) => prev + winAmount);
       setCurrentWin(winAmount);
@@ -635,6 +638,7 @@ export default function SkillGame() {
         addTimeout(() => setFlashingJackpot(null), 2500);
       }
     } else if (!won) {
+      postRadbroResult('gameover', 0);
       setStatusMessage('Try Again');
     }
 
@@ -859,6 +863,8 @@ export default function SkillGame() {
       }
     }
 
+    postRadbroResult('run', 0);
+
     // Deduct wager upfront (saved to localStorage immediately via auto-save effect)
     setBalance((prev) => prev - playLevel);
     setNetProfit((prev) => prev - playLevel);
@@ -1037,7 +1043,7 @@ export default function SkillGame() {
       {/* Control Section */}
       <div className="skill-control-section">
         {/* Wallet & SWEET Balance Bar */}
-        <div className="skill-wallet-bar">
+        {!isRadbroRuntime() && <div className="skill-wallet-bar">
           {connected && publicKey ? (
             <>
               <div className="skill-wallet-info">
@@ -1073,7 +1079,7 @@ export default function SkillGame() {
               </button>
             </>
           )}
-        </div>
+        </div>}
 
         {/* Deposit/Withdraw Panel (only when a real on-chain program is configured) */}
         {showDepositUI && connected && onChain.isProgramReady && (
@@ -1157,12 +1163,14 @@ export default function SkillGame() {
           >
             Help
           </button>
-          <button
-            className="skill-game-btn"
-            onClick={() => setShowLeaderboard(true)}
-          >
-            Scores
-          </button>
+          {!isRadbroRuntime() && (
+            <button
+              className="skill-game-btn"
+              onClick={() => setShowLeaderboard(true)}
+            >
+              Scores
+            </button>
+          )}
           <button
             className="skill-game-btn"
             onClick={handlePreview}
@@ -1193,6 +1201,7 @@ export default function SkillGame() {
           onClose={(totalWin) => {
             setShowBonus(false);
             if (totalWin > 0) {
+              postRadbroResult('clear', totalWin);
               setBalance((prev) => prev + totalWin);
               setNetProfit((prev) => prev + totalWin);
               setCurrentWin(totalWin);

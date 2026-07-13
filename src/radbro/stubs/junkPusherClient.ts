@@ -1,0 +1,1 @@
+export const PROGRAM_ID = { toBase58: () => '11111111111111111111111111111111' };

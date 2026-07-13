@@ -4,6 +4,7 @@
  * Generates arcade-style sound effects using Web Audio API
  * No external audio files needed - all sounds are synthesized
  */
+import { gameAsset } from '../radbro/bridge';
 
 export type SoundType =
   | 'coin_drop'
@@ -373,7 +374,7 @@ class SoundManager {
 
   private preloadOutOfTokens(): void {
     if (!this.audioContext) return;
-    fetch('/fawwwwwwwk.mp3')
+    fetch(gameAsset('fawwwwwwwk.mp3'))
       .then(res => res.arrayBuffer())
       .then(buf => this.audioContext!.decodeAudioData(buf))
       .then(decoded => { this.outOfTokensBuffer = decoded; })

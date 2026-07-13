@@ -4,6 +4,7 @@ import { PHYSICS, DIMENSIONS, COLORS } from './constants';
 import { GameConfig, GameEventCallback } from './types';
 import { soundManager } from './soundManager';
 import { FREE_PLAY, FREE_PLAY_BALANCE } from './freePlay';
+import { gameAsset } from '../radbro/bridge';
 
 export class GameEngine {
   // Config
@@ -276,7 +277,7 @@ export class GameEngine {
       ctx.drawImage(img, (size - s) / 2, (size - s) / 2, s, s);
       texture.needsUpdate = true;
     };
-    img.src = '/logos/vectorink-vectorizer-result-fixed.svg';
+    img.src = gameAsset('logos/vectorink-vectorizer-result-fixed.svg');
 
     return texture;
   }

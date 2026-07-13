@@ -1,4 +1,5 @@
 /* Staggered, animated pattern built from our own Sweetardios logo. */
+import { gameAsset } from '../radbro/bridge';
 
 interface LogoWallProps {
   cols?: number;
@@ -34,7 +35,7 @@ export const LogoWall = ({ cols = 5, rows = 4, base = 3.2, opacity = 0.5 }: Logo
       {cells.map((cell) => (
         <img
           key={cell.k}
-          src="/logos/sweetardio_neon_vector.svg"
+          src={gameAsset('logos/sweetardio_neon_vector.svg')}
           alt=""
           loading="lazy"
           className="sw-float absolute object-contain drop-shadow-[0_0_10px_rgba(247,21,171,0.45)]"

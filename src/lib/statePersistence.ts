@@ -7,6 +7,7 @@
 
 import { GameState } from './types';
 import { setWithIntegrity, getWithIntegrity } from '../utils/localStorageIntegrity';
+import { safeLocalStorage } from '../utils/safeStorage';
 
 const STORAGE_KEY_PREFIX = 'junk_pusher_game_state';
 const STORAGE_KEY_LEGACY = 'junk_pusher_game_state'; // fallback for old saves
@@ -58,9 +59,9 @@ export function loadGameState(walletAddress: string | null): PersistedGameState 
   // The async HMAC verification is done by loadGameStateVerified().
   try {
     const key = storageKey(walletAddress);
-    let stored = localStorage.getItem(key);
+    let stored = safeLocalStorage.getItem(key);
     if (!stored && walletAddress) {
-      stored = localStorage.getItem(STORAGE_KEY_LEGACY);
+      stored = safeLocalStorage.getItem(STORAGE_KEY_LEGACY);
     }
     if (!stored) return null;
 
@@ -117,12 +118,12 @@ export async function loadGameStateVerified(walletAddress: string | null): Promi
 export function clearGameState(): void {
   try {
     // Clear all possible keys
-    localStorage.removeItem(STORAGE_KEY_LEGACY);
+    safeLocalStorage.removeItem(STORAGE_KEY_LEGACY);
     // Also try to clear wallet-scoped keys
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = safeLocalStorage.length - 1; i >= 0; i--) {
+      const key = safeLocalStorage.key(i);
       if (key && key.startsWith(STORAGE_KEY_PREFIX)) {
-        localStorage.removeItem(key);
+        safeLocalStorage.removeItem(key);
       }
     }
   } catch (error) {

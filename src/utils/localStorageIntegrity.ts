@@ -7,16 +7,17 @@
  * NOTE: This is a deterrent, not cryptographic security — the secret lives
  * in-memory on the client. The real source-of-truth is the on-chain PDA.
  */
+import { safeLocalStorage, safeSessionStorage } from './safeStorage';
 
 // Generate a random per-session secret (survives page reloads via sessionStorage)
 function getSessionSecret(): string {
   const KEY = '__tm_integrity_secret';
-  let secret = sessionStorage.getItem(KEY);
+  let secret = safeSessionStorage.getItem(KEY);
   if (!secret) {
     const bytes = new Uint8Array(32);
     crypto.getRandomValues(bytes);
     secret = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-    sessionStorage.setItem(KEY, secret);
+    safeSessionStorage.setItem(KEY, secret);
   }
   return secret;
 }
@@ -41,7 +42,7 @@ async function hmac(data: string): Promise<string> {
 export async function setWithIntegrity(key: string, value: string): Promise<void> {
   const tag = await hmac(key + ':' + value);
   const envelope = JSON.stringify({ v: value, h: tag });
-  localStorage.setItem(key, envelope);
+  safeLocalStorage.setItem(key, envelope);
 }
 
 /**
@@ -49,7 +50,7 @@ export async function setWithIntegrity(key: string, value: string): Promise<void
  * Returns `null` if the value is missing, tampered with, or from a previous session.
  */
 export async function getWithIntegrity(key: string): Promise<string | null> {
-  const raw = localStorage.getItem(key);
+  const raw = safeLocalStorage.getItem(key);
   if (!raw) return null;
 
   try {
@@ -62,7 +63,7 @@ export async function getWithIntegrity(key: string): Promise<string | null> {
     const expectedTag = await hmac(key + ':' + envelope.v);
     if (expectedTag !== envelope.h) {
       console.warn(`[Integrity] Tampered value detected for key "${key}". Ignoring.`);
-      localStorage.removeItem(key);
+      safeLocalStorage.removeItem(key);
       return null;
     }
     return envelope.v;
@@ -77,14 +78,13 @@ export async function getWithIntegrity(key: string): Promise<string | null> {
  * Use these for non-sensitive values like UI preferences or last-used wallet.
  */
 export const setItem = (key: string, value: string): void => {
-  localStorage.setItem(key, value);
+  safeLocalStorage.setItem(key, value);
 };
 
 export const getItem = (key: string): string | null => {
-  return localStorage.getItem(key);
+  return safeLocalStorage.getItem(key);
 };
 
 export const removeItem = (key: string): void => {
-  localStorage.removeItem(key);
+  safeLocalStorage.removeItem(key);
 };
-

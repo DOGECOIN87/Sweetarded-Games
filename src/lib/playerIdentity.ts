@@ -6,6 +6,7 @@
  * keep it in localStorage. When a wallet IS connected we key the leaderboard row
  * by the wallet address instead, so the same wallet maps to a single entry.
  */
+import { safeLocalStorage } from '../utils/safeStorage';
 
 const STORAGE_KEY = 'sweetardio_player';
 
@@ -44,7 +45,7 @@ export function getLocalPlayer(): LocalPlayer {
     return { id: 'anon_server', name: 'Player' };
   }
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = safeLocalStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<LocalPlayer>;
       if (parsed && typeof parsed.id === 'string' && typeof parsed.name === 'string') {
@@ -56,7 +57,7 @@ export function getLocalPlayer(): LocalPlayer {
   }
   const fresh: LocalPlayer = { id: generateId(), name: generateName() };
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+    safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
   } catch {
     /* localStorage unavailable — identity stays in-memory for this session */
   }
@@ -70,7 +71,7 @@ export function setPlayerName(name: string): void {
   const current = getLocalPlayer();
   const next: LocalPlayer = { ...current, name: trimmed };
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
     /* ignore */
   }

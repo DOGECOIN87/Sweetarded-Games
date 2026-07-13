@@ -18,6 +18,8 @@ interface OverlayProps {
     wallet: any;
     /** True only when a real on-chain program is configured (enables deposit/withdraw) */
     onChainReady?: boolean;
+    /** Hide wallet and external leaderboard controls in platform-native builds. */
+    showOnlineFeatures?: boolean;
 }
 
 export const Overlay: React.FC<OverlayProps> = ({
@@ -31,6 +33,7 @@ export const Overlay: React.FC<OverlayProps> = ({
     onRefill,
     wallet,
     onChainReady = false,
+    showOnlineFeatures = true,
 }) => {
     const walletMenuRef = useRef<HTMLDivElement>(null);
     const [showWalletMenu, setShowWalletMenu] = useState(false);
@@ -179,7 +182,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                 <div className="flex flex-col items-end gap-2 sm:gap-4 pointer-events-auto min-w-0">
 
                     {/* Wallet Connect Button */}
-                    <div className="relative" ref={walletMenuRef}>
+                    {showOnlineFeatures && <div className="relative" ref={walletMenuRef}>
                         <button
                             onClick={() => setShowWalletMenu(!showWalletMenu)}
                             className="group relative px-3 sm:px-5 py-1.5 sm:py-2 bg-black/80 border border-green-800 hover:border-purple-500/50 transition-all rounded shadow-lg overflow-hidden"
@@ -230,7 +233,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                                 )}
                             </div>
                         )}
-                    </div>
+                    </div>}
 
                     {/* Stats Group - Compact on mobile */}
                     <div className="flex flex-row sm:flex-col gap-1.5 sm:gap-2">
@@ -322,7 +325,7 @@ export const Overlay: React.FC<OverlayProps> = ({
 
                     {/* Controls */}
                     <div className="flex flex-wrap justify-center gap-1.5 sm:gap-3 pointer-events-auto">
-                        <button
+                        {showOnlineFeatures && <button
                             onClick={() => {
                                 soundManager.initialize();
                                 soundManager.play('ui_open');
@@ -335,7 +338,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                                     Scores
                                 </span>
                             </div>
-                        </button>
+                        </button>}
                         <button
                             onClick={() => {
                                 soundManager.initialize();
@@ -595,7 +598,9 @@ export const Overlay: React.FC<OverlayProps> = ({
             )}
 
             {/* High Score Board Modal */}
-            <HighScoreBoard isOpen={showHighScores} onClose={() => setShowHighScores(false)} />
+            {showOnlineFeatures && (
+                <HighScoreBoard isOpen={showHighScores} onClose={() => setShowHighScores(false)} />
+            )}
 
         </div>
     );

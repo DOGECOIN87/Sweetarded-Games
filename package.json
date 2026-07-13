@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:radbro:slots": "vite build --config vite.config.radbro.ts --mode radbro-slots && node scripts/package-radbro.mjs slots",
+    "build:radbro:coinpusher": "vite build --config vite.config.radbro.ts --mode radbro-coinpusher && node scripts/package-radbro.mjs coinpusher",
+    "build:radbro": "npm run build:radbro:slots && npm run build:radbro:coinpusher",
     "preview": "vite preview",
     "deploy:rules": "npx -y firebase-tools deploy --only firestore"
   },

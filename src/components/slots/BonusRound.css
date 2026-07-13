@@ -19,7 +19,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/sweetardios-logo.svg');
+  background-image: var(--sweetardio-logo-bg, url('/sweetardios-logo.svg'));
   background-size: 350px 350px;
   background-repeat: repeat;
   opacity: 0.18;
@@ -275,7 +275,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/sweetardios-logo.svg');
+  background-image: var(--sweetardio-logo-bg, url('/sweetardios-logo.svg'));
   background-size: 180px 180px;
   background-repeat: repeat;
   opacity: 0.06;

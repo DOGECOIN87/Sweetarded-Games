@@ -12,6 +12,7 @@ import { pushGameEvent } from '../../services/activityService';
 import { subscribeToJunkPusherConfig } from '../../services/gameConfigService';
 import { submitScore } from '../../services/leaderboardService';
 import { resolvePlayer, currentPlayerId } from '../../lib/playerIdentity';
+import { gameAsset, isRadbroRuntime, postRadbroResult } from '../../radbro/bridge';
 
 type MascotPhase = 'hidden' | 'rising' | 'visible' | 'falling';
 
@@ -100,9 +101,13 @@ const JunkPusherGame: React.FC = () => {
     const txInFlightRef = useRef(false);
     const lastScoreMilestoneRef = useRef(0);
     const lastSyncScoreRef = useRef(0);
+    const radbroRunStartedRef = useRef(false);
     const handleUpdate = useCallback((partialState: Partial<GameState>) => {
         setGameState(prev => {
             const next = { ...prev, ...partialState };
+            if (isRadbroRuntime() && next.score !== prev.score) {
+                postRadbroResult('run', next.score);
+            }
             // Emit a WIN event every 10 coins collected
             if (next.score > 0 && Math.floor(next.score / 10) > lastScoreMilestoneRef.current) {
                 lastScoreMilestoneRef.current = Math.floor(next.score / 10);
@@ -260,6 +265,10 @@ const JunkPusherGame: React.FC = () => {
     const handleDropCoin = () => {
         soundManager.initialize();
         if (engineRef.current && !gameState.isPaused && !adminPaused) {
+            if (!radbroRunStartedRef.current) {
+                radbroRunStartedRef.current = true;
+                postRadbroResult('run', gameState.score);
+            }
             const x = (Math.random() - 0.5) * 6;
             engineRef.current.dropUserCoin(x);
         }
@@ -290,6 +299,8 @@ const JunkPusherGame: React.FC = () => {
         if (engineRef.current) {
             const oc = onChainRef.current;
             const currentState = gameStateRef.current;
+            postRadbroResult(currentState.score > 0 ? 'clear' : 'gameover', currentState.score);
+            radbroRunStartedRef.current = false;
             if (oc.isProgramReady && wallet.isConnected && currentState.score > 0) {
                 try {
                     await oc.recordScore(currentState.score);
@@ -388,6 +399,10 @@ const JunkPusherGame: React.FC = () => {
         if (!engineRef.current || gameState.isPaused || adminPaused) return;
         const canvas = gameCanvasRef.current;
         if (!canvas) return;
+        if (!radbroRunStartedRef.current) {
+            radbroRunStartedRef.current = true;
+            postRadbroResult('run', gameState.score);
+        }
         const rect = canvas.getBoundingClientRect();
         const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -398,7 +413,7 @@ const JunkPusherGame: React.FC = () => {
         <div className="relative w-full h-full overflow-hidden bg-black">
             {/* Background Image */}
             <img
-                src="/games-bg.png"
+                src={gameAsset('games-bg.png')}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                 style={{ objectPosition: 'center' }}
@@ -409,7 +424,7 @@ const JunkPusherGame: React.FC = () => {
 
             {/* Mascot random event — Choppa Cone rises from below behind the 3D canvas */}
             <img
-                src="/mascot.png"
+                src={gameAsset('mascot.png')}
                 alt=""
                 className="absolute left-1/2 pointer-events-none select-none"
                 style={{
@@ -431,7 +446,7 @@ const JunkPusherGame: React.FC = () => {
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
                     {onChain.isProgramReady ? (
                         <div className="flex items-center gap-1.5 bg-black/80 border border-[#cbf30c]/20 px-2.5 py-1 rounded-full text-[9px] backdrop-blur-sm">
-                            <img src="/assets/logo-circle-transparent.png" alt="" className="w-3.5 h-3.5" />
+                            <img src={gameAsset('assets/logo-circle-transparent.png')} alt="" className="w-3.5 h-3.5" />
                             <span className="text-[#cbf30c]/70 font-bold tracking-widest uppercase">On-Chain</span>
                             {onChain.debrisBalance > 0 && (
                                 <span className="text-white/50 ml-0.5">{onChain.debrisBalance.toFixed(0)} SWEET</span>
@@ -469,7 +484,7 @@ const JunkPusherGame: React.FC = () => {
                         <div className="flex items-center gap-3 px-4 py-3">
                             {/* Logo */}
                             <img
-                                src="/assets/logo-circle-transparent.png"
+                                src={gameAsset('assets/logo-circle-transparent.png')}
                                 alt="TM"
                                 className={`w-8 h-8 shrink-0 ${
                                     onChain.txStatus === 'confirming' || onChain.txStatus === 'building'
@@ -561,6 +576,7 @@ const JunkPusherGame: React.FC = () => {
                     onPauseToggle={handlePauseToggle}
                     wallet={wallet}
                     onChainReady={onChain.isProgramReady}
+                    showOnlineFeatures={!isRadbroRuntime()}
                 />
             </div>
             {adminPaused && (
