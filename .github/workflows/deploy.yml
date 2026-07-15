@@ -31,6 +31,8 @@ jobs:
         run: npm install
 
       - name: Build
+        env:
+          VITE_MINT_START_AT: ${{ vars.VITE_MINT_START_AT }}
         run: npm run build
 
       - name: Build wallet-free Radbro games

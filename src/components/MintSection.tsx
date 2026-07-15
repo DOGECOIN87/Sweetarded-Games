@@ -3,20 +3,38 @@ import { Link } from 'react-router-dom';
 import MintEmbed, { MINT_URL } from './MintEmbed';
 
 /**
- * Mint day: rescheduled — new date TBA.
- *
- * When the new date is locked in, set both values below and the countdown
- * comes back automatically (label shows everywhere the date is mentioned):
- *   MINT_DATE_LABEL = 'August 1, 2026 · 2:00 PM ET'
- *   MINT_TARGET_MS  = Date.UTC(2026, 7, 1, 18, 0, 0)   // month is 0-based; use UTC
+ * LaunchMyNFT remains authoritative for mint availability. The site countdown
+ * uses the same launch instant when VITE_MINT_START_AT is configured at build
+ * time as an ISO-8601 value with a timezone, for example:
+ *   VITE_MINT_START_AT=2026-08-01T18:00:00Z
  */
-export const MINT_DATE_LABEL = 'TBA';
-const MINT_TARGET_MS: number | null = null;
+const configuredMintStart = import.meta.env.VITE_MINT_START_AT?.trim();
+const hasExplicitTimeZone = configuredMintStart
+  ? /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/i.test(configuredMintStart)
+  : false;
+const parsedMintStart = configuredMintStart && hasExplicitTimeZone
+  ? Date.parse(configuredMintStart)
+  : Number.NaN;
+
+export const MINT_TARGET_MS: number | null = Number.isFinite(parsedMintStart)
+  ? parsedMintStart
+  : null;
+
+export const MINT_DATE_LABEL = MINT_TARGET_MS === null
+  ? 'TBA'
+  : new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    }).format(new Date(MINT_TARGET_MS));
 
 interface Remaining { days: number; hours: number; minutes: number; seconds: number; done: boolean; }
 
-const getRemaining = (): Remaining => {
-  const diff = (MINT_TARGET_MS ?? 0) - Date.now();
+const getRemaining = (targetMs: number): Remaining => {
+  const diff = targetMs - Date.now();
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, done: true };
   return {
     days: Math.floor(diff / 86_400_000),
@@ -27,107 +45,137 @@ const getRemaining = (): Remaining => {
   };
 };
 
-const CountdownCell = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex flex-col items-center">
-    <span className="font-heading text-3xl tabular-nums text-white sm:text-4xl">
-      {String(value).padStart(2, '0')}
+const CountdownCell = ({ value, label }: { value: number | string; label: string }) => (
+  <div className="flex min-w-0 flex-col items-center">
+    <span className="font-heading text-2xl tabular-nums text-white sm:text-4xl">
+      {typeof value === 'number' ? String(value).padStart(2, '0') : value}
     </span>
-    <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-blue-100/50">{label}</span>
+    <span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-blue-100/50 sm:text-[10px] sm:tracking-[0.25em]">
+      {label}
+    </span>
   </div>
 );
 
-const Countdown = () => {
-  const [t, setT] = useState<Remaining>(getRemaining);
-  useEffect(() => {
-    const id = setInterval(() => setT(getRemaining()), 1000);
-    return () => clearInterval(id);
-  }, []);
+const CountdownCells = ({ remaining }: { remaining: Remaining | null }) => (
+  <div
+    role="timer"
+    aria-label={remaining ? 'Time remaining until the Sweetardio mint' : 'Mint countdown awaiting a launch date'}
+    className="flex w-full items-start justify-center gap-1 sm:gap-6"
+  >
+    <CountdownCell value={remaining?.days ?? '--'} label="Days" />
+    <span aria-hidden className="font-heading text-2xl text-sweetardios-violet sm:text-4xl">:</span>
+    <CountdownCell value={remaining?.hours ?? '--'} label="Hrs" />
+    <span aria-hidden className="font-heading text-2xl text-sweetardios-violet sm:text-4xl">:</span>
+    <CountdownCell value={remaining?.minutes ?? '--'} label="Min" />
+    <span aria-hidden className="font-heading text-2xl text-sweetardios-violet sm:text-4xl">:</span>
+    <CountdownCell value={remaining?.seconds ?? '--'} label="Sec" />
+  </div>
+);
 
-  if (t.done) {
+const Countdown = ({ targetMs }: { targetMs: number }) => {
+  const [remaining, setRemaining] = useState<Remaining>(() => getRemaining(targetMs));
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const next = getRemaining(targetMs);
+      setRemaining(next);
+      if (next.done) window.clearInterval(id);
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [targetMs]);
+
+  if (remaining.done) {
     return (
-      <p className="sw-glow-cerise font-heading text-2xl text-sweetardios-cerise sm:text-3xl">
-        Mint is live — go go go 🍬
+      <p role="status" className="sw-glow-cerise font-heading text-xl text-sweetardios-cerise sm:text-3xl">
+        Countdown ended — check mint availability below 🍬
       </p>
     );
   }
 
-  return (
-    <div className="flex items-start justify-center gap-4 sm:gap-6">
-      <CountdownCell value={t.days} label="Days" />
-      <span className="font-heading text-3xl text-sweetardios-violet sm:text-4xl">:</span>
-      <CountdownCell value={t.hours} label="Hrs" />
-      <span className="font-heading text-3xl text-sweetardios-violet sm:text-4xl">:</span>
-      <CountdownCell value={t.minutes} label="Min" />
-      <span className="font-heading text-3xl text-sweetardios-violet sm:text-4xl">:</span>
-      <CountdownCell value={t.seconds} label="Sec" />
-    </div>
-  );
+  return <CountdownCells remaining={remaining} />;
 };
 
-/* Upcoming Sweetardio mint — date, countdown, LaunchMyNFT embed + CTAs. */
-const MintSection = () => (
-  <section id="mint" className="relative mx-auto max-w-4xl px-6 py-20 sm:py-24">
-    <div className="relative bg-gradient-to-br from-sweetardios-cerise/50 via-sweetardios-violet/25 to-sweetardios-cyan/50 p-px shadow-[0_40px_120px_-40px_rgba(247,21,171,0.6)]">
-      <div className="relative overflow-hidden bg-sweetardios-oxford/85 px-8 py-12 text-center backdrop-blur-2xl sm:px-14 sm:py-14">
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+interface MintSectionProps {
+  asPage?: boolean;
+}
 
-        <span className="mb-5 inline-flex items-center gap-2.5 border border-sweetardios-cerise/40 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-sweetardios-cerise backdrop-blur">
-          <span className="h-1.5 w-1.5 bg-sweetardios-cerise shadow-[0_0_8px_#F715AB]" style={{ borderRadius: '9999px' }} />
-          Upcoming Mint · LaunchMyNFT
-        </span>
+/* Full on-site mint controls on both the homepage and dedicated /mint route. */
+const MintSection = ({ asPage = false }: MintSectionProps) => {
+  const Heading = asPage ? 'h1' : 'h2';
 
-        <h2 className="font-heading text-4xl text-white sm:text-5xl">
-          <span className="sw-glow-cerise text-sweetardios-cerise">Mint</span>{' '}
-          <span className="sw-glow-cyan text-sweetardios-cyan">a Sweetardio</span>
-        </h2>
+  return (
+    <section
+      id={asPage ? 'on-site-mint' : 'mint'}
+      className="relative mx-auto max-w-4xl px-6 py-20 sm:py-24"
+    >
+      <div className="relative bg-gradient-to-br from-sweetardios-cerise/50 via-sweetardios-violet/25 to-sweetardios-cyan/50 p-px shadow-[0_40px_120px_-40px_rgba(247,21,171,0.6)]">
+        <div className="relative overflow-hidden bg-sweetardios-oxford/85 px-4 py-12 text-center backdrop-blur-2xl sm:px-14 sm:py-14">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
-        {/* Mint day — countdown when a date is set, TBA note otherwise */}
-        {MINT_TARGET_MS === null ? (
-          <>
-            <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">
-              New mint date: <span className="sw-glow-cyan text-sweetardios-cyan">TBA</span>
+          <span className="mb-5 inline-flex items-center gap-2.5 border border-sweetardios-cerise/40 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-sweetardios-cerise backdrop-blur">
+            <span className="h-1.5 w-1.5 bg-sweetardios-cerise shadow-[0_0_8px_#F715AB]" style={{ borderRadius: '9999px' }} />
+            <span>On-site Mint<span className="hidden min-[400px]:inline"> · Powered by LaunchMyNFT</span></span>
+          </span>
+
+          <Heading className="font-heading text-4xl text-white sm:text-5xl">
+            <span className="sw-glow-cerise text-sweetardios-cerise">Mint</span>{' '}
+            <span className="sw-glow-cyan text-sweetardios-cyan">a Sweetardio</span>
+          </Heading>
+
+          {MINT_TARGET_MS === null ? (
+            <>
+              <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">
+                New mint date: <span className="sw-glow-cyan text-sweetardios-cyan">TBA</span>
+              </p>
+              <div className="mt-8">
+                <CountdownCells remaining={null} />
+              </div>
+              <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-blue-100/70">
+                The confirmed date will appear here and on{' '}
+                <Link to="/board" className="font-semibold text-sweetardios-cerise transition-colors hover:text-white">
+                  The Board
+                </Link>
+                . Join the whitelist so you don't miss it.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">{MINT_DATE_LABEL}</p>
+              <div className="mt-8">
+                <Countdown targetMs={MINT_TARGET_MS} />
+              </div>
+            </>
+          )}
+
+          <div className="mt-10">
+            <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-blue-100/70">
+              Connect your Solana wallet and mint without leaving Sweetardio.fun. LaunchMyNFT controls
+              the live price, eligibility, supply, and transaction details.
             </p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-blue-100/70">
-              The mint has been rescheduled — the new date drops on{' '}
-              <Link to="/board" className="font-semibold text-sweetardios-cerise transition-colors hover:text-white">
-                The Board
-              </Link>{' '}
-              first. Join the whitelist below so you don't miss it.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">{MINT_DATE_LABEL}</p>
-            <div className="mt-8">
-              <Countdown />
-            </div>
-          </>
-        )}
+            <MintEmbed />
+          </div>
 
-        <div className="mt-10">
-          <MintEmbed />
-        </div>
-
-        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a
-            href={MINT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="sw-shine inline-flex items-center gap-2 px-7 py-3 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5"
-            style={{ background: '#F715AB' }}
-          >
-            Mint on LaunchMyNFT <span aria-hidden>↗</span>
-          </a>
-          <Link
-            to="/whitelist"
-            className="inline-flex items-center gap-2 border border-sweetardios-cyan/50 px-7 py-3 text-sm font-extrabold uppercase tracking-wide text-sweetardios-cyan transition-colors hover:bg-sweetardios-cyan hover:text-sweetardios-oxford"
-          >
-            Join the whitelist <span aria-hidden>→</span>
-          </Link>
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href={MINT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sw-shine inline-flex w-full items-center justify-center gap-2 px-3 py-3 text-xs font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5 sm:w-auto sm:px-7 sm:text-sm"
+              style={{ background: '#34EDF3' }}
+            >
+              Use LaunchMyNFT directly <span aria-hidden>↗</span>
+            </a>
+            <Link
+              to="/whitelist"
+              className="inline-flex w-full items-center justify-center gap-2 border border-sweetardios-cyan/50 px-3 py-3 text-xs font-extrabold uppercase tracking-wide text-sweetardios-cyan transition-colors hover:bg-sweetardios-cyan hover:text-sweetardios-oxford sm:w-auto sm:px-7 sm:text-sm"
+            >
+              Join the whitelist <span aria-hidden>→</span>
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default MintSection;

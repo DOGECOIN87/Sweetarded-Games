@@ -5,6 +5,7 @@ import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
 import { STICKERS, stickerSrc } from '../content/stickers';
+import { COMMUNITY_LINKS } from '../content/siteLinks';
 import { STARTING_CREDITS } from '../lib/credits';
 
 const FEATURES: { icon: string; title: string; desc: string; to?: string }[] = [
@@ -355,27 +356,43 @@ const Landing = () => {
           <span className="sw-glow-cyan text-sweetardios-cyan">ARDIO</span>
           <span className="ml-2 align-middle text-xs font-normal uppercase tracking-widest text-white/40">.fun</span>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-blue-100/70">
-          <a
-            href="#mint"
-            onClick={(e) => { e.preventDefault(); document.getElementById('mint')?.scrollIntoView({ behavior: 'smooth' }); }}
-            className="transition-colors hover:text-sweetardios-cerise"
-          >
-            Mint
-          </a>
-          <a
-            href="#music"
-            onClick={(e) => { e.preventDefault(); document.getElementById('music')?.scrollIntoView({ behavior: 'smooth' }); }}
-            className="transition-colors hover:text-sweetardios-cyan"
-          >
-            Music
-          </a>
-          <Link to="/leaderboard" className="transition-colors hover:text-sweetardios-cyan">Leaderboard</Link>
-          <Link to="/cast" className="transition-colors hover:text-sweetardios-cerise">The Cast</Link>
-          <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>
-          <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>
-          <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>
-          <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>
+        <div className="flex max-w-3xl flex-col items-center gap-3 text-sm text-blue-100/70">
+          <nav aria-label="Site links" className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <a
+              href="#mint"
+              onClick={(e) => { e.preventDefault(); document.getElementById('mint')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="transition-colors hover:text-sweetardios-cerise focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
+            >
+              Mint
+            </a>
+            <a
+              href="#music"
+              onClick={(e) => { e.preventDefault(); document.getElementById('music')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="transition-colors hover:text-sweetardios-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
+            >
+              Music
+            </a>
+            <Link to="/leaderboard" className="transition-colors hover:text-sweetardios-cyan">Leaderboard</Link>
+            <Link to="/cast" className="transition-colors hover:text-sweetardios-cerise">The Cast</Link>
+            <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>
+            <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>
+            <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>
+            <Link to="/arcade" className="transition-colors hover:text-sweetardios-cerise">Enter the Arcade</Link>
+          </nav>
+          <nav aria-label="Community links" className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {COMMUNITY_LINKS.map((item) => (
+              <a
+                key={item.name}
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan ${item.accent === 'cyan' ? 'hover:text-sweetardios-cyan' : 'hover:text-sweetardios-cerise'}`}
+              >
+                {item.name}
+                <span aria-hidden="true" className="ml-1">↗</span>
+              </a>
+            ))}
+          </nav>
         </div>
         <p className="text-xs text-white/40">© Sweetardios</p>
       </div>

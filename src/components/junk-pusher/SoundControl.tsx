@@ -57,7 +57,8 @@ export const SoundControl: React.FC = () => {
               onChange={handleVolumeChange}
               className="w-24 h-1 bg-green-900/50 rounded-lg appearance-none cursor-pointer accent-green-400"
               style={{
-                writingMode: 'bt-lr',
+                writingMode: 'vertical-lr',
+                direction: 'rtl',
                 WebkitAppearance: 'slider-vertical',
                 height: '80px',
                 width: '8px',

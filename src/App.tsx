@@ -10,6 +10,7 @@ import { DynamicConnectionProvider } from './contexts/DynamicConnectionProvider'
 import Landing from './components/Landing';
 import MascotGuide from './components/MascotGuide';
 import SiteMusic from './components/SiteMusic';
+import { MintEmbedProvider } from './components/MintEmbed';
 import WalletButton from './components/WalletButton';
 
 // Lazy-load each game so they stay independent code-split bundles
@@ -21,10 +22,9 @@ const BoardPage = lazy(() => import('./pages/Board'));
 const CastPage = lazy(() => import('./pages/Cast'));
 const StickersPage = lazy(() => import('./pages/Stickers'));
 const LeaderboardPage = lazy(() => import('./pages/Leaderboard'));
+const MintPage = lazy(() => import('./pages/Mint'));
 
 const NAV_HEIGHT = 56;
-
-const MINT_URL = 'https://www.launchmynft.io/mint/sweetardio';
 
 /** Site navigation. Slots / Coinpusher / The Board deep-link into the arcade
  *  walk-through; `also` keeps the item highlighted once you've stepped from
@@ -43,6 +43,7 @@ const NAV_LINKS: { label: string; to: string; hover: string; also?: string[] }[]
 const AppInner: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const isMintPage = location.pathname === '/mint';
 
   const isActive = (to: string, also?: string[]) => {
     if (also?.includes(location.pathname)) return true;
@@ -85,14 +86,12 @@ const AppInner: React.FC = () => {
               </NavLink>
             ))}
             {/* Mint Now button covers this below xl */}
-            <a
-              href={MINT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <NavLink
+              to="/mint"
               className="hidden text-sm text-blue-100/70 transition-colors hover:text-sweetardios-cyan xl:inline"
             >
               Mint
-            </a>
+            </NavLink>
           </div>
         </div>
 
@@ -100,15 +99,14 @@ const AppInner: React.FC = () => {
           <div className="hidden sm:block">
             <WalletButton />
           </div>
-          <a
-            href={MINT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/mint"
+            onClick={() => setMenuOpen(false)}
             className="sw-shine inline-flex items-center gap-2 px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5"
             style={{ background: '#F715AB' }}
           >
-            Mint Now <span aria-hidden>↗</span>
-          </a>
+            Mint Now <span aria-hidden>→</span>
+          </Link>
 
           {/* Mobile menu toggle */}
           <button
@@ -144,15 +142,13 @@ const AppInner: React.FC = () => {
                 {l.label}
               </NavLink>
             ))}
-            <a
-              href={MINT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/mint"
               onClick={() => setMenuOpen(false)}
               className="py-3 text-sm uppercase tracking-[0.18em] text-blue-100/70 transition-colors hover:text-sweetardios-cyan"
             >
-              Mint <span aria-hidden>↗</span>
-            </a>
+              Mint <span aria-hidden>→</span>
+            </Link>
           </div>
         </div>
       )}
@@ -168,6 +164,7 @@ const AppInner: React.FC = () => {
       >
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/mint" element={<MintPage />} />
           <Route path="/whitelist" element={<WhitelistPage />} />
           <Route path="/arcade" element={<ArcadePage />} />
           <Route path="/board" element={<BoardPage />} />
@@ -180,8 +177,8 @@ const AppInner: React.FC = () => {
       </Suspense>
     </main>
 
-    <MascotGuide />
-    <SiteMusic />
+    {!isMintPage && <MascotGuide />}
+    {!isMintPage && <SiteMusic />}
   </div>
   );
 };
@@ -202,7 +199,9 @@ const App: React.FC = () => {
         <DynamicConnectionProvider wallets={wallets}>
           <WalletModalProvider>
             <Router>
-              <AppInner />
+              <MintEmbedProvider>
+                <AppInner />
+              </MintEmbedProvider>
             </Router>
           </WalletModalProvider>
         </DynamicConnectionProvider>

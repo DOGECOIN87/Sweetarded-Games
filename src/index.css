@@ -341,40 +341,62 @@ body {
    The connect modal lists explicitly-registered adapters (Phantom, Solflare,
    Nightly) plus any Wallet Standard wallet the visitor has installed
    (Backpack, etc.). These overrides square it off and put it on-palette. */
-.wallet-adapter-modal-wrapper {
+.wallet-adapter-modal .wallet-adapter-modal-wrapper {
   border-radius: 0;
   background: #070F34;
   border: 1px solid rgba(146, 1, 203, 0.55);
   box-shadow: 0 0 60px rgba(52, 237, 243, 0.15), 0 30px 80px -30px rgba(0, 0, 0, 0.9);
   font-family: 'JetBrains Mono', monospace;
 }
-.wallet-adapter-modal-title {
+.wallet-adapter-modal .wallet-adapter-modal-title {
   font-family: 'Pusia', sans-serif;
   color: #fff;
   letter-spacing: 0.02em;
 }
-.wallet-adapter-modal-list .wallet-adapter-button {
+.wallet-adapter-modal .wallet-adapter-modal-list .wallet-adapter-button {
   border-radius: 0;
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
   transition: background 0.15s ease, box-shadow 0.15s ease;
 }
-.wallet-adapter-modal-list .wallet-adapter-button:hover {
+.wallet-adapter-modal .wallet-adapter-modal-list .wallet-adapter-button:hover {
   background: rgba(52, 237, 243, 0.08);
   box-shadow: inset 2px 0 0 #34EDF3;
 }
-.wallet-adapter-modal-list-more {
+.wallet-adapter-modal .wallet-adapter-modal-list-more {
   color: #34EDF3;
 }
-.wallet-adapter-modal-button-close {
+.wallet-adapter-modal .wallet-adapter-modal-button-close {
   border-radius: 0;
   background: rgba(255, 255, 255, 0.06);
 }
-.wallet-adapter-modal-middle-button {
+.wallet-adapter-modal .wallet-adapter-modal-middle-button {
   border-radius: 0;
   background: #F715AB;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #070F34;
+}
+
+/* LaunchMyNFT's stylesheet is injected after the app CSS, so these scoped
+   selectors intentionally carry enough specificity to keep its embedded
+   wallet button on-brand. */
+.lmnft-embed .wallet-adapter-button {
+  border-radius: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lmnft-embed .wallet-adapter-button-trigger {
+  background: #F715AB;
+  color: #070F34;
+  box-shadow: 0 0 24px rgba(247, 21, 171, 0.3);
+}
+.lmnft-embed .wallet-adapter-button-trigger:not([disabled]):hover {
+  background: #34EDF3;
+  color: #070F34;
+  box-shadow: 0 0 28px rgba(52, 237, 243, 0.35);
 }

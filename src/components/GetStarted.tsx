@@ -1,3 +1,5 @@
+import { COMMUNITY_LINKS, type LinkAccent } from '../content/siteLinks';
+
 /* Solana NFT marketplace links. Foreground accents on Oxford bg. */
 const ACCENT = {
   cerise: {
@@ -11,9 +13,13 @@ const ACCENT = {
     border: 'hover:border-sweetardios-cyan/60',
   },
 } as const;
-type Accent = keyof typeof ACCENT;
-
-interface LinkItem { name: string; url: string; logo: string; accent: Accent }
+interface LinkItem {
+  name: string;
+  url: string;
+  logo?: string;
+  mark?: string;
+  accent: LinkAccent;
+}
 
 // Solana NFT marketplaces
 const MARKETPLACES: LinkItem[] = [
@@ -36,25 +42,34 @@ const LinkButton = ({ item }: { item: LinkItem }) => {
       href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group flex items-center gap-3 border border-white/10 bg-sweetardios-oxford/60 px-5 py-4 transition-all hover:-translate-y-0.5 ${a.border}`}
+      className={`group flex items-center gap-3 border border-white/10 bg-sweetardios-oxford/60 px-5 py-4 transition-all hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan ${a.border}`}
     >
-      {/* Logo: prefer a dropped /logos/<name>.png, fall back to the site favicon, then hide */}
-      <img
-        src={`/logos/${item.logo}.png`}
-        alt=""
-        className="h-8 w-8 shrink-0 object-contain"
-        onError={(e) => {
-          const img = e.currentTarget as HTMLImageElement;
-          if (img.dataset.fb !== '1') {
-            img.dataset.fb = '1';
-            img.src = favicon;
-          } else {
-            img.style.display = 'none';
-          }
-        }}
-      />
+      {item.mark ? (
+        <span
+          aria-hidden="true"
+          className={`flex h-8 w-8 shrink-0 items-center justify-center border border-current text-xs font-black ${a.text}`}
+        >
+          {item.mark}
+        </span>
+      ) : (
+        /* Logo: prefer /logos/<name>.png, fall back to the site's favicon, then hide. */
+        <img
+          src={`/logos/${item.logo}.png`}
+          alt=""
+          className="h-8 w-8 shrink-0 object-contain"
+          onError={(e) => {
+            const img = e.currentTarget as HTMLImageElement;
+            if (img.dataset.fb !== '1') {
+              img.dataset.fb = '1';
+              img.src = favicon;
+            } else {
+              img.style.display = 'none';
+            }
+          }}
+        />
+      )}
       <span className={`font-bold text-white transition-colors ${a.hoverText}`}>{item.name}</span>
-      <span className={`ml-auto ${a.text}`}>↗</span>
+      <span aria-hidden="true" className={`ml-auto ${a.text}`}>↗</span>
     </a>
   );
 };
@@ -73,6 +88,16 @@ const GetStarted = () => (
       </h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {MARKETPLACES.map((m) => <LinkButton key={m.name} item={m} />)}
+      </div>
+    </div>
+
+    {/* Official community channels */}
+    <div className="mt-12">
+      <h3 className="mb-5 text-center text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">
+        Community · Join the Sweetardios
+      </h3>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {COMMUNITY_LINKS.map((item) => <LinkButton key={item.name} item={item} />)}
       </div>
     </div>
   </section>

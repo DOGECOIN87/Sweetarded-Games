@@ -29,18 +29,6 @@ const ANCHOR_ERROR_MAP: Record<number, string> = {
   2008: 'Constraint rent exempt — account not rent exempt.',
   2009: 'Constraint seeds — PDA seeds mismatch.',
   2010: 'Constraint executable — account must be executable.',
-  // GoRaffle errors (6000+ = Anchor custom error offset)
-  6000: 'Invalid ticket count.',
-  6001: 'Invalid ticket price.',
-  6002: 'Invalid end time.',
-  6003: 'Raffle is not active.',
-  6004: 'Raffle has ended.',
-  6005: 'Not enough tickets remaining.',
-  6006: 'Invalid raffle status.',
-  6007: 'Raffle has not ended yet.',
-  6008: 'Cannot cancel this raffle.',
-  6009: 'Insufficient GGOR balance for tickets.',
-  6010: 'Arithmetic overflow.',
 };
 
 // Common Solana/wallet error patterns
@@ -69,16 +57,19 @@ export function parseTransactionError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
 
   // 1. Check for Anchor custom error codes (e.g., "Custom":6000 or custom program error: 0x1770)
-  const customMatch = message.match(/"Custom"\s*:\s*(\d+)/i)
-    || message.match(/custom program error:\s*0x([0-9a-fA-F]+)/i);
-  if (customMatch) {
-    const code = customMatch[1].startsWith('0x')
-      ? parseInt(customMatch[1], 16)
-      : parseInt(customMatch[1], 10);
+  const decimalCustomMatch = message.match(/"Custom"\s*:\s*(\d+)/i);
+  const hexCustomMatch = message.match(/custom program error:\s*0x([0-9a-fA-F]+)/i);
+  const customCode = decimalCustomMatch
+    ? Number.parseInt(decimalCustomMatch[1], 10)
+    : hexCustomMatch
+      ? Number.parseInt(hexCustomMatch[1], 16)
+      : null;
+
+  if (customCode !== null) {
+    const code = customCode;
     if (ANCHOR_ERROR_MAP[code]) {
       return ANCHOR_ERROR_MAP[code];
     }
-    return `Transaction failed (error code ${code}).`;
   }
 
   // 2. Check common error patterns
@@ -86,6 +77,10 @@ export function parseTransactionError(error: unknown): string {
     if (pattern.test(message)) {
       return friendly;
     }
+  }
+
+  if (customCode !== null) {
+    return `Transaction failed (error code ${customCode}).`;
   }
 
   // 3. Truncate overly long raw messages

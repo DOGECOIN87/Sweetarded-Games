@@ -24,7 +24,28 @@ from the main marketplace so the games can be redesigned in isolation.
 | `/arcade`      | Arcade walk-through scene                                      |
 | `/leaderboard` | **Leaderboards** — site-wide standings for both games          |
 | `/board`       | **The Board** — cork notice board with team announcements      |
+| `/mint`        | Dedicated on-site LaunchMyNFT mint controls                    |
 | `/whitelist`   | Whitelist signup                                               |
+
+## NFT mint embed and countdown
+
+The landing page and `/mint` route share one persistent LaunchMyNFT widget for
+`https://www.launchmynft.io/mint/sweetardio`. LaunchMyNFT remains authoritative
+for price, supply, eligibility, start/end state, and the transaction itself.
+
+To activate the site countdown, set the same launch instant in the deployment
+environment and rebuild:
+
+```bash
+VITE_MINT_START_AT=2026-08-01T18:00:00Z
+```
+
+Use ISO-8601 with `Z` or an explicit UTC offset. If the variable is missing or
+invalid, the widget stays available and the timer safely displays `TBA`.
+
+For the GitHub Pages deployment, create an Actions repository variable named
+`VITE_MINT_START_AT` under **Settings → Secrets and variables → Actions**. The
+Pages workflow passes that value into the production build on each `main` push.
 
 ## Wallets, credits & leaderboards
 

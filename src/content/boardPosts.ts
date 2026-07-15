@@ -23,10 +23,10 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     id: 'mint',
     title: 'Sweetardio Collection mint',
     body:
-      'The Sweetardio Collection mint is live on LaunchMyNFT. Join the whitelist to secure your spot, then grab your Sweetardio on mint day.',
+      'The Sweetardio Collection mint has been rescheduled, with the new date coming soon. Join the whitelist, then mint here on Sweetardio.fun or use LaunchMyNFT directly.',
     tag: 'Mint',
-    link: 'https://www.launchmynft.io/mint/sweetardio',
-    linkLabel: 'Go to mint',
+    link: '#/mint',
+    linkLabel: 'Open on-site mint',
     paper: 'white',
   },
   {
