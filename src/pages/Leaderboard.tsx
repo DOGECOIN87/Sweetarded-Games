@@ -157,7 +157,7 @@ export default function LeaderboardPage() {
   const accentText = accent === 'cerise' ? 'text-sweetardios-cerise' : 'text-sweetardios-cyan';
 
   return (
-    <div className="relative min-h-[calc(100vh-56px)] text-white">
+    <div className="relative min-h-[calc(100dvh-var(--navbar-height,96px))] text-white">
       {/* Background */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div

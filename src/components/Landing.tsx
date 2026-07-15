@@ -3,6 +3,7 @@ import GetStarted from './GetStarted';
 import Lineage from './Lineage';
 import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
+import { SocialIcon } from './SocialIcon';
 import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
 import { STICKERS, stickerSrc } from '../content/stickers';
 import { COMMUNITY_LINKS } from '../content/siteLinks';
@@ -151,7 +152,7 @@ const Landing = () => {
     </div>
 
     {/* HERO */}
-    <section className="relative flex min-h-[calc(100vh-56px)] items-center justify-center overflow-hidden px-6 py-16">
+    <section className="relative flex min-h-[calc(100dvh-var(--navbar-height,96px))] items-center justify-center overflow-hidden px-6 py-16">
       {/* cinematic vignette */}
       <div
         aria-hidden
@@ -170,11 +171,12 @@ const Landing = () => {
             <img src="/logos/sweetardio-collection-badge-512.png" alt="Sweetardio Collection" className="sw-float relative h-32 w-32 drop-shadow-[0_16px_40px_rgba(52,237,243,0.4)] sm:h-40 sm:w-40" />
           </div>
 
-          <span className="sw-rise mb-7 inline-flex items-center gap-2.5 border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-blue-100/75 backdrop-blur">
-            <span className="h-1.5 w-1.5 bg-sweetardios-cyan shadow-[0_0_8px_#34EDF3]" style={{ borderRadius: '9999px' }} /> Free to Play · Powered by Sweetardios
+          <span className="sw-rise mb-7 inline-flex items-center gap-2.5 border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-blue-100/75 backdrop-blur sm:tracking-[0.32em]">
+            <span className="h-1.5 w-1.5 bg-sweetardios-cyan shadow-[0_0_8px_#34EDF3]" style={{ borderRadius: '9999px' }} />
+            <span>Free to Play<span className="hidden sm:inline"> · Powered by Sweetardios</span></span>
           </span>
 
-          <h1 className="sw-rise font-heading text-6xl leading-[0.92] sm:text-8xl" style={{ animationDelay: '0.05s' }}>
+          <h1 className="sw-rise whitespace-nowrap font-heading text-4xl leading-[0.92] min-[380px]:text-5xl sm:text-8xl" style={{ animationDelay: '0.05s' }}>
             <span className="sw-glow-cerise">SWEET</span><span className="sw-glow-cyan">ARDIO</span>
           </h1>
           <div className="sw-rise sw-gradient-text font-heading mt-3 text-3xl tracking-[0.5em] sm:text-5xl" style={{ animationDelay: '0.12s' }}>
@@ -386,8 +388,9 @@ const Landing = () => {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan ${item.accent === 'cyan' ? 'hover:text-sweetardios-cyan' : 'hover:text-sweetardios-cerise'}`}
+                className="inline-flex items-center gap-2 font-bold text-sweetardios-cyan/80 transition-colors hover:text-sweetardios-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
               >
+                <SocialIcon platform={item.icon} className="h-3.5 w-3.5" />
                 {item.name}
                 <span aria-hidden="true" className="ml-1">↗</span>
               </a>

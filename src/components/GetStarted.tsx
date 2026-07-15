@@ -1,4 +1,5 @@
-import { COMMUNITY_LINKS, type LinkAccent } from '../content/siteLinks';
+import { COMMUNITY_LINKS, type LinkAccent, type SocialPlatform } from '../content/siteLinks';
+import { SocialIcon } from './SocialIcon';
 
 /* Solana NFT marketplace links. Foreground accents on Oxford bg. */
 const ACCENT = {
@@ -17,7 +18,7 @@ interface LinkItem {
   name: string;
   url: string;
   logo?: string;
-  mark?: string;
+  icon?: SocialPlatform;
   accent: LinkAccent;
 }
 
@@ -44,12 +45,12 @@ const LinkButton = ({ item }: { item: LinkItem }) => {
       rel="noopener noreferrer"
       className={`group flex items-center gap-3 border border-white/10 bg-sweetardios-oxford/60 px-5 py-4 transition-all hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan ${a.border}`}
     >
-      {item.mark ? (
+      {item.icon ? (
         <span
           aria-hidden="true"
-          className={`flex h-8 w-8 shrink-0 items-center justify-center border border-current text-xs font-black ${a.text}`}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center border border-current ${a.text}`}
         >
-          {item.mark}
+          <SocialIcon platform={item.icon} className="h-5 w-5" />
         </span>
       ) : (
         /* Logo: prefer /logos/<name>.png, fall back to the site's favicon, then hide. */

@@ -1,9 +1,10 @@
 export type LinkAccent = 'cerise' | 'cyan';
+export type SocialPlatform = 'discord' | 'telegram' | 'x';
 
 export interface CommunityLink {
   name: string;
   url: string;
-  mark: string;
+  icon: SocialPlatform;
   accent: LinkAccent;
 }
 
@@ -12,19 +13,19 @@ export const COMMUNITY_LINKS: readonly CommunityLink[] = [
   {
     name: 'Discord',
     url: 'https://discord.gg/FQPqRcwdZQ',
-    mark: 'DC',
-    accent: 'cerise',
+    icon: 'discord',
+    accent: 'cyan',
   },
   {
     name: 'Telegram',
     url: 'https://t.me/Sweetardios',
-    mark: 'TG',
+    icon: 'telegram',
     accent: 'cyan',
   },
   {
     name: 'X',
     url: 'https://x.com/Sweetardio',
-    mark: '𝕏',
-    accent: 'cerise',
+    icon: 'x',
+    accent: 'cyan',
   },
 ];

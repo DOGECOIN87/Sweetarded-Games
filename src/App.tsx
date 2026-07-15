@@ -11,7 +11,9 @@ import Landing from './components/Landing';
 import MascotGuide from './components/MascotGuide';
 import SiteMusic from './components/SiteMusic';
 import { MintEmbedProvider } from './components/MintEmbed';
+import { SocialIcon } from './components/SocialIcon';
 import WalletButton from './components/WalletButton';
+import { COMMUNITY_LINKS } from './content/siteLinks';
 
 // Lazy-load each game so they stay independent code-split bundles
 const SlotsPage = lazy(() => import('./pages/Slots'));
@@ -24,7 +26,7 @@ const StickersPage = lazy(() => import('./pages/Stickers'));
 const LeaderboardPage = lazy(() => import('./pages/Leaderboard'));
 const MintPage = lazy(() => import('./pages/Mint'));
 
-const NAV_HEIGHT = 56;
+const NAV_HEIGHT = 96;
 
 /** Site navigation. Slots / Coinpusher / The Board deep-link into the arcade
  *  walk-through; `also` keeps the item highlighted once you've stepped from
@@ -57,8 +59,39 @@ const AppInner: React.FC = () => {
     className="min-h-screen text-white font-mono antialiased selection:bg-sweetardios-cerise selection:text-sweetardios-oxford"
     style={{ ['--navbar-height' as string]: `${NAV_HEIGHT}px` } as React.CSSProperties}
   >
-    <nav className="sticky top-0 z-50 border-b border-sweetardios-violet/40 bg-sweetardios-oxford/80 backdrop-blur">
-      <div className="flex h-14 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 bg-sweetardios-oxford/90 shadow-[inset_0_-1px_0_rgba(146,1,203,0.4)] backdrop-blur-xl">
+      <nav
+        aria-label="Sweetardio social media"
+        className="h-10 border-b border-sweetardios-cyan/25 bg-[linear-gradient(90deg,rgba(52,237,243,0.02),rgba(52,237,243,0.1),rgba(52,237,243,0.02))] shadow-[0_1px_18px_rgba(52,237,243,0.1)]"
+      >
+        <div className="mx-auto flex h-full w-full max-w-[1920px] items-center justify-center gap-3 px-4 sm:justify-end">
+          <span className="hidden items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-sweetardios-cyan/75 sm:inline-flex">
+            <span aria-hidden="true" className="h-1.5 w-1.5 bg-sweetardios-cyan shadow-[0_0_10px_#34EDF3]" />
+            Join the Sweetardios
+          </span>
+          <div className="flex items-center gap-2">
+            {COMMUNITY_LINKS.map((item) => (
+              <a
+                key={item.name}
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Sweetardio on ${item.name} (opens in a new tab)`}
+                title={`Sweetardio on ${item.name}`}
+                className="group inline-flex h-9 min-w-9 items-center justify-center gap-2 border border-sweetardios-cyan/45 bg-sweetardios-cyan/[0.06] px-2 text-sweetardios-cyan shadow-[inset_0_0_12px_rgba(52,237,243,0.06)] transition-all duration-200 hover:-translate-y-px hover:border-sweetardios-cyan hover:bg-sweetardios-cyan hover:text-sweetardios-oxford hover:shadow-[0_0_22px_rgba(52,237,243,0.5)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
+              >
+                <SocialIcon platform={item.icon} className="h-[18px] w-[18px] shrink-0" />
+                <span className="hidden text-[10px] font-extrabold uppercase tracking-[0.14em] md:inline">
+                  {item.name}
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      <nav aria-label="Primary navigation">
+        <div className="flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 font-heading text-lg tracking-tight">
             <img
@@ -121,11 +154,11 @@ const AppInner: React.FC = () => {
             <span className={`h-0.5 w-5 bg-sweetardios-cyan transition-transform ${menuOpen ? '-translate-y-[7px] -rotate-45' : ''}`} />
           </button>
         </div>
-      </div>
+        </div>
 
       {/* Mobile menu panel */}
-      {menuOpen && (
-        <div className="border-t border-sweetardios-violet/30 bg-sweetardios-oxford/95 px-4 py-3 backdrop-blur lg:hidden">
+        {menuOpen && (
+          <div className="border-t border-sweetardios-violet/30 bg-sweetardios-oxford/95 px-4 py-3 backdrop-blur lg:hidden">
           <div className="pb-3 pt-1 sm:hidden">
             <WalletButton compact />
           </div>
@@ -150,14 +183,15 @@ const AppInner: React.FC = () => {
               Mint <span aria-hidden>→</span>
             </Link>
           </div>
-        </div>
-      )}
-    </nav>
+          </div>
+        )}
+      </nav>
+    </header>
 
     <main>
       <Suspense
         fallback={
-          <div className="flex h-[calc(100vh-56px)] items-center justify-center text-sweetardios-cyan">
+          <div className="flex h-[calc(100dvh-var(--navbar-height,96px))] items-center justify-center text-sweetardios-cyan">
             Loading…
           </div>
         }
