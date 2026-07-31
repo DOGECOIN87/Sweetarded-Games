@@ -10,6 +10,8 @@ import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
 import { STICKERS, stickerSrc } from '../content/stickers';
 import { COMMUNITY_LINKS } from '../content/siteLinks';
 import { STARTING_CREDITS } from '../lib/credits';
+import AgentMint from './AgentMint';
+import MakerBio from './MakerBio';
 import { shouldPlayPowerOn, useHeroPowerOn } from '../motion/heroPowerOn';
 import { useAmbient } from '../motion/useAmbient';
 import SectionHeading from './SectionHeading';
@@ -306,6 +308,9 @@ const Landing = () => {
     {/* UPCOMING MINT — LaunchMyNFT embed */}
     <MintSection />
 
+    {/* AGENTIC CHECKOUT — mint via PayBox in the user's own assistant */}
+    <AgentMint />
+
     <NeonDivider aisle="04" label="The Arcade" accent="cerise" />
 
     {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
@@ -351,7 +356,12 @@ const Landing = () => {
     {/* HIGHLIGHTED MUSIC FEATURE — Audius player */}
     <MusicFeature />
 
-    <NeonDivider aisle="06" label="The Ecosystem" accent="cerise" />
+    <NeonDivider aisle="06" label="The Maker" accent="cerise" />
+
+    {/* THE MAKER — who's behind the counter */}
+    <MakerBio />
+
+    <NeonDivider aisle="07" label="The Ecosystem" accent="cyan" />
 
     {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
