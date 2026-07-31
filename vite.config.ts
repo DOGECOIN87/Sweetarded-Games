@@ -48,6 +48,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('node_modules/@theatre/')) return 'chunk-motion';
             if (id.includes('node_modules/three')) return 'chunk-three';
             if (id.includes('@dimforge/rapier3d-compat')) return 'chunk-physics';
             if (id.includes('node_modules/firebase')) return 'chunk-firebase';

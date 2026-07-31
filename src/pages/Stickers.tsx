@@ -21,8 +21,6 @@ export default function StickersPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-blue-100/70">
             The sticker set of the Sweetardio collection — {STICKERS.length} of them and counting.
-            Meet the 3D crew on{' '}
-            <Link to="/cast" className="font-semibold text-sweetardios-cerise transition-colors hover:text-white">The Cast</Link>.
           </p>
         </header>
 

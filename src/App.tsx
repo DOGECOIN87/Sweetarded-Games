@@ -1,5 +1,5 @@
 import React, { useMemo, useState, lazy, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
@@ -21,7 +21,6 @@ const JunkPusherPage = lazy(() => import('./pages/JunkPusher'));
 const ArcadePage = lazy(() => import('./pages/Arcade'));
 const WhitelistPage = lazy(() => import('./pages/Whitelist'));
 const BoardPage = lazy(() => import('./pages/Board'));
-const CastPage = lazy(() => import('./pages/Cast'));
 const StickersPage = lazy(() => import('./pages/Stickers'));
 const LeaderboardPage = lazy(() => import('./pages/Leaderboard'));
 const MintPage = lazy(() => import('./pages/Mint'));
@@ -36,7 +35,6 @@ const NAV_LINKS: { label: string; to: string; hover: string; also?: string[] }[]
   { label: 'Slots', to: '/arcade?to=slots', hover: 'hover:text-sweetardios-cerise', also: ['/slots'] },
   { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan', also: ['/coinpusher'] },
   { label: 'Leaderboard', to: '/leaderboard', hover: 'hover:text-sweetardios-cyan' },
-  { label: 'The Cast', to: '/cast', hover: 'hover:text-sweetardios-cerise' },
   { label: 'Stickers', to: '/stickers', hover: 'hover:text-sweetardios-cerise' },
   { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan', also: ['/board'] },
   { label: 'Whitelist', to: '/whitelist', hover: 'hover:text-sweetardios-cyan' },
@@ -202,7 +200,7 @@ const AppInner: React.FC = () => {
           <Route path="/whitelist" element={<WhitelistPage />} />
           <Route path="/arcade" element={<ArcadePage />} />
           <Route path="/board" element={<BoardPage />} />
-          <Route path="/cast" element={<CastPage />} />
+          <Route path="/cast" element={<Navigate to="/stickers" replace />} />
           <Route path="/stickers" element={<StickersPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/slots" element={<SlotsPage />} />

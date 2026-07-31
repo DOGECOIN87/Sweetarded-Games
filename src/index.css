@@ -154,6 +154,9 @@ body {
 @keyframes sw-marquee-rev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 .sw-marquee-rev { animation: sw-marquee-rev 26s linear infinite; }
 
+/* Artist Series rare wall: the active segment fills over one autoplay cycle */
+@keyframes sw-rare-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
 /* Animated gradient clip-text */
 .sw-gradient-text {
   background: linear-gradient(90deg, #34EDF3, #F715AB, #9201CB, #34EDF3);
@@ -399,4 +402,162 @@ body {
   background: #34EDF3;
   color: #070F34;
   box-shadow: 0 0 28px rgba(52, 237, 243, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MIDNIGHT CANDY SHOP — landing atmosphere & sign system
+   The landing page reads as one physical arcade: neon-tube aisle
+   dividers between zones, scroll-linked air (hue wash, sugar dust,
+   grain), a unified neon-sign header treatment, and scroll reveals.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Selection + scrollbar: small signals of care ─────────────────── */
+::selection { background: rgba(247, 21, 171, 0.85); color: #070F34; }
+* { scrollbar-width: thin; scrollbar-color: #0313A6 #070F34; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: #070F34; }
+*::-webkit-scrollbar-thumb { background: linear-gradient(#0313A6, #9201CB); border: 2px solid #070F34; }
+*::-webkit-scrollbar-thumb:hover { background: #34EDF3; }
+
+/* ── Ambient background layers (inside Landing's fixed stack) ─────── */
+@keyframes sw-bg-drift { from { transform: scale(1) translateY(0); } to { transform: scale(1.07) translateY(-1.4%); } }
+.sw-bg-drift { animation: sw-bg-drift 46s ease-in-out infinite alternate; will-change: transform; }
+
+/* Scroll-linked hue wash: cerise near the door, cyan deep in the shop */
+.sw-wash { --scroll-p: 0; }
+.sw-wash::before, .sw-wash::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  transition: opacity 0.25s linear;
+}
+.sw-wash::before {
+  background: radial-gradient(120% 90% at 50% 0%, rgba(247, 21, 171, 0.16), transparent 62%);
+  opacity: calc(1 - var(--scroll-p));
+}
+.sw-wash::after {
+  background: radial-gradient(120% 100% at 50% 100%, rgba(52, 237, 243, 0.15), transparent 60%),
+              radial-gradient(90% 70% at 15% 78%, rgba(146, 1, 203, 0.12), transparent 65%);
+  opacity: var(--scroll-p);
+}
+
+/* Sugar dust: slow bokeh motes drifting up through the neon */
+.sw-dust i {
+  position: absolute; bottom: -4vh; display: block; border-radius: 9999px;
+  background: radial-gradient(circle, var(--dust-c, rgba(255,255,255,0.5)) 0%, transparent 70%);
+  filter: blur(1px); opacity: 0;
+  animation: sw-dust-rise var(--dust-t, 26s) linear infinite;
+  animation-delay: var(--dust-d, 0s);
+  left: var(--dust-x, 50%); width: var(--dust-s, 8px); height: var(--dust-s, 8px);
+}
+@keyframes sw-dust-rise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  8%   { opacity: var(--dust-o, 0.5); }
+  85%  { opacity: var(--dust-o, 0.5); }
+  100% { transform: translateY(-108vh) translateX(var(--dust-sway, 30px)); opacity: 0; }
+}
+
+/* Film grain: kills gradient banding, adds material */
+.sw-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.05; mix-blend-mode: overlay;
+}
+
+/* ── Scroll reveals: rise once, stagger children via --rv-i ───────── */
+.sw-reveal { opacity: 0; transform: translateY(26px); }
+.sw-reveal.is-in {
+  opacity: 1; transform: translateY(0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--rv-i, 0) * 90ms),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--rv-i, 0) * 90ms);
+}
+
+/* ── Neon-sign headers ────────────────────────────────────────────── */
+.sw-sign { position: relative; display: inline-block; }
+.sw-sign::before, .sw-sign::after {
+  content: ''; position: absolute; top: 50%; width: 22px; height: 2px;
+  transform: translateY(-50%);
+}
+.sw-sign::before { right: 100%; margin-right: 20px; background: linear-gradient(90deg, transparent, #F715AB); box-shadow: 0 0 10px rgba(247,21,171,0.8); }
+.sw-sign::after  { left: 100%;  margin-left: 20px;  background: linear-gradient(90deg, #34EDF3, transparent); box-shadow: 0 0 10px rgba(52,237,243,0.8); }
+@keyframes sw-sign-in {
+  0% { opacity: 0; } 14% { opacity: 0.85; } 24% { opacity: 0.1; }
+  38% { opacity: 1; } 50% { opacity: 0.4; } 64%, 100% { opacity: 1; }
+}
+.sw-reveal.is-in .sw-sign { animation: sw-sign-in 0.75s steps(1, end) both; }
+
+@media (max-width: 640px) {
+  .sw-sign::before, .sw-sign::after { display: none; }
+}
+
+/* ── Aisle dividers: neon tube + traveling pulse + checker caps ───── */
+.sw-tube { position: relative; height: 2px; overflow: hidden;
+  background: linear-gradient(90deg, transparent, rgba(146,1,203,0.7) 18%, rgba(146,1,203,0.7) 82%, transparent);
+  box-shadow: 0 0 12px rgba(146, 1, 203, 0.55);
+}
+.sw-tube::after {
+  content: ''; position: absolute; top: 50%; width: 84px; height: 6px;
+  transform: translateY(-50%); border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, var(--tube-c, #34EDF3), transparent);
+  filter: blur(1.5px) drop-shadow(0 0 10px var(--tube-c, #34EDF3));
+  animation: sw-tube-run var(--tube-t, 5.5s) linear infinite;
+}
+@keyframes sw-tube-run { from { left: -90px; } to { left: calc(100% + 8px); } }
+.sw-tube-rev::after { animation-name: sw-tube-run-rev; }
+@keyframes sw-tube-run-rev { from { left: calc(100% + 8px); } to { left: -90px; } }
+.sw-checker {
+  background:
+    repeating-conic-gradient(rgba(52, 237, 243, 0.4) 0% 25%, rgba(7, 15, 52, 0.9) 0% 50%)
+    0 0 / 10px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* ── Marquee bulbs: chasing lights around the CTA cabinet ─────────── */
+.sw-bulbs {
+  padding: 8px;
+  background-image:
+    radial-gradient(circle 2.2px, rgba(52, 237, 243, 0.95) 46%, transparent 54%),
+    radial-gradient(circle 2.2px, rgba(247, 21, 171, 0.9) 46%, transparent 54%);
+  background-size: 20px 20px, 20px 20px;
+  background-position: 0 0, 10px 10px;
+  animation: sw-bulb-chase 1.1s steps(2) infinite;
+}
+@keyframes sw-bulb-chase {
+  to { background-position: 20px 0, 30px 10px; }
+}
+
+/* ── Feature-card lightbar ────────────────────────────────────────── */
+.sw-lightbar { position: relative; overflow: hidden; }
+.sw-lightbar::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #F715AB, #9201CB, #34EDF3);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sw-lightbar:hover::before, .sw-lightbar:focus-within::before { transform: scaleX(1); }
+
+/* ── Hero: rotating conic border ──────────────────────────────────── */
+@property --sw-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes sw-conic-spin { to { --sw-angle: 360deg; } }
+.sw-conic-border {
+  background: conic-gradient(from var(--sw-angle),
+    rgba(247,21,171,0.85), rgba(146,1,203,0.5), rgba(52,237,243,0.85),
+    rgba(146,1,203,0.5), rgba(247,21,171,0.85));
+  animation: sw-conic-spin 9s linear infinite;
+}
+
+.sw-neon-buzz { animation: sw-neon-buzz 7s linear infinite; }
+
+/* ── Sticker stream edge fade ─────────────────────────────────────── */
+.sw-edge-fade {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+/* ── Reduced motion: the shop stands still, fully lit ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sw-bg-drift, .sw-dust i, .sw-tube::after, .sw-bulbs, .sw-conic-border,
+  .sw-neon-buzz, .sw-reveal.is-in .sw-sign {
+    animation: none !important;
+  }
+  .sw-reveal { opacity: 1; transform: none; transition: none; }
+  .sw-wash::before, .sw-wash::after { transition: none; }
 }

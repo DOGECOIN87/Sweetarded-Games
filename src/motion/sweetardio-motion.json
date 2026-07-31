@@ -1,0 +1,825 @@
+{
+  "sheetsById": {
+    "Hero": {
+      "staticOverrides": {
+        "byObject": {}
+      },
+      "sequence": {
+        "subUnitsPerUnit": 30,
+        "length": 2.6,
+        "type": "PositionalSequence",
+        "tracksByObject": {
+          "Panel": {
+            "trackData": {
+              "tr0": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf0",
+                    "position": 0,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf1",
+                    "position": 0.5,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr1": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf2",
+                    "position": 0,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf3",
+                    "position": 0,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              },
+              "tr2": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"scale\"]",
+                "keyframes": [
+                  {
+                    "id": "kf4",
+                    "position": 0,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0.965
+                  },
+                  {
+                    "id": "kf5",
+                    "position": 0.7,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr0",
+              "[\"y\"]": "tr1",
+              "[\"scale\"]": "tr2"
+            }
+          },
+          "Badge": {
+            "trackData": {
+              "tr3": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf6",
+                    "position": 0.15,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf7",
+                    "position": 0.7,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr4": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf8",
+                    "position": 0.15,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 34
+                  },
+                  {
+                    "id": "kf9",
+                    "position": 0.85,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr3",
+              "[\"y\"]": "tr4"
+            }
+          },
+          "Chip": {
+            "trackData": {
+              "tr5": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf10",
+                    "position": 0.5,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf11",
+                    "position": 0.9,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr6": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf12",
+                    "position": 0.5,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 16
+                  },
+                  {
+                    "id": "kf13",
+                    "position": 0.95,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr5",
+              "[\"y\"]": "tr6"
+            }
+          },
+          "Wordmark": {
+            "trackData": {
+              "tr7": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf14",
+                    "position": 0.6,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf15",
+                    "position": 0.72,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0.9
+                  },
+                  {
+                    "id": "kf16",
+                    "position": 0.8,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0.12
+                  },
+                  {
+                    "id": "kf17",
+                    "position": 0.9,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  },
+                  {
+                    "id": "kf18",
+                    "position": 0.98,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0.3
+                  },
+                  {
+                    "id": "kf19",
+                    "position": 1.08,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr8": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf20",
+                    "position": 0.6,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 26
+                  },
+                  {
+                    "id": "kf21",
+                    "position": 1.2,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr7",
+              "[\"y\"]": "tr8"
+            }
+          },
+          "Fun": {
+            "trackData": {
+              "tr9": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf22",
+                    "position": 1.05,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf23",
+                    "position": 1.45,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr10": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf24",
+                    "position": 1.05,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 18
+                  },
+                  {
+                    "id": "kf25",
+                    "position": 1.5,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr9",
+              "[\"y\"]": "tr10"
+            }
+          },
+          "Tagline": {
+            "trackData": {
+              "tr11": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf26",
+                    "position": 1.3,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf27",
+                    "position": 1.7,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr12": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf28",
+                    "position": 1.3,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 14
+                  },
+                  {
+                    "id": "kf29",
+                    "position": 1.75,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr11",
+              "[\"y\"]": "tr12"
+            }
+          },
+          "Kicker": {
+            "trackData": {
+              "tr13": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf30",
+                    "position": 1.55,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf31",
+                    "position": 1.9,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr14": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf32",
+                    "position": 1.55,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 10
+                  },
+                  {
+                    "id": "kf33",
+                    "position": 1.95,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr13",
+              "[\"y\"]": "tr14"
+            }
+          },
+          "ArrowL": {
+            "trackData": {
+              "tr15": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf34",
+                    "position": 1.7,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf35",
+                    "position": 2.1,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr16": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf36",
+                    "position": 1.7,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 22
+                  },
+                  {
+                    "id": "kf37",
+                    "position": 2.15,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr15",
+              "[\"y\"]": "tr16"
+            }
+          },
+          "ArrowC": {
+            "trackData": {
+              "tr17": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf38",
+                    "position": 1.82,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf39",
+                    "position": 2.25,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr18": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf40",
+                    "position": 1.82,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 26
+                  },
+                  {
+                    "id": "kf41",
+                    "position": 2.3,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr17",
+              "[\"y\"]": "tr18"
+            }
+          },
+          "ArrowR": {
+            "trackData": {
+              "tr19": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"opacity\"]",
+                "keyframes": [
+                  {
+                    "id": "kf42",
+                    "position": 1.94,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  },
+                  {
+                    "id": "kf43",
+                    "position": 2.35,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 1
+                  }
+                ]
+              },
+              "tr20": {
+                "type": "BasicKeyframedTrack",
+                "__debugName": "[\"y\"]",
+                "keyframes": [
+                  {
+                    "id": "kf44",
+                    "position": 1.94,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 22
+                  },
+                  {
+                    "id": "kf45",
+                    "position": 2.4,
+                    "connectedRight": true,
+                    "handles": [
+                      0.5,
+                      1,
+                      0.5,
+                      0
+                    ],
+                    "type": "bezier",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "trackIdByPropPath": {
+              "[\"opacity\"]": "tr19",
+              "[\"y\"]": "tr20"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitionVersion": "0.4.0",
+  "revisionHistory": [
+    "initial-poweron"
+  ]
+}

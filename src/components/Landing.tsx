@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ArtistRares from './ArtistRares';
 import GetStarted from './GetStarted';
 import Lineage from './Lineage';
 import MintSection from './MintSection';
@@ -8,12 +10,32 @@ import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
 import { STICKERS, stickerSrc } from '../content/stickers';
 import { COMMUNITY_LINKS } from '../content/siteLinks';
 import { STARTING_CREDITS } from '../lib/credits';
+import { shouldPlayPowerOn, useHeroPowerOn } from '../motion/heroPowerOn';
+import { useAmbient } from '../motion/useAmbient';
+import SectionHeading from './SectionHeading';
+import NeonDivider from './scene/NeonDivider';
 
 const FEATURES: { icon: string; title: string; desc: string; to?: string }[] = [
   { icon: '🎮', title: 'Free to Play', desc: `Every player starts with ${STARTING_CREDITS.toLocaleString()} SWEET credits — off-chain, just for fun.` },
   { icon: '🏆', title: 'Live Leaderboards', desc: 'Net profit, biggest wins and coins pushed — tracked live, per player.', to: '/leaderboard' },
   { icon: '👛', title: 'Any Solana Wallet', desc: 'Phantom, Backpack, Nightly, Solflare and more — connect to save your rank.' },
   { icon: '🍬', title: 'Perks at Mint', desc: 'Top players when the Sweetardios collection launches get rewarded.', to: '/leaderboard' },
+];
+
+/* Sugar dust drifting through the shop air — positions, sizes, tempos. */
+const DUST = [
+  { x: '5%',  s: 9,  t: 34, d: 0,   o: 0.35, c: 'rgba(247,21,171,0.5)',  sway: 42 },
+  { x: '14%', s: 6,  t: 27, d: 6,   o: 0.4,  c: 'rgba(255,255,255,0.45)', sway: -30 },
+  { x: '24%', s: 12, t: 40, d: 12,  o: 0.28, c: 'rgba(52,237,243,0.5)',  sway: 24 },
+  { x: '35%', s: 7,  t: 30, d: 3,   o: 0.4,  c: 'rgba(146,1,203,0.55)',  sway: -46 },
+  { x: '46%', s: 10, t: 37, d: 17,  o: 0.3,  c: 'rgba(255,255,255,0.4)', sway: 34 },
+  { x: '55%', s: 5,  t: 24, d: 9,   o: 0.45, c: 'rgba(52,237,243,0.55)', sway: -22 },
+  { x: '64%', s: 11, t: 42, d: 21,  o: 0.26, c: 'rgba(247,21,171,0.45)', sway: 50 },
+  { x: '73%', s: 6,  t: 28, d: 1,   o: 0.4,  c: 'rgba(255,255,255,0.45)', sway: -36 },
+  { x: '82%', s: 9,  t: 33, d: 14,  o: 0.32, c: 'rgba(146,1,203,0.5)',   sway: 28 },
+  { x: '90%', s: 7,  t: 26, d: 7,   o: 0.42, c: 'rgba(52,237,243,0.5)',  sway: -40 },
+  { x: '96%', s: 12, t: 44, d: 19,  o: 0.24, c: 'rgba(247,21,171,0.4)',  sway: 20 },
+  { x: '30%', s: 5,  t: 22, d: 11,  o: 0.45, c: 'rgba(255,255,255,0.5)', sway: 18 },
 ];
 
 /* ── Game card (real gameplay clip preview) ────────────────── */
@@ -138,17 +160,29 @@ const HeroArrow = ({ dir, color, caption, label, size, floor, onClick }: HeroArr
 
 const Landing = () => {
   const navigate = useNavigate();
+  /* Arcade power-on: Theatre.js choreographs the hero once per session;
+     skipped entirely under prefers-reduced-motion (see src/motion/). */
+  const [powerOn] = useState(shouldPlayPowerOn);
+  const reg = useHeroPowerOn(powerOn);
+  useAmbient();
 
   return (
   <div className="relative text-white">
     {/* Background: Sweetardio shop scene + Oxford tint */}
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="sw-bg-drift absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: 'url(/games-bg.png)' }}
       />
       <div className="absolute inset-0 bg-sweetardios-oxford/60" />
+      <div aria-hidden className="sw-wash absolute inset-0" />
+      <div aria-hidden className="sw-dust absolute inset-0">
+        {DUST.map((p, i) => (
+          <i key={i} style={{ '--dust-x': p.x, '--dust-s': `${p.s}px`, '--dust-t': `${p.t}s`, '--dust-d': `${p.d}s`, '--dust-o': p.o, '--dust-c': p.c, '--dust-sway': `${p.sway}px` } as React.CSSProperties} />
+        ))}
+      </div>
       <div className="sw-scanlines absolute inset-0 opacity-[0.1]" />
+      <div aria-hidden className="sw-grain absolute inset-0" />
     </div>
 
     {/* HERO */}
@@ -161,38 +195,39 @@ const Landing = () => {
       />
 
       {/* gradient-bordered glass panel */}
-      <div className="relative z-10 w-full max-w-4xl bg-gradient-to-br from-sweetardios-cerise/50 via-sweetardios-violet/25 to-sweetardios-cyan/50 p-px shadow-[0_50px_140px_-40px_rgba(0,0,0,0.95)]">
+      <div ref={reg('panel')} className="relative z-10 w-full max-w-4xl sw-conic-border p-px shadow-[0_50px_140px_-40px_rgba(0,0,0,0.95)]">
         <div className="relative flex flex-col items-center overflow-hidden bg-sweetardios-oxford/80 px-8 py-12 text-center backdrop-blur-2xl sm:px-16 sm:py-16">
           {/* top edge highlight */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
-          <div className="sw-rise relative mb-7 flex justify-center">
+          <div ref={reg('badge')} className="relative mb-7 flex justify-center">
             <div aria-hidden className="sw-blob absolute left-1/2 top-1/2 h-52 w-52 -translate-x-1/2 -translate-y-1/2" style={{ background: '#F715AB', opacity: 0.38 }} />
             <img src="/logos/sweetardio-collection-badge-512.png" alt="Sweetardio Collection" className="sw-float relative h-32 w-32 drop-shadow-[0_16px_40px_rgba(52,237,243,0.4)] sm:h-40 sm:w-40" />
           </div>
 
-          <span className="sw-rise mb-7 inline-flex items-center gap-2.5 border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-blue-100/75 backdrop-blur sm:tracking-[0.32em]">
+          <span ref={reg('chip')} className="mb-7 inline-flex items-center gap-2.5 border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-blue-100/75 backdrop-blur sm:tracking-[0.32em]">
             <span className="h-1.5 w-1.5 bg-sweetardios-cyan shadow-[0_0_8px_#34EDF3]" style={{ borderRadius: '9999px' }} />
             <span>Free to Play<span className="hidden sm:inline"> · Powered by Sweetardios</span></span>
           </span>
 
-          <h1 className="sw-rise whitespace-nowrap font-heading text-4xl leading-[0.92] min-[380px]:text-5xl sm:text-8xl" style={{ animationDelay: '0.05s' }}>
-            <span className="sw-glow-cerise">SWEET</span><span className="sw-glow-cyan">ARDIO</span>
+          <h1 ref={reg('wordmark')} className="whitespace-nowrap font-heading text-4xl leading-[0.92] min-[380px]:text-5xl sm:text-8xl">
+            <span className="sw-glow-cerise sw-neon-buzz">SWEET</span><span className="sw-glow-cyan sw-neon-buzz" style={{ animationDelay: '2.3s' }}>ARDIO</span>
           </h1>
-          <div className="sw-rise sw-gradient-text font-heading mt-3 text-3xl tracking-[0.5em] sm:text-5xl" style={{ animationDelay: '0.12s' }}>
+          <div ref={reg('fun')} className="sw-gradient-text font-heading mt-3 text-3xl tracking-[0.5em] sm:text-5xl">
             .FUN
           </div>
 
-          <p className="sw-rise mt-7 max-w-md text-base leading-relaxed text-blue-100/70 sm:text-lg" style={{ animationDelay: '0.18s' }}>
+          <p ref={reg('tagline')} className="mt-7 max-w-md text-base leading-relaxed text-blue-100/70 sm:text-lg">
             A sugar-coated arcade starring the <span className="font-semibold text-white">Sweetardios</span>. Two games, free to play.
           </p>
 
-          <p className="sw-rise mt-4 text-xs uppercase tracking-[0.22em] text-sweetardios-cyan/70" style={{ animationDelay: '0.24s' }}>
+          <p ref={reg('kicker')} className="mt-4 text-xs uppercase tracking-[0.22em] text-sweetardios-cyan/70">
             Follow the neon — pick your way in
           </p>
 
           {/* Navigation begins here: neon arrows walk you into the arcade */}
-          <div className="sw-rise mt-8 flex items-end justify-center gap-8 sm:gap-14" style={{ animationDelay: '0.32s' }}>
+          <div className="mt-8 flex items-end justify-center gap-8 sm:gap-14">
+            <div ref={reg('arrowL')}>
             <HeroArrow
               dir="left"
               color="cerise"
@@ -201,6 +236,8 @@ const Landing = () => {
               size={62}
               onClick={() => navigate('/arcade?to=slots')}
             />
+            </div>
+            <div ref={reg('arrowC')}>
             <HeroArrow
               dir="up"
               color="cerise"
@@ -210,6 +247,8 @@ const Landing = () => {
               floor
               onClick={() => navigate('/arcade')}
             />
+            </div>
+            <div ref={reg('arrowR')}>
             <HeroArrow
               dir="right"
               color="cyan"
@@ -218,6 +257,7 @@ const Landing = () => {
               size={62}
               onClick={() => navigate('/arcade?to=pusher')}
             />
+            </div>
           </div>
         </div>
       </div>
@@ -228,7 +268,7 @@ const Landing = () => {
     <Link
       to="/stickers"
       aria-label="See all Sweetardio stickers"
-      className="sw-cast-stream group relative block overflow-hidden border-y border-white/10 bg-sweetardios-oxford/60 py-4 backdrop-blur"
+      className="sw-cast-stream sw-edge-fade group relative block overflow-hidden border-y border-white/10 bg-sweetardios-oxford/60 py-4 backdrop-blur"
     >
       <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.3em] text-blue-100/45 transition-colors group-hover:text-sweetardios-cerise">
         Stickers — see them all <span aria-hidden>→</span>
@@ -251,21 +291,34 @@ const Landing = () => {
       </div>
     </Link>
 
+    <NeonDivider aisle="01" label="The Heritage" accent="cyan" />
+
     {/* HERITAGE — neochibi lineage story leading into the mint */}
     <Lineage />
+
+    <NeonDivider aisle="02" label="The Rare Wall" accent="cerise" />
+
+    {/* ARTIST SERIES — looping carousel of 1/1 guest-artist rares */}
+    <ArtistRares />
+
+    <NeonDivider aisle="03" label="The Mint" accent="cyan" />
 
     {/* UPCOMING MINT — LaunchMyNFT embed */}
     <MintSection />
 
+    <NeonDivider aisle="04" label="The Arcade" accent="cerise" />
+
     {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
     <section className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
-      <header className="mb-16 text-center">
-        <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">The Arcade</p>
-        <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">Pick your poison</h2>
-        <p className="mt-3 text-sm text-blue-100/55">Step into the scene and walk up to a machine.</p>
-      </header>
+      <SectionHeading
+        eyebrow="The Arcade"
+        title="Pick your poison"
+        sub="Step into the scene and walk up to a machine."
+        accent="cyan"
+        className="mb-16"
+      />
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+      <div className="sw-reveal grid grid-cols-1 gap-8 md:grid-cols-2">
         <GameCard
           to="/arcade?to=slots"
           variant="slots"
@@ -293,16 +346,20 @@ const Landing = () => {
       </div>
     </section>
 
+    <NeonDivider aisle="05" label="The Sounds" accent="cyan" />
+
     {/* HIGHLIGHTED MUSIC FEATURE — Audius player */}
     <MusicFeature />
+
+    <NeonDivider aisle="06" label="The Ecosystem" accent="cerise" />
 
     {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
 
     {/* LEADERBOARD / MINT PERKS CTA */}
     <section className="relative mx-auto max-w-6xl px-6 pb-4 pt-8">
-      <div className="bg-gradient-to-br from-sweetardios-cyan/60 via-sweetardios-violet/30 to-sweetardios-cerise/60 p-px">
-        <div className="flex flex-col items-center gap-8 bg-sweetardios-oxford/90 px-8 py-10 backdrop-blur md:flex-row md:gap-10 md:px-12">
+      <div className="sw-bulbs sw-reveal">
+        <div className="flex flex-col items-center gap-8 bg-[#081038] px-8 py-10 md:flex-row md:gap-10 md:px-12">
           <div className="text-6xl drop-shadow-[0_0_25px_rgba(52,237,243,0.5)]" aria-hidden>🏆</div>
           <div className="flex-1 text-center md:text-left">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">Season zero is live</p>
@@ -327,7 +384,7 @@ const Landing = () => {
     {/* FEATURES */}
     <section className="relative mx-auto max-w-6xl px-6 py-16">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map((f) => {
+        {FEATURES.map((f, i) => {
           const card = (
             <>
               <div className="text-3xl transition-transform group-hover:scale-110">{f.icon}</div>
@@ -336,13 +393,14 @@ const Landing = () => {
             </>
           );
           const className =
-            'group block border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-sweetardios-cyan/50 hover:bg-white/[0.05]';
+            'sw-lightbar sw-reveal group block border border-white/10 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-sweetardios-cyan/50 hover:bg-white/[0.05]';
+          const stagger = { '--rv-i': i } as React.CSSProperties;
           return f.to ? (
-            <Link key={f.title} to={f.to} className={className}>
+            <Link key={f.title} to={f.to} className={className} style={stagger}>
               {card}
             </Link>
           ) : (
-            <div key={f.title} className={className}>
+            <div key={f.title} className={className} style={stagger}>
               {card}
             </div>
           );
@@ -368,6 +426,13 @@ const Landing = () => {
               Mint
             </a>
             <a
+              href="#rares"
+              onClick={(e) => { e.preventDefault(); document.getElementById('rares')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="transition-colors hover:text-sweetardios-cerise focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
+            >
+              Rares
+            </a>
+            <a
               href="#music"
               onClick={(e) => { e.preventDefault(); document.getElementById('music')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="transition-colors hover:text-sweetardios-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
@@ -375,7 +440,6 @@ const Landing = () => {
               Music
             </a>
             <Link to="/leaderboard" className="transition-colors hover:text-sweetardios-cyan">Leaderboard</Link>
-            <Link to="/cast" className="transition-colors hover:text-sweetardios-cerise">The Cast</Link>
             <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>
             <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>
             <Link to="/whitelist" className="transition-colors hover:text-sweetardios-cyan">Whitelist</Link>

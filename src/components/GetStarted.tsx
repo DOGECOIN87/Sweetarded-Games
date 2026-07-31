@@ -1,5 +1,6 @@
 import { COMMUNITY_LINKS, type LinkAccent, type SocialPlatform } from '../content/siteLinks';
 import { SocialIcon } from './SocialIcon';
+import SectionHeading from './SectionHeading';
 
 /* Solana NFT marketplace links. Foreground accents on Oxford bg. */
 const ACCENT = {
@@ -77,10 +78,12 @@ const LinkButton = ({ item }: { item: LinkItem }) => {
 
 const GetStarted = () => (
   <section id="links" className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
-    <header className="mb-12 text-center">
-      <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">The Ecosystem</p>
-      <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">Links</h2>
-    </header>
+    <SectionHeading
+      eyebrow="The Ecosystem"
+      title="Verify, then ape"
+      sub="The only official marketplaces and channels. Anything else wearing our face is a fake."
+      accent="cyan"
+    />
 
     {/* Marketplaces */}
     <div>

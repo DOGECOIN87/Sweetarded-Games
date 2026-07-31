@@ -1,5 +1,7 @@
 /* Neochibi heritage — the bloodline that leads to Sweetardio. */
 
+import SectionHeading from './SectionHeading';
+
 type Accent = 'cerise' | 'cyan';
 
 interface Collection {
@@ -68,26 +70,23 @@ const CollectionCard = ({ c }: { c: Collection }) => {
 
 const Lineage = () => (
   <section id="heritage" className="relative mx-auto max-w-5xl px-6 py-20 sm:py-24">
-    <header className="mb-10 text-center">
-      <p className="text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">The Heritage</p>
-      <h2 className="font-heading mt-2 text-4xl text-white sm:text-5xl">
-        Five Years of <span className="sw-glow-cerise text-sweetardios-cerise">Neochibi</span> History
-      </h2>
-      <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-blue-100/70 sm:text-lg">
-        One bloodline after another, each leaving its mark on internet culture.
-        Every chapter respected. Every lineage honored.
-      </p>
-    </header>
+    <SectionHeading
+      eyebrow="The Heritage"
+      title={<>Five Years of <span className="sw-glow-cerise text-sweetardios-cerise">Neochibi</span> History</>}
+      sub="One bloodline after another, each leaving its mark on internet culture. Every chapter respected. Every lineage honored."
+      accent="cyan"
+      className="mb-10"
+    />
 
     {/* Collection grid */}
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="sw-reveal grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {COLLECTIONS.map((c) => (
         <CollectionCard key={c.handle} c={c} />
       ))}
     </div>
 
     {/* The arrival */}
-    <div className="relative mt-12 bg-gradient-to-br from-sweetardios-cerise/40 via-sweetardios-violet/20 to-sweetardios-cyan/40 p-px">
+    <div className="sw-reveal relative mt-12 bg-gradient-to-br from-sweetardios-cerise/40 via-sweetardios-violet/20 to-sweetardios-cyan/40 p-px" style={{ '--rv-i': 2 } as React.CSSProperties}>
       <div className="relative overflow-hidden bg-sweetardios-oxford/80 px-8 py-10 text-center backdrop-blur">
         <p className="text-xs uppercase tracking-[0.3em] text-sweetardios-cyan/80">Now the next evolution arrives</p>
         <h3 className="font-heading mt-3 text-5xl sm:text-6xl">
