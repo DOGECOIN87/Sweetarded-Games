@@ -21,13 +21,18 @@ interface LinkItem {
   logo?: string;
   icon?: SocialPlatform;
   accent: LinkAccent;
+  /** Small caption under the name — e.g. "Official mint" / "Live at launch". */
+  note?: string;
 }
 
-// Solana NFT marketplaces
+// Solana NFT marketplaces — the official mint leads; secondaries go live at
+// launch. After launch, point ME/Tensor at the collection pages, e.g.
+//   https://magiceden.io/marketplace/<collection-slug>
+//   https://www.tensor.trade/trade/<collection-slug>
 const MARKETPLACES: LinkItem[] = [
-  { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cerise' },
-  { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cyan' },
-  { name: 'Mint on LaunchMyNFT', url: 'https://www.launchmynft.io/mint/sweetardio', logo: 'launchmynft', accent: 'cerise' },
+  { name: 'Mint on LaunchMyNFT', url: 'https://www.launchmynft.io/mint/sweetardio', logo: 'launchmynft', accent: 'cerise', note: 'Official mint' },
+  { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cyan', note: 'Secondary · live at launch' },
+  { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cerise', note: 'Secondary · live at launch' },
 ];
 
 const LinkButton = ({ item }: { item: LinkItem }) => {
@@ -70,8 +75,13 @@ const LinkButton = ({ item }: { item: LinkItem }) => {
           }}
         />
       )}
-      <span className={`font-bold text-white transition-colors ${a.hoverText}`}>{item.name}</span>
-      <span aria-hidden="true" className={`ml-auto ${a.text}`}>↗</span>
+      <span className="min-w-0 flex-1">
+        <span className={`block truncate font-bold text-white transition-colors ${a.hoverText}`}>{item.name}</span>
+        {item.note && (
+          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-100/45">{item.note}</span>
+        )}
+      </span>
+      <span aria-hidden="true" className={`${a.text}`}>↗</span>
     </a>
   );
 };
