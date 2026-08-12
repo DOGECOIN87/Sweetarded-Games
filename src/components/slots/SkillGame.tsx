@@ -22,16 +22,22 @@ import { LogoWall } from '../LogoPattern';
 import { subscribeToSlotsConfig, DEFAULT_SLOTS_WEIGHTS, SLOTS_OUTCOME_META } from '../../services/gameConfigService';
 import { gameAsset, isRadbroRuntime, postRadbroResult } from '../../radbro/bridge';
 
+// The reel faces, rendered from the Sweetardio Collection by
+// asset_assessment/export_game_assets.py in that repo — re-run it there and
+// point --out at this public/ folder to refresh them.
+//
+// ORDER IS THE PAYTABLE. BASE_PAYOUTS and GRID_WEIGHTS below are indexed into
+// this list, so a symbol may be swapped in place but never reordered.
 const SYMBOL_IMAGES = [
-  gameAsset('symbols/cone.png'),
-  gameAsset('symbols/twins.png'),
-  gameAsset('symbols/gummy.png'),
-  gameAsset('symbols/churro.png'),
-  gameAsset('symbols/cookie.png'),
-  gameAsset('symbols/waffle-gold.png'),
-  gameAsset('symbols/waffle.png'),
-  gameAsset('symbols/jar.png'),
-  gameAsset('symbols/twinkie.png'),
+  gameAsset('symbols/cone.png'),          // Neapolitan Ice Cream — Choppa Cone
+  gameAsset('symbols/og-gummy-bear.png'), // OG Gummy Bear
+  gameAsset('symbols/smores.png'),        // S'mores
+  gameAsset('symbols/churro.png'),        // Churro
+  gameAsset('symbols/cookie.png'),        // Chocolate Chip Cookie
+  gameAsset('symbols/waffle-gold.png'),   // Gold Waffle
+  gameAsset('symbols/waffle.png'),        // Waffle
+  gameAsset('symbols/sugar-cube.png'),    // Sugar Cube
+  gameAsset('symbols/twinkie.png'),       // Twinkie
   gameAsset('logos/sweetardio-collection-badge-512.png'),
 ];
 
