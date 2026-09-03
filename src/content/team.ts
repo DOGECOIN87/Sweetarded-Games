@@ -52,4 +52,12 @@ export const TEAM: readonly TeamMember[] = [
     links: [{ label: '@gma_ox', url: 'https://x.com/gma_ox' }],
     discord: 'gma_marketing',
   },
+  {
+    name: 'iLLPeTiLL',
+    role: 'Verified Music Producer',
+    bio: 'Electronic music producer — sound design, groove, and emotion.',
+    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
+    avatar: { type: 'image', src: '/team/illpetill.jpg' },
+    links: [{ label: 'Verified on X', url: 'https://x.com/iLLPeTiLL' }],
+  },
 ] as const;
