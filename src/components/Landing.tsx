@@ -12,6 +12,7 @@ import { COMMUNITY_LINKS } from '../content/siteLinks';
 import { STARTING_CREDITS } from '../lib/credits';
 import AgentMint from './AgentMint';
 import MakerBio from './MakerBio';
+import Team from './Team';
 import { shouldPlayPowerOn, useHeroPowerOn } from '../motion/heroPowerOn';
 import { useAmbient } from '../motion/useAmbient';
 import SectionHeading from './SectionHeading';
@@ -356,12 +357,17 @@ const Landing = () => {
     {/* HIGHLIGHTED MUSIC FEATURE — Audius player */}
     <MusicFeature />
 
-    <NeonDivider aisle="06" label="The Maker" accent="cerise" />
+    <NeonDivider aisle="06" label="The Team" accent="cerise" />
+
+    {/* THE TEAM — everyone behind Sweetardio */}
+    <Team />
+
+    <NeonDivider aisle="07" label="The Maker" accent="cyan" />
 
     {/* THE MAKER — who's behind the counter */}
     <MakerBio />
 
-    <NeonDivider aisle="07" label="The Ecosystem" accent="cyan" />
+    <NeonDivider aisle="08" label="The Ecosystem" accent="cerise" />
 
     {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
