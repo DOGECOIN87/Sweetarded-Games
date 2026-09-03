@@ -12,6 +12,7 @@ import { COMMUNITY_LINKS } from '../content/siteLinks';
 import { STARTING_CREDITS } from '../lib/credits';
 import AgentMint from './AgentMint';
 import MakerBio from './MakerBio';
+import RarityTeaser from './RarityTeaser';
 import Team from './Team';
 import { shouldPlayPowerOn, useHeroPowerOn } from '../motion/heroPowerOn';
 import { useAmbient } from '../motion/useAmbient';
@@ -304,7 +305,12 @@ const Landing = () => {
     {/* ARTIST SERIES — looping carousel of 1/1 guest-artist rares */}
     <ArtistRares />
 
-    <NeonDivider aisle="03" label="The Mint" accent="cyan" />
+    <NeonDivider aisle="03" label="The Odds" accent="cerise" />
+
+    {/* RARITY — headline odds, linking into the full vault */}
+    <RarityTeaser />
+
+    <NeonDivider aisle="04" label="The Mint" accent="cyan" />
 
     {/* UPCOMING MINT — LaunchMyNFT embed */}
     <MintSection />
@@ -312,7 +318,7 @@ const Landing = () => {
     {/* AGENTIC CHECKOUT — mint via PayBox in the user's own assistant */}
     <AgentMint />
 
-    <NeonDivider aisle="04" label="The Arcade" accent="cerise" />
+    <NeonDivider aisle="05" label="The Arcade" accent="cerise" />
 
     {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
     <section className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
@@ -352,22 +358,22 @@ const Landing = () => {
       </div>
     </section>
 
-    <NeonDivider aisle="05" label="The Sounds" accent="cyan" />
+    <NeonDivider aisle="06" label="The Sounds" accent="cyan" />
 
     {/* HIGHLIGHTED MUSIC FEATURE — Audius player */}
     <MusicFeature />
 
-    <NeonDivider aisle="06" label="The Team" accent="cerise" />
+    <NeonDivider aisle="07" label="The Team" accent="cerise" />
 
     {/* THE TEAM — everyone behind Sweetardio */}
     <Team />
 
-    <NeonDivider aisle="07" label="The Maker" accent="cyan" />
+    <NeonDivider aisle="08" label="The Maker" accent="cyan" />
 
     {/* THE MAKER — who's behind the counter */}
     <MakerBio />
 
-    <NeonDivider aisle="08" label="The Ecosystem" accent="cerise" />
+    <NeonDivider aisle="09" label="The Ecosystem" accent="cerise" />
 
     {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
@@ -455,6 +461,7 @@ const Landing = () => {
             >
               Music
             </a>
+            <Link to="/rarity" className="transition-colors hover:text-sweetardios-cerise">Rarity</Link>
             <Link to="/leaderboard" className="transition-colors hover:text-sweetardios-cyan">Leaderboard</Link>
             <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>
             <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>

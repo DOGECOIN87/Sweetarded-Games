@@ -24,6 +24,7 @@ const BoardPage = lazy(() => import('./pages/Board'));
 const StickersPage = lazy(() => import('./pages/Stickers'));
 const LeaderboardPage = lazy(() => import('./pages/Leaderboard'));
 const MintPage = lazy(() => import('./pages/Mint'));
+const RarityPage = lazy(() => import('./pages/Rarity'));
 
 const NAV_HEIGHT = 56;
 
@@ -36,6 +37,7 @@ const NAV_LINKS: { label: string; to: string; hover: string; also?: string[] }[]
   { label: 'Coinpusher', to: '/arcade?to=pusher', hover: 'hover:text-sweetardios-cyan', also: ['/coinpusher'] },
   { label: 'Leaderboard', to: '/leaderboard', hover: 'hover:text-sweetardios-cyan' },
   { label: 'Stickers', to: '/stickers', hover: 'hover:text-sweetardios-cerise' },
+  { label: 'Rarity', to: '/rarity', hover: 'hover:text-sweetardios-cerise' },
   { label: 'The Board', to: '/arcade?to=gallery', hover: 'hover:text-sweetardios-cyan', also: ['/board'] },
   { label: 'Whitelist', to: '/whitelist', hover: 'hover:text-sweetardios-cyan' },
 ];
@@ -203,6 +205,7 @@ const AppInner: React.FC = () => {
           <Route path="/board" element={<BoardPage />} />
           <Route path="/cast" element={<Navigate to="/stickers" replace />} />
           <Route path="/stickers" element={<StickersPage />} />
+          <Route path="/rarity" element={<RarityPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/slots" element={<SlotsPage />} />
           <Route path="/coinpusher" element={<JunkPusherPage />} />
