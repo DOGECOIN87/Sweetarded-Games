@@ -62,6 +62,8 @@ export const TEAM: readonly TeamMember[] = [
   },
   {
     name: 'Hudson',
+    role: 'Web3 Writer · Wallet Tracker',
+    bio: 'GOD is the greatest 👑 · Creative Web3 writer · Pro wallet tracker · building $COOK.',
     /* TODO: swap in his real portrait once it's provided as an uploaded file. */
     avatar: { type: 'image', src: '/team/hudson.jpg' },
     links: [{ label: '@defi_huds', url: 'https://x.com/defi_huds' }],
