@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ArtistRares from './ArtistRares';
 import GetStarted from './GetStarted';
-import Lineage from './Lineage';
+import SweetardioVideo from './SweetardioVideo';
 import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import { SocialIcon } from './SocialIcon';
@@ -295,10 +295,10 @@ const Landing = () => {
       </div>
     </Link>
 
-    <NeonDivider aisle="01" label="The Heritage" accent="cyan" />
+    <NeonDivider aisle="01" label="The Reel" accent="cyan" />
 
-    {/* HERITAGE — neochibi lineage story leading into the mint */}
-    <Lineage />
+    {/* THE REEL — featured Sweetardio post, embedded from X */}
+    <SweetardioVideo />
 
     <NeonDivider aisle="02" label="The Rare Wall" accent="cerise" />
 
