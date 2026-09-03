@@ -13,8 +13,8 @@ export interface TeamMember {
   name: string;
   /** Nickname/handle shown as `a.k.a. "X"` — omit if the member doesn't use one. */
   alias?: string;
-  role: string;
-  bio: string;
+  role?: string;
+  bio?: string;
   /** Static portrait, or a looping video avatar. `sources` lists formats in
    *  preference order (webm first — smaller, and covers browsers without
    *  H.264 licensed in). */
@@ -59,5 +59,11 @@ export const TEAM: readonly TeamMember[] = [
     /* TODO: swap in his real portrait once it's provided as an uploaded file. */
     avatar: { type: 'image', src: '/team/illpetill.jpg' },
     links: [{ label: 'Verified on X', url: 'https://x.com/iLLPeTiLL' }],
+  },
+  {
+    name: 'Hudson',
+    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
+    avatar: { type: 'image', src: '/team/hudson.jpg' },
+    links: [{ label: '@defi_huds', url: 'https://x.com/defi_huds' }],
   },
 ] as const;

@@ -58,7 +58,7 @@ const TeamCard = ({ member, i }: { member: TeamMember; i: number }) => {
               ) : imgFailed ? (
                 <div
                   className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${grad} font-heading text-3xl text-white/90`}
-                  aria-label={`${member.name} — ${member.role}`}
+                  aria-label={member.role ? `${member.name} — ${member.role}` : member.name}
                 >
                   {initials(member.name)}
                 </div>
@@ -67,7 +67,7 @@ const TeamCard = ({ member, i }: { member: TeamMember; i: number }) => {
                   className="h-full w-full object-cover"
                   style={{ borderRadius: '9999px' }}
                   src={member.avatar.src}
-                  alt={`${member.name} — ${member.role}`}
+                  alt={member.role ? `${member.name} — ${member.role}` : member.name}
                   loading="lazy"
                   decoding="async"
                   onError={() => setImgFailed(true)}
@@ -82,11 +82,15 @@ const TeamCard = ({ member, i }: { member: TeamMember; i: number }) => {
               a.k.a. “{member.alias}”
             </p>
           )}
-          <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-100/45">
-            {member.role}
-          </p>
+          {member.role && (
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-100/45">
+              {member.role}
+            </p>
+          )}
 
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-blue-100/70">{member.bio}</p>
+          {member.bio && (
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-blue-100/70">{member.bio}</p>
+          )}
 
           {((member.links && member.links.length > 0) || member.discord) && (
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
