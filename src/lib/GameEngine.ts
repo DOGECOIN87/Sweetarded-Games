@@ -563,27 +563,32 @@ export class GameEngine {
   private buildAimMarker() {
     const group = new THREE.Group();
     const dropZ = -DIMENSIONS.PLAYFIELD_LENGTH / 2 + 1;
+    // Coins land on the pusher deck, not the playfield floor. A ring at floor
+    // height sits behind and under the pusher block, where it can't be seen.
+    const deckY = 1.15;
 
-    // Vertical beam down the drop chute.
+    // Vertical beam down the drop chute, stopping at the deck.
     const beam = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.06, 0.06, 4.2, 12),
-      new THREE.MeshBasicMaterial({ color: 0x34EDF3, transparent: true, opacity: 0.32 })
+      new THREE.CylinderGeometry(0.07, 0.07, 4.3 - deckY, 12),
+      new THREE.MeshBasicMaterial({ color: 0x34EDF3, transparent: true, opacity: 0.45 })
     );
-    beam.position.set(0, 2.1, dropZ);
+    beam.position.set(0, deckY + (4.3 - deckY) / 2, dropZ);
     group.add(beam);
 
-    // Landing ring on the playfield.
+    // Landing ring, sitting on the deck the coin actually drops onto.
     const ring = new THREE.Mesh(
-      new THREE.RingGeometry(0.42, 0.62, 28),
+      new THREE.RingGeometry(0.45, 0.66, 28),
       new THREE.MeshBasicMaterial({
         color: 0x34EDF3,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.9,
         side: THREE.DoubleSide,
+        depthTest: false, // always readable, even over a tall stack of coins
       })
     );
     ring.rotation.x = -Math.PI / 2;
-    ring.position.set(0, 0.06, dropZ);
+    ring.position.set(0, deckY, dropZ);
+    ring.renderOrder = 5;
     group.add(ring);
 
     this.aimMarker = group;

@@ -316,11 +316,15 @@ export const Overlay: React.FC<OverlayProps> = ({
                         <div className="text-[7px] sm:text-[8px] uppercase tracking-[0.3em] text-green-500/50 font-medium font-[Inter] opacity-20">Insert Sweets</div>
                         {/* How to play. Aiming is the whole game and nothing
                             on screen used to say so. */}
-                        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 text-center text-[8px] sm:text-[10px] font-[Inter] uppercase tracking-[0.18em] text-green-300/40">
-                            <span><b className="text-green-200/70">Move / ←→</b> aim</span>
-                            <span><b className="text-green-200/70">Click / Space</b> drop</span>
-                            <span><b className="text-green-200/70">B</b> bump</span>
-                            <span className="text-amber-300/50">Push the bright coins off the front lip</span>
+                        <div className="mt-4 flex max-w-[min(92vw,640px)] flex-col items-center gap-2 border border-green-500/20 bg-black/55 px-5 py-3 text-center backdrop-blur-sm">
+                            <p className="text-[10px] sm:text-xs font-[Inter] font-bold uppercase tracking-[0.2em] text-amber-300/80">
+                                Push the bright coins off the front lip
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[9px] sm:text-[10px] font-[Inter] uppercase tracking-[0.16em] text-green-300/50">
+                                <span><b className="text-green-200/80">Mouse</b> or <b className="text-green-200/80">Arrows</b> aim</span>
+                                <span><b className="text-green-200/80">Click</b> or <b className="text-green-200/80">Space</b> drop</span>
+                                <span><b className="text-green-200/80">B</b> bump</span>
+                            </div>
                         </div>
                     </div>
                 )}

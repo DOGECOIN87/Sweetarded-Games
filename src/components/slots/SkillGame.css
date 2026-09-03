@@ -271,16 +271,21 @@
   text-shadow: 0 0 10px #F715AB;
 }
 
+/* Sits under the grid rather than across it. Centred, this banner covered the
+   middle row — the exact symbols a player has to read to choose a placement. */
 .skill-status-message {
   position: absolute;
-  top: 50%;
+  bottom: -2px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+  padding: 3px 14px;
+  background: rgba(6, 10, 30, 0.88);
+  border: 1px solid rgba(52, 237, 243, 0.35);
   font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(18px, 2.5vmin, 32px);
-  color: #666;
+  font-size: clamp(11px, 1.5vmin, 16px);
+  color: #9fb4d8;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   pointer-events: none;
   z-index: 10;
   font-weight: bold;
