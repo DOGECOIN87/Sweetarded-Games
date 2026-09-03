@@ -11,7 +11,8 @@ export interface TeamLink {
 
 export interface TeamMember {
   name: string;
-  alias: string;
+  /** Nickname/handle shown as `a.k.a. "X"` — omit if the member doesn't use one. */
+  alias?: string;
   role: string;
   bio: string;
   /** Static portrait, or a looping video avatar. `sources` lists formats in
@@ -19,6 +20,8 @@ export interface TeamMember {
    *  H.264 licensed in). */
   avatar: { type: 'image'; src: string } | { type: 'video'; sources: string[] };
   links?: TeamLink[];
+  /** Handles with no single canonical profile URL (e.g. a Discord username) — shown as plain text, not a link. */
+  discord?: string;
 }
 
 export const TEAM: readonly TeamMember[] = [
@@ -36,5 +39,17 @@ export const TEAM: readonly TeamMember[] = [
     role: 'Software Development Manager',
     bio: '30+ years experience in managing software development teams.',
     avatar: { type: 'video', sources: ['/team/kevin-simplex.webm', '/team/kevin-simplex.mp4'] },
+  },
+  {
+    name: 'Michael Gbolasere',
+    role: 'Founder, GMA Marketing Agency',
+    bio:
+      'Web3 and crypto marketing specialist and founder of GMA Marketing Agency. In crypto since 2017, ' +
+      'he runs campaigns across community growth, KOL deployment, NFT projects, and token launches for ' +
+      'global markets. He’s a Top Rated Plus freelancer on Upwork with a 100% job success score.',
+    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
+    avatar: { type: 'image', src: '/team/michael-gbolasere.jpg' },
+    links: [{ label: '@gma_ox', url: 'https://x.com/gma_ox' }],
+    discord: 'gma_marketing',
   },
 ] as const;
