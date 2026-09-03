@@ -4,7 +4,7 @@ export const PHYSICS = {
   COIN_RADIUS: 0.55,
   COIN_HEIGHT: 0.1, // Thinner for realistic stacking
   PUSHER_AMPLITUDE: 1.1,
-  PUSHER_PERIOD: 4.0, // Slower, heavier machine feel
+  PUSHER_PERIOD: 2.6, // One push every 2.6s — fast enough to read, slow enough to plan
   COIN_FRICTION: 0.4, // Improved friction for realistic sliding
   COIN_RESTITUTION: 0.1, // Less bouncy, heavier feel
   COIN_LINEAR_DAMPING: 2.0, // High damping so resting coins settle quickly
@@ -12,6 +12,46 @@ export const PHYSICS = {
   MAX_COINS: 800,
   COIN_DENSITY: 8.0, // Realistic metal density
 };
+
+/**
+ * Coin tiers — the reason to care where you aim.
+ *
+ * Every coin costs 1 credit to drop, but what's already sitting on the
+ * playfield is worth wildly different amounts. Nudging a gold medallion over
+ * the lip is worth 100 drops, so the field is a puzzle rather than a treadmill.
+ *
+ * Index is the tier id, stored on each coin body. `weight` is the relative
+ * chance of a coin spawning at that tier when the machine seeds or restocks
+ * the field — the coins the player drops are always tier 0.
+ */
+export const COIN_TIERS = [
+  // value, spawn weight, size, and the emissive tint that makes it readable at a glance
+  { value: 1,   weight: 100, radiusScale: 1.0,  color: 0x2a2a2a, emissive: 0xffffff, intensity: 0.7, label: 'SWEET',    hex: '#e8ecff' },
+  { value: 5,   weight: 26,  radiusScale: 1.0,  color: 0x0d3a4a, emissive: 0x34EDF3, intensity: 1.1, label: 'CHROME',   hex: '#34EDF3' },
+  { value: 25,  weight: 7,   radiusScale: 1.15, color: 0x4a0d33, emissive: 0xF715AB, intensity: 1.3, label: 'CERISE',   hex: '#F715AB' },
+  { value: 100, weight: 2,   radiusScale: 1.3,  color: 0x4a3a0d, emissive: 0xFFC93C, intensity: 1.6, label: 'MEDALLION', hex: '#FFC93C' },
+];
+
+/** Per-tier instance caps — prize coins are rare, so they need far fewer slots. */
+export const COIN_TIER_CAPS = [PHYSICS.MAX_COINS, 160, 80, 32];
+
+export const TIMING = {
+  /** Minimum gap between dropped coins — stops hold-to-spam flooding the field. */
+  DROP_COOLDOWN_MS: 160,
+  /** Bump recharge. Bumping is powerful, so it has to be spent deliberately. */
+  BUMP_COOLDOWN_MS: 3000,
+  /** Bumps allowed inside TILT_WINDOW_MS before the machine tilts. */
+  TILT_LIMIT: 3,
+  TILT_WINDOW_MS: 15000,
+  /** How long the machine locks out bumping after a tilt. */
+  TILT_LOCKOUT_MS: 10000,
+};
+
+/** Cost in credits of a single bump. Matches the paytable and button labels. */
+export const BUMP_COST = 20;
+
+/** Payout multiplier applied to collected coins while it's raining. */
+export const RAIN_MULTIPLIER = 2;
 
 export const DIMENSIONS = {
   PLAYFIELD_WIDTH: 8,

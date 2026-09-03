@@ -13,6 +13,7 @@ import { subscribeToJunkPusherConfig } from '../../services/gameConfigService';
 import { submitScore } from '../../services/leaderboardService';
 import { resolvePlayer, currentPlayerId } from '../../lib/playerIdentity';
 import { gameAsset, isRadbroRuntime, postRadbroResult } from '../../radbro/bridge';
+import { COIN_TIERS, RAIN_MULTIPLIER } from '../../lib/constants';
 
 type MascotPhase = 'hidden' | 'rising' | 'visible' | 'falling';
 
@@ -39,8 +40,9 @@ const JunkPusherGame: React.FC = () => {
         mascotActiveRef.current = true;
         setMascotPhase('rising');
 
-        // Drop a random bonus rain of 25–150 coins spread over ~4 seconds
-        const bonusCount = 25 + Math.floor(Math.random() * 126);
+        // Prize shower: 30–90 free coins over ~4s, every fourth one a prize
+        // tier. This is the machine's payoff moment, so it should look like it.
+        const bonusCount = 30 + Math.floor(Math.random() * 61);
         const dropInterval = 4000 / bonusCount;
         let dropped = 0;
         const coinRainInterval = setInterval(() => {
@@ -48,7 +50,9 @@ const JunkPusherGame: React.FC = () => {
                 clearInterval(coinRainInterval);
                 return;
             }
-            engineRef.current.dropBonusCoin();
+            // Every 4th coin is guaranteed to be a prize tier (1–3).
+            const tier = dropped % 4 === 3 ? 1 + Math.floor(Math.random() * 3) : 0;
+            engineRef.current.dropBonusCoin(tier);
             dropped++;
         }, dropInterval);
 
@@ -63,8 +67,8 @@ const JunkPusherGame: React.FC = () => {
                 mascotTimerRef.current = setTimeout(() => {
                     setMascotPhase('hidden');
                     mascotActiveRef.current = false;
-                    // Schedule next rare occurrence: 5–12 minutes from now
-                    const delay = 300000 + Math.random() * 420000;
+                    // Schedule the next occurrence: 90s–3min from now
+                    const delay = 90000 + Math.random() * 90000;
                     mascotTimerRef.current = setTimeout(() => runMascotSequence.current(), delay);
                 }, 3000);
             }, 20000);
@@ -72,8 +76,9 @@ const JunkPusherGame: React.FC = () => {
     };
 
     useEffect(() => {
-        // Rare event: first trigger between 5–12 minutes
-        const initialDelay = 300000 + Math.random() * 420000;
+        // First jackpot rain lands 40–80s in — early enough that a player
+        // actually sees the machine's big moment instead of leaving before it.
+        const initialDelay = 40000 + Math.random() * 40000;
         mascotTimerRef.current = setTimeout(() => runMascotSequence.current(), initialDelay);
         return () => {
             if (mascotTimerRef.current) clearTimeout(mascotTimerRef.current);
@@ -86,9 +91,35 @@ const JunkPusherGame: React.FC = () => {
         netProfit: 0,
         fps: 0,
         isPaused: false,
+        bumpCharge: 1,
+        tilted: false,
+        aimX: 0,
+        prizeValueOnField: 0,
+        lastCollect: null,
     });
     const gameStateRef = useRef(gameState);
     gameStateRef.current = gameState;
+
+    // Floating "+N" payout popups, keyed off the engine's last collect event.
+    const [popups, setPopups] = useState<{ key: number; tier: number; amount: number; boosted: boolean }[]>([]);
+    const popupKeyRef = useRef(0);
+    const lastCollectRef = useRef<GameState['lastCollect']>(null);
+
+    useEffect(() => {
+        const collect = gameState.lastCollect;
+        // The engine hands back a fresh object per collection, so identity is
+        // enough to tell a new event from a re-render of the same one.
+        if (!collect || collect === lastCollectRef.current) return;
+        lastCollectRef.current = collect;
+
+        const key = popupKeyRef.current++;
+        setPopups((prev) => [...prev.slice(-5), { key, ...collect }]);
+        const t = setTimeout(
+            () => setPopups((prev) => prev.filter((p) => p.key !== key)),
+            1400
+        );
+        return () => clearTimeout(t);
+    }, [gameState.lastCollect]);
 
     const walletKeyRef = useRef(wallet.publicKey);
     walletKeyRef.current = wallet.publicKey;
@@ -262,17 +293,70 @@ const JunkPusherGame: React.FC = () => {
         return unsub;
     }, []);
 
-    const handleDropCoin = () => {
-        soundManager.initialize();
-        if (engineRef.current && !gameState.isPaused && !adminPaused) {
-            if (!radbroRunStartedRef.current) {
-                radbroRunStartedRef.current = true;
-                postRadbroResult('run', gameState.score);
+    // Late-bound handles so the keyboard effect can reach the drop / bump
+    // callbacks that are declared further down.
+    const handleDropRef = useRef<(() => void) | null>(null);
+    const handleBumpRef = useRef<(() => void) | null>(null);
+
+    /**
+     * Keyboard controls. Arrow keys slide the drop marker, Space drops, B
+     * bumps — the whole game is playable without ever touching the mouse,
+     * and holding an arrow key gives far finer aim than a click ever could.
+     */
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            const target = e.target as HTMLElement | null;
+            // Never steal keys from a text field (deposit / withdraw inputs).
+            if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+            const engine = engineRef.current;
+            if (!engine || adminPaused) return;
+
+            const step = e.shiftKey ? 0.12 : 0.4; // Shift = fine aim
+            switch (e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    engine.nudgeAim(-step);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    engine.nudgeAim(step);
+                    break;
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    handleDropRef.current?.();
+                    break;
+                case 'b':
+                case 'B':
+                    e.preventDefault();
+                    handleBumpRef.current?.();
+                    break;
+                default:
+                    break;
             }
-            const x = (Math.random() - 0.5) * 6;
-            engineRef.current.dropUserCoin(x);
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [adminPaused]);
+
+    /**
+     * Drop at the current aim position.
+     *
+     * This used to drop at a random x, which took the one real decision in a
+     * coin pusher — where to place the coin — away from the player.
+     */
+    const handleDropCoin = useCallback(() => {
+        soundManager.initialize();
+        const engine = engineRef.current;
+        if (!engine || gameStateRef.current.isPaused || adminPaused) return;
+        if (!radbroRunStartedRef.current) {
+            radbroRunStartedRef.current = true;
+            postRadbroResult('run', gameStateRef.current.score);
         }
-    };
+        engine.dropAtAim();
+    }, [adminPaused]);
+
+    handleDropRef.current = handleDropCoin;
 
     /**
      * FEAT-01: Bump now attempts a real on-chain transaction when:
@@ -290,10 +374,15 @@ const JunkPusherGame: React.FC = () => {
                     console.warn('[JunkPusher] On-chain bump failed, continuing locally:', err);
                 }
             }
-            engineRef.current.bump();
-            soundManager.play('bump');
+            // bump() refuses while recharging or tilted; only pay the on-chain
+            // round-trip and the sound when the machine actually shook.
+            if (engineRef.current.bump()) {
+                soundManager.play('bump');
+            }
         }
-    }, [wallet.isConnected]);
+    }, [wallet.isConnected, adminPaused]);
+
+    handleBumpRef.current = handleBump;
 
     const handleReset = useCallback(async () => {
         if (engineRef.current) {
@@ -316,6 +405,11 @@ const JunkPusherGame: React.FC = () => {
                 netProfit: 0,
                 fps: currentState.fps,
                 isPaused: false,
+        bumpCharge: 1,
+        tilted: false,
+        aimX: 0,
+        prizeValueOnField: 0,
+        lastCollect: null,
             });
             clearGameState();
             setCredits(currentPlayerId(walletKeyRef.current), STARTING_CREDITS);
@@ -394,23 +488,58 @@ const JunkPusherGame: React.FC = () => {
         }
     };
 
-    const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        soundManager.initialize();
-        if (!engineRef.current || gameState.isPaused || adminPaused) return;
+    /** Project a pointer position onto the playfield's drop plane. */
+    const aimFromEvent = (e: React.MouseEvent<HTMLCanvasElement>): number | null => {
         const canvas = gameCanvasRef.current;
-        if (!canvas) return;
-        if (!radbroRunStartedRef.current) {
-            radbroRunStartedRef.current = true;
-            postRadbroResult('run', gameState.score);
-        }
+        const engine = engineRef.current;
+        if (!canvas || !engine) return null;
         const rect = canvas.getBoundingClientRect();
         const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-        engineRef.current.dropCoinAtRaycast(ndcX, ndcY);
+        return engine.aimFromRaycast(ndcX, ndcY);
+    };
+
+    const handleCanvasMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (gameStateRef.current.isPaused || adminPaused) return;
+        const x = aimFromEvent(e);
+        if (x !== null) engineRef.current?.setAim(x);
+    };
+
+    const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        soundManager.initialize();
+        if (!engineRef.current || gameStateRef.current.isPaused || adminPaused) return;
+        const x = aimFromEvent(e);
+        if (x === null) return;
+        if (!radbroRunStartedRef.current) {
+            radbroRunStartedRef.current = true;
+            postRadbroResult('run', gameStateRef.current.score);
+        }
+        engineRef.current.setAim(x);
+        engineRef.current.dropUserCoin(x);
     };
 
     return (
         <div className="relative w-full h-full overflow-hidden bg-black">
+            {/* Collect popups — a 100-credit medallion dropping should feel
+                like something, not just tick a counter somewhere. */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-[22%] z-20 flex flex-col items-center gap-1">
+                {popups.map((p) => (
+                    <div
+                        key={p.key}
+                        className="font-heading font-black tabular-nums animate-[jpFloat_1.4s_ease-out_forwards]"
+                        style={{
+                            color: COIN_TIERS[p.tier].hex,
+                            textShadow: `0 0 14px ${COIN_TIERS[p.tier].hex}`,
+                            fontSize: p.tier >= 2 ? '2.25rem' : p.tier === 1 ? '1.5rem' : '1.1rem',
+                        }}
+                    >
+                        +{p.amount}
+                        {p.boosted && <span className="ml-1 text-cyan-300 text-[0.6em]">RAIN x{RAIN_MULTIPLIER}</span>}
+                    </div>
+                ))}
+            </div>
+            <style>{`@keyframes jpFloat{0%{opacity:0;transform:translateY(14px) scale(.8)}18%{opacity:1;transform:translateY(0) scale(1.06)}100%{opacity:0;transform:translateY(-58px) scale(1)}}`}</style>
+
             {/* Background Image */}
             <img
                 src={gameAsset('games-bg.png')}
@@ -546,6 +675,7 @@ const JunkPusherGame: React.FC = () => {
             <canvas
                 ref={gameCanvasRef}
                 onClick={handleCanvasClick}
+                onMouseMove={handleCanvasMove}
                 className="absolute inset-0 w-full h-full"
                 style={{ cursor: 'crosshair', zIndex: 2 }}
             />

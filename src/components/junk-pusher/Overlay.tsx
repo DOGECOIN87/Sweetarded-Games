@@ -4,6 +4,7 @@ import type { GameEngine } from '../../lib/GameEngine';
 import { HighScoreBoard } from './HighScoreBoard';
 import { SoundControl } from './SoundControl';
 import { soundManager } from '../../lib/soundManager';
+import { COIN_TIERS, BUMP_COST, RAIN_MULTIPLIER } from '../../lib/constants';
 
 interface OverlayProps {
     gameState: GameState;
@@ -43,6 +44,9 @@ export const Overlay: React.FC<OverlayProps> = ({
     const [withdrawBtnStatus, setWithdrawBtnStatus] = useState<'idle' | 'signing' | 'broadcasting' | 'confirmed' | 'error'>('idle');
     const [withdrawAmount, setWithdrawAmount] = useState('');
     const [showHighScores, setShowHighScores] = useState(false);
+
+    const bumpReady =
+        gameState.bumpCharge >= 1 && !gameState.tilted && gameState.balance >= BUMP_COST;
 
     useEffect(() => {
         if (gameState.balance > 0) {
@@ -261,6 +265,19 @@ export const Overlay: React.FC<OverlayProps> = ({
                         </div>
                     </div>
 
+                    {/* Prize value sitting on the playfield — the carrot. */}
+                    {gameState.prizeValueOnField > 0 && (
+                        <div className="relative group w-[120px] sm:w-[200px]">
+                            <div className="absolute inset-0 bg-black/60 skew-x-[-12deg] border-r-2 border-amber-500/40"></div>
+                            <div className="relative flex flex-col items-end pr-3 sm:pr-5 py-1 sm:py-2">
+                                <div className="text-[7px] sm:text-[9px] text-amber-400 uppercase tracking-[0.2em] sm:tracking-[0.25em] font-bold mb-0.5 opacity-80 font-[Inter]">On the field</div>
+                                <div className="text-sm sm:text-xl font-bold font-heading tracking-wide text-amber-300 drop-shadow-[0_0_6px_currentColor]">
+                                    {gameState.prizeValueOnField}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Sound Control */}
                     <div className="pointer-events-auto mt-1">
                         <SoundControl />
@@ -285,9 +302,17 @@ export const Overlay: React.FC<OverlayProps> = ({
                         </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-start h-full pt-[12vh] sm:pt-[15vh] opacity-20">
-                        <div className="w-[1px] h-8 sm:h-12 bg-green-500/50 mb-1 sm:mb-2"></div>
-                        <div className="text-[7px] sm:text-[8px] uppercase tracking-[0.3em] text-green-500/50 font-medium font-[Inter]">Insert Sweets</div>
+                    <div className="flex flex-col items-center justify-start h-full pt-[10vh] sm:pt-[12vh]">
+                        <div className="w-[1px] h-8 sm:h-12 bg-green-500/50 mb-1 sm:mb-2 opacity-20"></div>
+                        <div className="text-[7px] sm:text-[8px] uppercase tracking-[0.3em] text-green-500/50 font-medium font-[Inter] opacity-20">Insert Sweets</div>
+                        {/* How to play. Aiming is the whole game and nothing
+                            on screen used to say so. */}
+                        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 text-center text-[8px] sm:text-[10px] font-[Inter] uppercase tracking-[0.18em] text-green-300/40">
+                            <span><b className="text-green-200/70">Move / ←→</b> aim</span>
+                            <span><b className="text-green-200/70">Click / Space</b> drop</span>
+                            <span><b className="text-green-200/70">B</b> bump</span>
+                            <span className="text-amber-300/50">Push the bright coins off the front lip</span>
+                        </div>
                     </div>
                 )}
             </div>
@@ -305,17 +330,31 @@ export const Overlay: React.FC<OverlayProps> = ({
                             <span className="text-gray-400">Drop</span>
                             <span className="text-green-200 font-mono font-bold">1</span>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                            <span className="text-gray-400">Collect</span>
-                            <span className="text-green-400 font-mono font-bold">+1</span>
-                        </div>
+                        {/* Coin tiers — what each colour on the playfield is worth */}
+                        {COIN_TIERS.map((tier) => (
+                            <div key={tier.label} className="flex items-center gap-1 shrink-0">
+                                <span
+                                    className="inline-block h-2 w-2 rounded-full shrink-0"
+                                    style={{ background: tier.hex, boxShadow: `0 0 6px ${tier.hex}` }}
+                                />
+                                <span className="text-gray-400">{tier.label}</span>
+                                <span className="font-mono font-bold" style={{ color: tier.hex }}>
+                                    +{tier.value}
+                                </span>
+                            </div>
+                        ))}
+                        <div className="h-4 w-px bg-green-500/30 shrink-0" />
                         <div className="flex items-center gap-1 shrink-0">
                             <span className="text-gray-400">10x Streak</span>
                             <span className="text-green-300 font-mono font-bold">+5</span>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
+                            <span className="text-gray-400">Rain</span>
+                            <span className="text-cyan-300 font-mono font-bold">{RAIN_MULTIPLIER}x</span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
                             <span className="text-gray-400">Bump</span>
-                            <span className="text-fuchsia-400 font-mono font-bold">-20</span>
+                            <span className="text-fuchsia-400 font-mono font-bold">-{BUMP_COST}</span>
                         </div>
                     </div>
                 </div>
@@ -443,20 +482,59 @@ export const Overlay: React.FC<OverlayProps> = ({
                             </>
                         )}
 
-                        {/* Bump Button */}
+                        {/* Drop Button — the primary action. Drops at the aim marker. */}
+                        <button
+                            onClick={() => {
+                                soundManager.initialize();
+                                onDropCoin();
+                            }}
+                            disabled={gameState.balance < 1}
+                            title="Drop a coin at the marker (Space)"
+                            className={`group h-9 sm:h-12 min-w-[96px] sm:min-w-[150px] transition-all skew-x-[-15deg] backdrop-blur-sm ${gameState.balance >= 1 ? 'bg-green-900/40 border border-green-400/50 hover:bg-green-700/60 hover:border-green-300 shadow-[0_0_18px_rgba(0,255,120,0.18)]' : 'bg-gray-950/30 border border-gray-700/30 opacity-40 cursor-not-allowed'}`}
+                        >
+                            <div className="skew-x-[15deg] flex flex-col items-center justify-center h-full px-2 sm:px-0">
+                                <span className="font-heading text-[9px] sm:text-xs text-green-100 font-bold tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-white group-hover:drop-shadow-[0_0_5px_#00ff88] uppercase">
+                                    Drop
+                                </span>
+                                <span className="text-[7px] sm:text-[8px] text-green-400/70 font-mono">Space · -1 SWEET</span>
+                            </div>
+                        </button>
+
+                        {/* Bump Button — recharges, and tilts if you lean on it */}
                         <button
                             onClick={() => {
                                 soundManager.initialize();
                                 onBump();
                             }}
-                            disabled={gameState.balance < 20}
-                            className={`group h-9 sm:h-12 min-w-[72px] sm:min-w-[120px] transition-all skew-x-[-15deg] backdrop-blur-sm ${gameState.balance >= 20 ? 'bg-fuchsia-950/30 border border-fuchsia-500/30 hover:bg-fuchsia-900/50 hover:border-fuchsia-400' : 'bg-gray-950/30 border border-gray-700/30 opacity-40 cursor-not-allowed'}`}
+                            disabled={!bumpReady}
+                            title={
+                                gameState.tilted
+                                    ? 'TILT — the machine locked you out for over-bumping'
+                                    : `Shake the cabinet (B) · -${BUMP_COST} SWEET`
+                            }
+                            className={`group relative overflow-hidden h-9 sm:h-12 min-w-[72px] sm:min-w-[120px] transition-all skew-x-[-15deg] backdrop-blur-sm ${
+                                gameState.tilted
+                                    ? 'bg-red-950/40 border border-red-500/50 cursor-not-allowed'
+                                    : bumpReady
+                                    ? 'bg-fuchsia-950/30 border border-fuchsia-500/30 hover:bg-fuchsia-900/50 hover:border-fuchsia-400'
+                                    : 'bg-gray-950/30 border border-gray-700/30 opacity-50 cursor-not-allowed'
+                            }`}
                         >
-                            <div className="skew-x-[15deg] flex flex-col items-center justify-center h-full px-2 sm:px-0">
-                                <span className="font-heading text-[8px] sm:text-[10px] text-fuchsia-200 font-bold tracking-[0.15em] sm:tracking-[0.2em] group-hover:text-white group-hover:drop-shadow-[0_0_5px_#ff00ff] uppercase">
-                                    Bump
+                            {/* Recharge fill */}
+                            {!gameState.tilted && !bumpReady && (
+                                <span
+                                    aria-hidden
+                                    className="absolute inset-y-0 left-0 bg-fuchsia-500/25 transition-[width] duration-100"
+                                    style={{ width: `${Math.round(gameState.bumpCharge * 100)}%` }}
+                                />
+                            )}
+                            <div className="skew-x-[15deg] relative flex flex-col items-center justify-center h-full px-2 sm:px-0">
+                                <span className={`font-heading text-[8px] sm:text-[10px] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase ${gameState.tilted ? 'text-red-300' : 'text-fuchsia-200 group-hover:text-white group-hover:drop-shadow-[0_0_5px_#ff00ff]'}`}>
+                                    {gameState.tilted ? 'Tilt' : 'Bump'}
                                 </span>
-                                <span className="text-[7px] sm:text-[8px] text-fuchsia-400/60 font-mono">-20 SWEET</span>
+                                <span className={`text-[7px] sm:text-[8px] font-mono ${gameState.tilted ? 'text-red-400/70' : 'text-fuchsia-400/60'}`}>
+                                    {gameState.tilted ? 'locked out' : `B · -${BUMP_COST} SWEET`}
+                                </span>
                             </div>
                         </button>
 

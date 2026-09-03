@@ -1,7 +1,16 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
-import { PHYSICS, DIMENSIONS, COLORS } from './constants';
-import { GameConfig, GameEventCallback } from './types';
+import {
+  PHYSICS,
+  DIMENSIONS,
+  COLORS,
+  COIN_TIERS,
+  COIN_TIER_CAPS,
+  TIMING,
+  BUMP_COST,
+  RAIN_MULTIPLIER,
+} from './constants';
+import { GameConfig, GameEventCallback, CollectEvent } from './types';
 import { soundManager } from './soundManager';
 import { FREE_PLAY, FREE_PLAY_BALANCE } from './freePlay';
 import { gameAsset } from '../radbro/bridge';
@@ -24,9 +33,10 @@ export class GameEngine {
 
   // Physics Objects
   private pusherBody!: RAPIER.RigidBody;
-  private coinProto!: THREE.Mesh;
-  private coinInstancedMesh!: THREE.InstancedMesh;
-  private coinBodies: { body: RAPIER.RigidBody; id: number }[] = [];
+  /** One instanced mesh per coin tier, so prize coins read at a glance. */
+  private coinMeshes: THREE.InstancedMesh[] = [];
+  private coinBodies: { body: RAPIER.RigidBody; id: number; tier: number }[] = [];
+  private nextCoinId = 0;
 
   // State
   private isInitialized = false;
@@ -38,6 +48,8 @@ export class GameEngine {
   private simulationTime = 0;
   private frameCount = 0;
   private lastFpsTime = 0;
+  private lastChargeTick = 0;
+  private lastChargeValue = 1;
 
   private onGameStateUpdate?: GameEventCallback;
 
@@ -47,6 +59,22 @@ export class GameEngine {
   private netProfit = 0;
   private coinsCollectedRecently = 0;
   private lastCollectionTime = 0;
+  private lastCollect: CollectEvent | null = null;
+
+  // Input pacing — a coin pusher is about placing coins, not spamming them.
+  private lastDropTime = 0;
+  private lastBumpTime = -Infinity;
+  private bumpTimes: number[] = [];
+  private tiltUntil = 0;
+
+  // Restock: the machine keeps feeding prize coins onto the back of the
+  // playfield so there is always something worth aiming at.
+  private restockTimer = 0;
+  private nextRestock = 8 + Math.random() * 8;
+
+  /** Where the next dropped coin lands. Driven by pointer move / arrow keys. */
+  private aimX = 0;
+  private aimMarker?: THREE.Group;
 
   // Raycasting for input
   private raycaster = new THREE.Raycaster();
@@ -142,6 +170,7 @@ export class GameEngine {
     this.buildOcclusionPanel();
     this.buildPusher();
     this.initCoinSystem();
+    this.buildAimMarker();
 
     // 5. Initial Pool
     if (!GameEngine.DEBUG_EMPTY_POOL) {
@@ -480,61 +509,117 @@ export class GameEngine {
   }
 
   private initCoinSystem() {
-    const geometry = new THREE.CylinderGeometry(
-      PHYSICS.COIN_RADIUS,
-      PHYSICS.COIN_RADIUS,
-      PHYSICS.COIN_HEIGHT,
-      32
-    );
-
     // Sweetardio Collection medallion on both coin faces.
     const coinTexture = this.makeCoinTexture(512);
 
-    const edgeColor = 0x123c2c; // dark teal rim (matches the logo ring)
+    // One instanced mesh per tier. Tiers differ in size and emissive tint, so
+    // a 100-credit medallion is obvious from across the playfield — that
+    // readability is what makes aiming a decision instead of a guess.
+    this.coinMeshes = COIN_TIERS.map((tier, i) => {
+      const radius = PHYSICS.COIN_RADIUS * tier.radiusScale;
+      const geometry = new THREE.CylinderGeometry(
+        radius,
+        radius,
+        PHYSICS.COIN_HEIGHT * (i === 0 ? 1 : 1.4), // prize coins are chunkier
+        32
+      );
 
-    // Create materials for the cylinder: [side, top, bottom]
-    const sideMaterial = new THREE.MeshStandardMaterial({
-      color: edgeColor,
-      roughness: 0.35,
-      metalness: 0.6,
+      const sideMaterial = new THREE.MeshStandardMaterial({
+        color: i === 0 ? 0x123c2c : tier.emissive, // dark teal rim, or the tier tint
+        emissive: i === 0 ? 0x000000 : tier.emissive,
+        emissiveIntensity: i === 0 ? 0 : 0.55,
+        roughness: 0.35,
+        metalness: 0.6,
+      });
+
+      // Self-lit (emissive) faces so the medallion reads even under the bright
+      // pusher spotlights, which otherwise blow the diffuse out to white.
+      const faceMaterial = new THREE.MeshStandardMaterial({
+        color: tier.color,
+        map: coinTexture,
+        emissive: tier.emissive,
+        emissiveMap: coinTexture,
+        emissiveIntensity: tier.intensity,
+        roughness: 0.6,
+        metalness: 0.0,
+      });
+
+      const materials = [sideMaterial, faceMaterial, faceMaterial.clone()];
+
+      const mesh = new THREE.InstancedMesh(geometry, materials, COIN_TIER_CAPS[i]);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.count = COIN_TIER_CAPS[i];
+      this.scene.add(mesh);
+      return mesh;
     });
+  }
 
-    // Self-lit (emissive) texture so the coin's gold/cerise/S reads even under
-    // the bright pusher spotlights (which otherwise blow the diffuse out to white).
-    const faceMaterial = new THREE.MeshStandardMaterial({
-      color: 0x2a2a2a,
-      map: coinTexture,
-      emissive: 0xffffff,
-      emissiveMap: coinTexture,
-      emissiveIntensity: 0.7,
-      roughness: 0.6,
-      metalness: 0.0,
-    });
+  /**
+   * The drop marker: a cyan guide beam at the front of the playfield showing
+   * exactly where the next coin lands. Aiming is the whole game, and before
+   * this there was no way to tell where a coin would come down.
+   */
+  private buildAimMarker() {
+    const group = new THREE.Group();
+    const dropZ = -DIMENSIONS.PLAYFIELD_LENGTH / 2 + 1;
 
-    const backFaceMaterial = new THREE.MeshStandardMaterial({
-      color: 0x2a2a2a,
-      map: coinTexture,
-      emissive: 0xffffff,
-      emissiveMap: coinTexture,
-      emissiveIntensity: 0.7,
-      roughness: 0.6,
-      metalness: 0.0,
-    });
-
-    const materials = [sideMaterial, faceMaterial, backFaceMaterial];
-
-    this.coinProto = new THREE.Mesh(geometry, materials);
-    this.coinProto.castShadow = true;
-    this.coinProto.receiveShadow = true;
-
-    this.coinInstancedMesh = new THREE.InstancedMesh(
-      geometry,
-      materials,
-      PHYSICS.MAX_COINS
+    // Vertical beam down the drop chute.
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.06, 4.2, 12),
+      new THREE.MeshBasicMaterial({ color: 0x34EDF3, transparent: true, opacity: 0.32 })
     );
-    this.coinInstancedMesh.castShadow = true;
-    this.coinInstancedMesh.receiveShadow = true;
-    this.scene.add(this.coinInstancedMesh);
+    beam.position.set(0, 2.1, dropZ);
+    group.add(beam);
+
+    // Landing ring on the playfield.
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.42, 0.62, 28),
+      new THREE.MeshBasicMaterial({
+        color: 0x34EDF3,
+        transparent: true,
+        opacity: 0.85,
+        side: THREE.DoubleSide,
+      })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(0, 0.06, dropZ);
+    group.add(ring);
+
+    this.aimMarker = group;
+    this.scene.add(group);
+  }
+
+  /** Roll a coin tier from the spawn weights. Prize coins are deliberately rare. */
+  private rollCoinTier(): number {
+    const total = COIN_TIERS.reduce((sum, t) => sum + t.weight, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < COIN_TIERS.length; i++) {
+      r -= COIN_TIERS[i].weight;
+      if (r <= 0) return i;
+    }
+    return 0;
+  }
+
+  /** How many coins of `tier` are currently simulated (used against the caps). */
+  private tierCount(tier: number): number {
+    let n = 0;
+    for (const c of this.coinBodies) if (c.tier === tier) n++;
+    return n;
+  }
+
+  /** True when another coin of this tier can be added without exceeding its cap. */
+  private hasRoomFor(tier: number): boolean {
+    return this.tierCount(tier) < COIN_TIER_CAPS[tier];
+  }
+
+  /** Total credit value of every prize coin sitting on the playfield. */
+  private prizeValueOnField(): number {
+    let total = 0;
+    for (const c of this.coinBodies) {
+      if (c.tier > 0) total += COIN_TIERS[c.tier].value;
+    }
+    return total;
   }
 
   private spawnInitialCoins() {
@@ -551,13 +636,19 @@ export class GameEngine {
         // Small random offset to look natural
         const jx = x + (Math.random() - 0.5) * 0.3;
         const jz = z + (Math.random() - 0.5) * 0.3;
-        this.spawnCoin(jx, 0.5 + Math.random() * 0.3, jz);
+        this.spawnCoin(jx, 0.5 + Math.random() * 0.3, jz, this.rollCoinTier());
       }
     }
   }
 
-  private spawnCoin(x: number, y: number, z: number) {
-    if (this.coinBodies.length >= PHYSICS.MAX_COINS) return;
+  /** Spawn one coin of `tier`. Returns false when that tier's cap is full. */
+  private spawnCoin(x: number, y: number, z: number, tier = 0): boolean {
+    if (this.coinBodies.length >= PHYSICS.MAX_COINS) return false;
+    if (!this.hasRoomFor(tier)) return false;
+
+    const spec = COIN_TIERS[tier];
+    const radius = PHYSICS.COIN_RADIUS * spec.radiusScale;
+    const halfHeight = (PHYSICS.COIN_HEIGHT * (tier === 0 ? 1 : 1.4)) / 2;
 
     const bodyDesc = RAPIER.RigidBodyDesc.dynamic()
       .setTranslation(x, y, z)
@@ -567,19 +658,41 @@ export class GameEngine {
 
     const body = this.world.createRigidBody(bodyDesc);
     this.world.createCollider(
-      RAPIER.ColliderDesc.cylinder(PHYSICS.COIN_HEIGHT / 2, PHYSICS.COIN_RADIUS)
+      RAPIER.ColliderDesc.cylinder(halfHeight, radius)
         .setRestitution(PHYSICS.COIN_RESTITUTION)
         .setFriction(PHYSICS.COIN_FRICTION)
         .setDensity(PHYSICS.COIN_DENSITY),
       body
     );
 
-    const id = this.coinBodies.length;
-    this.coinBodies.push({ body, id });
+    this.coinBodies.push({ body, id: this.nextCoinId++, tier });
+    return true;
   }
 
-  public dropUserCoin(normalizedX: number) {
-    if (this.balance <= 0 && !GameEngine.DEBUG_AUTOPLAY) return;
+  /**
+   * Drop one player coin at `normalizedX`.
+   *
+   * The coin is spawned *before* the balance is touched: the playfield has a
+   * hard coin cap, and charging for a coin the simulation then refuses to
+   * create means paying for nothing.
+   */
+  public dropUserCoin(normalizedX: number): boolean {
+    if (this.balance <= 0 && !GameEngine.DEBUG_AUTOPLAY) return false;
+
+    // Rate limit — holding the mouse down used to machine-gun the playfield,
+    // burning credits and tanking the framerate.
+    const now = performance.now();
+    if (now - this.lastDropTime < TIMING.DROP_COOLDOWN_MS) return false;
+
+    const z = -DIMENSIONS.PLAYFIELD_LENGTH / 2 + 1;
+    if (!this.spawnCoin(normalizedX, 4, z, 0)) {
+      // Playfield is full — say so rather than silently eating the credit.
+      soundManager.play('out_of_tokens');
+      return false;
+    }
+
+    this.lastDropTime = now;
+    this.aimX = normalizedX;
 
     if (!GameEngine.DEBUG_AUTOPLAY) {
       this.balance--;
@@ -593,29 +706,50 @@ export class GameEngine {
     if (this.balance <= 0 && !GameEngine.DEBUG_AUTOPLAY) {
       soundManager.play('out_of_tokens');
     }
-
-    const z = -DIMENSIONS.PLAYFIELD_LENGTH / 2 + 1;
-    this.spawnCoin(normalizedX, 4, z);
+    return true;
   }
 
-  /** Drop a bonus coin that does NOT deduct from the player's balance */
-  public dropBonusCoin() {
-    const x = (Math.random() - 0.5) * 6;
-    const z = -DIMENSIONS.PLAYFIELD_LENGTH / 2 + 1 + (Math.random() - 0.5) * 2;
-    this.spawnCoin(x, 4 + Math.random() * 2, z);
-    soundManager.play('coin_drop');
+  /** Move the drop marker without dropping (pointer move / arrow keys). */
+  public setAim(x: number) {
+    const limit = DIMENSIONS.PLAYFIELD_WIDTH / 2 - 0.5;
+    this.aimX = Math.max(-limit, Math.min(limit, x));
+    this.updateGameState();
   }
 
-  public dropCoinAtRaycast(ndcX: number, ndcY: number) {
+  public nudgeAim(delta: number) {
+    this.setAim(this.aimX + delta);
+  }
+
+  public getAim(): number {
+    return this.aimX;
+  }
+
+  /** Drop at the current aim position — used by the DROP button and Space. */
+  public dropAtAim(): boolean {
+    return this.dropUserCoin(this.aimX);
+  }
+
+  /** Convert a normalized-device x/y over the canvas into a playfield x. */
+  public aimFromRaycast(ndcX: number, ndcY: number): number {
     this.raycaster.setFromCamera({ x: ndcX, y: ndcY }, this.camera);
     const dropPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -3);
     const target = new THREE.Vector3();
-    this.raycaster.ray.intersectPlane(dropPlane, target);
-
+    if (!this.raycaster.ray.intersectPlane(dropPlane, target)) return this.aimX;
     const limit = DIMENSIONS.PLAYFIELD_WIDTH / 2 - 0.5;
-    const x = Math.max(-limit, Math.min(limit, target.x));
+    return Math.max(-limit, Math.min(limit, target.x));
+  }
 
-    this.dropUserCoin(x);
+  /** Drop a bonus coin that does NOT deduct from the player's balance */
+  public dropBonusCoin(tier = this.rollCoinTier()) {
+    const x = (Math.random() - 0.5) * 6;
+    const z = -DIMENSIONS.PLAYFIELD_LENGTH / 2 + 1 + (Math.random() - 0.5) * 2;
+    if (this.spawnCoin(x, 4 + Math.random() * 2, z, tier)) {
+      soundManager.play('coin_drop');
+    }
+  }
+
+  public dropCoinAtRaycast(ndcX: number, ndcY: number) {
+    this.dropUserCoin(this.aimFromRaycast(ndcX, ndcY));
   }
 
   /** Add tokens to the engine's internal balance (e.g. after an on-chain deposit) */
@@ -632,9 +766,48 @@ export class GameEngine {
     this.updateGameState();
   }
 
-  public bump() {
-    // Apply fee (20 SWEET — matches the paytable and button labels)
-    this.balance -= 20;
+  /** 0–1 bump recharge (1 = ready). Tilt lockout reads as 0. */
+  public bumpCharge(): number {
+    const now = performance.now();
+    if (now < this.tiltUntil) return 0;
+    const elapsed = now - this.lastBumpTime;
+    return Math.max(0, Math.min(1, elapsed / TIMING.BUMP_COOLDOWN_MS));
+  }
+
+  public isTilted(): boolean {
+    return performance.now() < this.tiltUntil;
+  }
+
+  /**
+   * Shake the cabinet. Real pushers punish over-nudging, and so does this one:
+   * bumping is on a recharge, and leaning on it trips a tilt lockout. That
+   * turns the bump from a spam button into a resource worth saving for the
+   * moment a medallion is teetering on the lip.
+   *
+   * Returns false when the bump was refused (recharging, tilted, or broke).
+   */
+  public bump(): boolean {
+    const now = performance.now();
+    if (now < this.tiltUntil) return false;
+    if (now - this.lastBumpTime < TIMING.BUMP_COOLDOWN_MS) return false;
+    if (this.balance < BUMP_COST) {
+      soundManager.play('out_of_tokens');
+      return false;
+    }
+
+    this.lastBumpTime = now;
+
+    // Trip the tilt if the player leans on it.
+    this.bumpTimes = this.bumpTimes.filter((t) => now - t < TIMING.TILT_WINDOW_MS);
+    this.bumpTimes.push(now);
+    if (this.bumpTimes.length > TIMING.TILT_LIMIT) {
+      this.tiltUntil = now + TIMING.TILT_LOCKOUT_MS;
+      this.bumpTimes = [];
+      soundManager.play('game_over');
+    }
+
+    this.balance -= BUMP_COST;
+    this.netProfit -= BUMP_COST;
 
     this.updateGameState();
 
@@ -665,6 +838,7 @@ export class GameEngine {
       });
     };
     applyBumpTo(this.coinBodies);
+    return true;
   }
 
   private updateGameState() {
@@ -673,8 +847,14 @@ export class GameEngine {
         score: this.score,
         balance: this.balance,
         netProfit: this.netProfit,
-        isPaused: this.isPaused
+        isPaused: this.isPaused,
+        bumpCharge: this.bumpCharge(),
+        tilted: this.isTilted(),
+        aimX: this.aimX,
+        prizeValueOnField: this.prizeValueOnField(),
+        lastCollect: this.lastCollect,
       });
+      this.lastCollect = null;
     }
   }
 
@@ -689,13 +869,20 @@ export class GameEngine {
     this.netProfit = 0;
     this.coinBodies.forEach(c => this.world.removeRigidBody(c.body));
     this.coinBodies = [];
+    this.lastCollect = null;
+    this.bumpTimes = [];
+    this.tiltUntil = 0;
+    this.lastBumpTime = -Infinity;
+
     const dummy = new THREE.Object3D();
     dummy.scale.set(0, 0, 0);
     dummy.updateMatrix();
-    for (let i = 0; i < PHYSICS.MAX_COINS; i++) {
-      this.coinInstancedMesh.setMatrixAt(i, dummy.matrix);
+    for (let t = 0; t < this.coinMeshes.length; t++) {
+      for (let i = 0; i < COIN_TIER_CAPS[t]; i++) {
+        this.coinMeshes[t].setMatrixAt(i, dummy.matrix);
+      }
+      this.coinMeshes[t].instanceMatrix.needsUpdate = true;
     }
-    this.coinInstancedMesh.instanceMatrix.needsUpdate = true;
 
     this.spawnInitialCoins();
     this.updateGameState();
@@ -726,6 +913,17 @@ export class GameEngine {
       this.lastFpsTime = now;
     }
 
+    // Keep the bump recharge meter moving. updateGameState is event-driven, so
+    // without this tick the meter would sit frozen until the next drop.
+    if (now - this.lastChargeTick > 100) {
+      this.lastChargeTick = now;
+      const charge = this.bumpCharge();
+      if (charge !== this.lastChargeValue) {
+        this.lastChargeValue = charge;
+        this.updateGameState();
+      }
+    }
+
     this.accumulatedTime += dt;
     const maxSubSteps = 5;
     let steps = 0;
@@ -739,6 +937,7 @@ export class GameEngine {
 
     this.syncGraphics();
     this.updateRain(dt);
+    this.updateRestock(dt);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -751,15 +950,19 @@ export class GameEngine {
     this.pusherBody.setNextKinematicTranslation({ x: 0, y: 0.55, z: pusherZ });
 
     // Collect indices to remove AFTER reading all positions (avoids RAPIER aliasing)
-    const coinRemovals: { index: number; isWin: boolean }[] = [];
+    const coinRemovals: { index: number; isWin: boolean; tier: number }[] = [];
     for (let i = this.coinBodies.length - 1; i >= 0; i--) {
       const { y, z } = this.coinBodies[i].body.translation();
       if (y < -2) {
-        coinRemovals.push({ index: i, isWin: z > DIMENSIONS.PLAYFIELD_LENGTH / 2 });
+        coinRemovals.push({
+          index: i,
+          isWin: z > DIMENSIONS.PLAYFIELD_LENGTH / 2,
+          tier: this.coinBodies[i].tier,
+        });
       }
     }
-    for (const { index, isWin } of coinRemovals) {
-      if (isWin) this.handleWin();
+    for (const { index, isWin, tier } of coinRemovals) {
+      if (isWin) this.handleWin(tier);
       this.world.removeRigidBody(this.coinBodies[index].body);
       this.coinBodies.splice(index, 1);
     }
@@ -769,13 +972,17 @@ export class GameEngine {
     }
   }
 
-  private handleWin() {
-    this.score += 1;
-    this.balance += 1;
-    this.netProfit += 1;
+  private handleWin(tier: number) {
+    const boosted = this._isRaining;
+    const amount = COIN_TIERS[tier].value * (boosted ? RAIN_MULTIPLIER : 1);
 
-    // Play collection sound
-    soundManager.play('coin_collect');
+    this.score += amount;
+    this.balance += amount;
+    this.netProfit += amount;
+    this.lastCollect = { tier, amount, boosted };
+
+    // Prize coins get the fanfare; ordinary coins get the plink.
+    soundManager.play(tier > 0 ? 'win_streak' : 'coin_collect');
 
     const now = performance.now();
     if (now - this.lastCollectionTime > 5000) {
@@ -804,21 +1011,39 @@ export class GameEngine {
       pusherMesh.position.set(px, py, pz);
     }
 
-    for (let i = 0; i < PHYSICS.MAX_COINS; i++) {
-      if (i < this.coinBodies.length) {
-        const body = this.coinBodies[i].body;
-        const { x: bx, y: by, z: bz } = body.translation();
-        const { x: rx, y: ry, z: rz, w: rw } = body.rotation();
-        d.position.set(bx, by, bz);
-        d.quaternion.set(rx, ry, rz, rw);
-        d.scale.set(1, 1, 1);
-      } else {
-        d.scale.set(0, 0, 0);
-      }
+    // Each tier owns an instanced mesh, so walk the bodies once and keep a
+    // per-tier write cursor rather than one global index.
+    const cursors = new Array(this.coinMeshes.length).fill(0);
+
+    for (const { body, tier } of this.coinBodies) {
+      const mesh = this.coinMeshes[tier];
+      const slot = cursors[tier];
+      if (!mesh || slot >= COIN_TIER_CAPS[tier]) continue;
+
+      const { x: bx, y: by, z: bz } = body.translation();
+      const { x: rx, y: ry, z: rz, w: rw } = body.rotation();
+      d.position.set(bx, by, bz);
+      d.quaternion.set(rx, ry, rz, rw);
+      d.scale.set(1, 1, 1);
       d.updateMatrix();
-      this.coinInstancedMesh.setMatrixAt(i, d.matrix);
+      mesh.setMatrixAt(slot, d.matrix);
+      cursors[tier] = slot + 1;
     }
-    this.coinInstancedMesh.instanceMatrix.needsUpdate = true;
+
+    // Collapse the unused tail of every tier so removed coins disappear.
+    if (this.aimMarker) {
+      this.aimMarker.position.x = this.aimX;
+    }
+
+    d.scale.set(0, 0, 0);
+    d.updateMatrix();
+    for (let t = 0; t < this.coinMeshes.length; t++) {
+      const mesh = this.coinMeshes[t];
+      for (let i = cursors[t]; i < COIN_TIER_CAPS[t]; i++) {
+        mesh.setMatrixAt(i, d.matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+    }
   }
 
   public resize(width: number, height: number) {
@@ -827,6 +1052,29 @@ export class GameEngine {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(width, height);
     }
+  }
+
+  /**
+   * Feed the machine.
+   *
+   * Without this the playfield only ever drains: the prize coins get pushed
+   * off, nothing replaces them, and what's left is a flat field of 1-credit
+   * coins. Restocking drops a fresh prize onto the back of the playfield every
+   * few seconds so there is always a target worth setting up a shot for.
+   */
+  private updateRestock(dt: number) {
+    this.restockTimer += dt;
+    if (this.restockTimer < this.nextRestock) return;
+    this.restockTimer = 0;
+    this.nextRestock = 8 + Math.random() * 10;
+
+    // Bias the restock toward prize tiers — ordinary coins arrive from play.
+    const tier = 1 + Math.floor(Math.random() * (COIN_TIERS.length - 1));
+    if (!this.hasRoomFor(tier)) return;
+
+    const x = (Math.random() - 0.5) * (DIMENSIONS.PLAYFIELD_WIDTH - 2);
+    const z = -DIMENSIONS.PLAYFIELD_LENGTH / 2 + 1.5;
+    this.spawnCoin(x, 4.5, z, tier);
   }
 
   // ─── Rain Effect (event-based, visual rendering in RainOverlay) ──────
