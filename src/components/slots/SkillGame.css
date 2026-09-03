@@ -1140,3 +1140,45 @@
   50%  { transform: rotate(180deg) scale(1.1); }
   to   { transform: rotate(360deg) scale(1); }
 }
+
+/* ── Placement preview ──────────────────────────────────────────────────
+   Considering a cell lights the line that placement would complete. The
+   payout stays off-screen on purpose: working out which line is worth more
+   from the paytable is the skill the game is named after. */
+.skill-cell.skill-preview-line {
+  border-color: rgba(52, 237, 243, 0.85);
+  box-shadow: inset 0 0 18px rgba(52, 237, 243, 0.35), 0 0 12px rgba(52, 237, 243, 0.3);
+}
+
+.skill-cell.skill-preview-target {
+  border-color: #F715AB;
+  box-shadow: inset 0 0 22px rgba(247, 21, 171, 0.4), 0 0 16px rgba(247, 21, 171, 0.45);
+  transform: scale(1.04);
+}
+
+.skill-cell.skill-choosable {
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+/* Keyboard hint strip under the grid */
+.skill-keys {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.85rem;
+  margin-top: 0.5rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(190, 210, 255, 0.4);
+}
+
+.skill-keys b {
+  color: rgba(52, 237, 243, 0.8);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .skill-keys { display: none; }
+}

@@ -84,6 +84,9 @@ const OUTCOME_POOL = [
 ];
 const OUTCOME_TOTAL = OUTCOME_POOL.reduce((s, o) => s + o.weight, 0);
 
+/** How many cells a Scout reveals. Three is a read, nine is the answer. */
+const SCOUT_CELLS = 3;
+
 const WIN_LINES = [
   [0, 1, 2],
   [3, 4, 5],
@@ -165,69 +168,147 @@ function constructLossGrid(): number[] {
   return syms;
 }
 
+/** All positions on a line, excluding `pos`. */
+const partnersOf = (line: number[], pos: number) => line.filter((c) => c !== pos);
+
+/** Does placing a WILD at `pos` complete a line? Returns the best tier it pays. */
+function bestTierAt(grid: number[], pos: number): number | null {
+  let best: number | null = null;
+  for (const line of WIN_LINES) {
+    if (!line.includes(pos)) continue;
+    const [a, b] = partnersOf(line, pos);
+    if (grid[a] !== grid[b]) continue;
+    const tier = grid[a];
+    if (tier === 9) continue; // bonus line, handled separately
+    if (best === null || tier < best) best = tier; // lower index = better payout
+  }
+  return best;
+}
+
+/** True when no line on the board is already a natural 3-of-a-kind. */
+function hasNoNaturalTriple(grid: number[]): boolean {
+  return !WIN_LINES.some(
+    (l) => grid[l[0]] === grid[l[1]] && grid[l[1]] === grid[l[2]]
+  );
+}
+
+/** True when `pos` completes exactly one line — so its payout is unambiguous. */
+function yieldsOnly(grid: number[], pos: number, tier: number): boolean {
+  let found = 0;
+  for (const line of WIN_LINES) {
+    if (!line.includes(pos)) continue;
+    const [a, b] = partnersOf(line, pos);
+    if (grid[a] === grid[b]) {
+      if (grid[a] !== tier) return false;
+      found++;
+    }
+  }
+  return found === 1;
+}
+
 /**
- * Construct a WIN grid where the optimal WILD placement creates a match of `winTier`.
- * No other WILD position should yield a better payout.
+ * How often a winning board also hides a line better than the one that was
+ * rolled. This is the game's entire skill budget: turn it down and placements
+ * stop mattering, turn it up and the rolled odds stop meaning anything.
+ */
+const UPGRADE_CHANCE = 0.45;
+
+/** How many tiers better an upgrade line can be (1-3 steps up the paytable). */
+const MAX_UPGRADE_STEPS = 3;
+
+/**
+ * Construct a WIN grid for a rolled outcome.
+ *
+ * The rolled tier is the *floor*, not the ceiling. Every winning board carries
+ * a findable pair at `winTier` — the payout a careless placement still lands —
+ * and often a second, better pair sitting on a line that does not pass through
+ * the obvious spot, so taking it means noticing it and giving up the easy one.
+ *
+ * This is the difference between a skill game and a slot machine wearing a
+ * costume. The previous construction guaranteed the rolled tier was the best
+ * placement available and rejected any board offering more, which meant a
+ * perfect read paid exactly what the RNG had already decided and a careless
+ * one paid less: skill could only ever cost you.
  */
 function constructWinGrid(winTier: number): number[] {
+  // Tier 9 is the TM logo -> bonus round. The player is meant to weigh a
+  // cash line against triggering the bonus, so it keeps its own looser rules.
+  if (winTier === 9) return constructBonusGrid();
+
   for (let attempt = 0; attempt < 500; attempt++) {
-    const winPos = Math.floor(Math.random() * 9);
-    const linesThrough = WIN_LINES.filter((l) => l.includes(winPos));
-    const winLine = linesThrough[Math.floor(Math.random() * linesThrough.length)];
-    const partners = winLine.filter((c) => c !== winPos);
-
     const grid = generateGrid();
-    grid[partners[0]] = winTier;
-    grid[partners[1]] = winTier;
-    // Ensure winPos cell isn't the same tier (no natural 3-of-a-kind)
-    if (grid[winPos] === winTier) {
-      grid[winPos] = (winTier + 1 + Math.floor(Math.random() * 8)) % 9;
+
+    // ── 1. The baseline pair: what the board pays if you just take the
+    //       first match you see. ────────────────────────────────────────
+    const basePos = Math.floor(Math.random() * 9);
+    const baseLines = WIN_LINES.filter((l) => l.includes(basePos));
+    const baseLine = baseLines[Math.floor(Math.random() * baseLines.length)];
+    const basePartners = partnersOf(baseLine, basePos);
+    grid[basePartners[0]] = winTier;
+    grid[basePartners[1]] = winTier;
+    if (grid[basePos] === winTier) {
+      grid[basePos] = (winTier + 1 + Math.floor(Math.random() * 8)) % 9;
     }
 
-    // Reject if any line has natural 3-of-a-kind
-    let bad = false;
-    for (const line of WIN_LINES) {
-      if (grid[line[0]] === grid[line[1]] && grid[line[1]] === grid[line[2]]) {
-        bad = true;
-        break;
-      }
-    }
-    if (bad) continue;
+    // ── 2. Optionally hide a better line elsewhere on the board. ───────
+    let ceiling = winTier;
+    const wantUpgrade = winTier > 0 && Math.random() < UPGRADE_CHANCE;
 
-    // CRITICAL: Ensure OTHER lines through winPos don't have matching partners.
-    // Without this, placing WILD at winPos could win on a better line than intended.
-    let winPosClean = true;
-    for (const line of linesThrough) {
-      if (line === winLine) continue; // skip the intended win line
-      const others = line.filter((c) => c !== winPos);
-      if (grid[others[0]] === grid[others[1]]) {
-        winPosClean = false;
-        break;
-      }
-    }
-    if (!winPosClean) continue;
+    if (wantUpgrade) {
+      const steps = 1 + Math.floor(Math.random() * MAX_UPGRADE_STEPS);
+      const upTier = Math.max(0, winTier - steps);
 
-    // For the bonus tier (9 — TM logo), skip the best-payout guard.
-    // The player will see 2 TM logos and CHOOSE whether to complete that line
-    // (triggering the bonus) or play a different cash line. That's the skill element.
-    if (winTier === 9) return grid;
-
-    // For normal tiers: ensure no other WILD position yields a better payout.
-    let bestOther = 0;
-    for (let pos = 0; pos < 9; pos++) {
-      if (pos === winPos) continue;
-      for (const line of WIN_LINES) {
-        if (!line.includes(pos)) continue;
-        const others = line.filter((c) => c !== pos);
-        if (grid[others[0]] === grid[others[1]]) {
-          bestOther = Math.max(bestOther, BASE_PAYOUTS[grid[others[0]]]);
+      // The upgrade must live on a line that misses basePos, otherwise the
+      // obvious cell would quietly collect both and there is no decision.
+      const options: { pos: number; line: number[] }[] = [];
+      for (let pos = 0; pos < 9; pos++) {
+        if (pos === basePos) continue;
+        for (const line of WIN_LINES) {
+          if (!line.includes(pos) || line.includes(basePos)) continue;
+          const [a, b] = partnersOf(line, pos);
+          // Never overwrite the baseline pair — that would erase the floor.
+          if (a === basePartners[0] || a === basePartners[1]) continue;
+          if (b === basePartners[0] || b === basePartners[1]) continue;
+          options.push({ pos, line });
         }
       }
+
+      if (options.length > 0) {
+        const pick = options[Math.floor(Math.random() * options.length)];
+        const [ua, ub] = partnersOf(pick.line, pick.pos);
+        grid[ua] = upTier;
+        grid[ub] = upTier;
+        if (grid[pick.pos] === upTier) {
+          grid[pick.pos] = (upTier + 1 + Math.floor(Math.random() * 8)) % 9;
+        }
+        ceiling = upTier;
+      }
     }
-    if (BASE_PAYOUTS[winTier] >= bestOther) return grid;
+
+    // ── 3. Validate. ───────────────────────────────────────────────────
+    if (!hasNoNaturalTriple(grid)) continue;
+
+    // The baseline cell must pay exactly the rolled tier, so the floor the
+    // odds table promises is the floor the board actually delivers.
+    if (!yieldsOnly(grid, basePos, winTier)) continue;
+
+    // Nothing on the board may beat the ceiling we chose. Random fill can
+    // stumble into a pair of its own, and an accidental jackpot would make
+    // the published odds a fiction.
+    let stray = false;
+    for (let pos = 0; pos < 9; pos++) {
+      const tier = bestTierAt(grid, pos);
+      if (tier !== null && tier < ceiling) {
+        stray = true;
+        break;
+      }
+    }
+    if (stray) continue;
+
+    return grid;
   }
 
-  // Fallback: all-unique + forced win pair
+  // Fallback: all-unique symbols plus a forced pair at the rolled tier.
   const syms = [0, 1, 2, 3, 4, 5, 6, 7, 8];
   for (let i = 8; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -235,10 +316,59 @@ function constructWinGrid(winTier: number): number[] {
   }
   const winPos = Math.floor(Math.random() * 9);
   const line = WIN_LINES.filter((l) => l.includes(winPos))[0];
-  const partners = line.filter((c) => c !== winPos);
+  const partners = partnersOf(line, winPos);
   syms[partners[0]] = winTier;
   syms[partners[1]] = winTier;
   if (syms[winPos] === winTier) syms[winPos] = (winTier + 1) % 9;
+  return syms;
+}
+
+/**
+ * Construct a board holding two TM logos, so completing that line triggers the
+ * bonus round. A cash line is seeded alongside it: the choice between banking
+ * a known payout and gambling it on the bonus is the point.
+ */
+function constructBonusGrid(): number[] {
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const grid = generateGrid();
+
+    const bonusPos = Math.floor(Math.random() * 9);
+    const bonusLines = WIN_LINES.filter((l) => l.includes(bonusPos));
+    const bonusLine = bonusLines[Math.floor(Math.random() * bonusLines.length)];
+    const bonusPartners = partnersOf(bonusLine, bonusPos);
+    grid[bonusPartners[0]] = 9;
+    grid[bonusPartners[1]] = 9;
+    if (grid[bonusPos] === 9) grid[bonusPos] = Math.floor(Math.random() * 9);
+
+    // Seed a competing cash line somewhere that misses the bonus cell.
+    const cashTier = 2 + Math.floor(Math.random() * 5); // mid-paying, not a jackpot
+    const options: { pos: number; line: number[] }[] = [];
+    for (let pos = 0; pos < 9; pos++) {
+      if (pos === bonusPos) continue;
+      for (const line of WIN_LINES) {
+        if (!line.includes(pos) || line.includes(bonusPos)) continue;
+        const [a, b] = partnersOf(line, pos);
+        if (a === bonusPartners[0] || a === bonusPartners[1]) continue;
+        if (b === bonusPartners[0] || b === bonusPartners[1]) continue;
+        options.push({ pos, line });
+      }
+    }
+    if (options.length > 0) {
+      const pick = options[Math.floor(Math.random() * options.length)];
+      const [ca, cb] = partnersOf(pick.line, pick.pos);
+      grid[ca] = cashTier;
+      grid[cb] = cashTier;
+      if (grid[pick.pos] === cashTier) grid[pick.pos] = (cashTier + 1) % 9;
+    }
+
+    if (!hasNoNaturalTriple(grid)) continue;
+    return grid;
+  }
+
+  // Fallback: unique fill with a forced logo pair.
+  const syms = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  syms[0] = 9;
+  syms[1] = 9;
   return syms;
 }
 
@@ -286,6 +416,8 @@ export default function SkillGame() {
   const [showFairness, setShowFairness] = useState(false);
   const [showBonus, setShowBonus] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  /** Cell the player is considering, during CHOOSING_WILD. */
+  const [hoverCell, setHoverCell] = useState<number | null>(null);
 
   // Admin-controlled game config (live from Firestore)
   const [gamePaused, setGamePaused] = useState(false);
@@ -613,6 +745,67 @@ export default function SkillGame() {
     };
   }, []);
 
+  // Keep the latest handlers reachable from the keyboard listener without
+  // re-binding it (and without hoisting every callback above this effect).
+  const keyActionsRef = useRef<{
+    play: () => void;
+    place: (i: number) => void;
+    level: (d: number) => void;
+    scout: () => void;
+  } | null>(null);
+
+  /**
+   * Keyboard controls. The number keys map to the grid the way a numpad does —
+   * 7-8-9 across the top row — so placing a WILD is one keystroke instead of a
+   * hunt for the mouse.
+   */
+  useEffect(() => {
+    const NUMPAD_TO_CELL: Record<string, number> = {
+      '7': 0, '8': 1, '9': 2,
+      '4': 3, '5': 4, '6': 5,
+      '1': 6, '2': 7, '3': 8,
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      const actions = keyActionsRef.current;
+      if (!actions) return;
+
+      if (e.key in NUMPAD_TO_CELL) {
+        e.preventDefault();
+        actions.place(NUMPAD_TO_CELL[e.key]);
+        return;
+      }
+
+      switch (e.key) {
+        case ' ':
+        case 'Enter':
+          e.preventDefault();
+          actions.play();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          actions.level(-1);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          actions.level(1);
+          break;
+        case 's':
+        case 'S':
+          e.preventDefault();
+          actions.scout();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const addTimeout = (fn: () => void, delay: number) => {
     const t = setTimeout(fn, delay);
     timeoutsRef.current.push(t);
@@ -688,7 +881,7 @@ export default function SkillGame() {
     addTimeout(() => {
       setCurrentWin(0);
       setWinningCells(new Set());
-    }, 2000);
+    }, 1100);
   };
 
   // Check for winning lines after WILD placement.
@@ -746,7 +939,7 @@ export default function SkillGame() {
         setPlayButtonText('Play');
         setStatusMessage(null);
         setShowBonus(true);
-      }, 2200);
+      }, 1400);
       return;
     }
 
@@ -755,7 +948,7 @@ export default function SkillGame() {
       const winCells = new Set<number>(bestLine);
       setWinningCells(winCells);
       setCurrentWin(bestWin);
-      addTimeout(() => resetToIdle(true, bestWin), 2000);
+      addTimeout(() => resetToIdle(true, bestWin), 1100);
     } else {
       resetToIdle(false);
     }
@@ -768,11 +961,12 @@ export default function SkillGame() {
     const finalGrid: CellValue[] = [...grid];
     finalGrid[index] = 'WILD';
     setGrid(finalGrid);
+    setHoverCell(null);
     setStage('PLAYING');
     setPlayButtonText('...');
     setStatusMessage(null);
 
-    addTimeout(() => checkWin(finalGrid, playLevel), 600);
+    addTimeout(() => checkWin(finalGrid, playLevel), 320);
   };
 
   // Spin animation with staggered stop
@@ -788,7 +982,8 @@ export default function SkillGame() {
       );
     }, 100);
 
-    // After 2s, stagger stop from cell 8 down to 0
+    // Stagger the stop from cell 8 down to 0. Kept deliberately brisk — the
+    // decision is the fun part, and every frame of spin is time not spent on it.
     addTimeout(() => {
       for (let i = 8; i >= 0; i--) {
         addTimeout(() => {
@@ -810,9 +1005,9 @@ export default function SkillGame() {
             }
             addTimeout(onComplete, 200);
           }
-        }, (8 - i) * 150);
+        }, (8 - i) * 70);
       }
-    }, 2000);
+    }, 850);
   };
 
   const handlePreview = () => {
@@ -834,17 +1029,29 @@ export default function SkillGame() {
       saveLevelGrids(); // Persist to localStorage so refresh doesn't grant new grids
     }
 
-    setGrid(previewGrid);
-    setStatusMessage('Previewing...');
+    // Reveal three cells, not the whole board. Showing the finished grid gave
+    // away the answer before the player had paid for the question; a partial
+    // read is information worth acting on without being the solution.
+    const revealed: CellValue[] = Array(9).fill(null);
+    const order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    for (let i = 8; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    for (const cell of order.slice(0, SCOUT_CELLS)) {
+      revealed[cell] = previewGrid[cell];
+    }
+
+    setGrid(revealed);
+    setStatusMessage(`Scouting ${SCOUT_CELLS} cells…`);
     setIsPreviewing(true);
 
-    // Show for 2 seconds, then hide the symbols
     addTimeout(() => {
       setGrid(Array(9).fill(null));
       setIsPreviewing(false);
       setPlayButtonText('Play');
-      setStatusMessage("Press Play to spin");
-    }, 2000);
+      setStatusMessage('Press Play to spin');
+    }, 2600);
   };
 
   // Start playing
@@ -903,6 +1110,44 @@ export default function SkillGame() {
     setGrid(Array(9).fill(null));
     const hasGrid = levelGridsRef.current.has(index);
     setStatusMessage(hasGrid ? 'Preview saved — Press Play or Preview again' : "Adjust 'Play Level'");
+  };
+
+  /**
+   * Cells that would light up if the WILD went in `pos`.
+   *
+   * Deliberately shows the *line*, not the payout: reading the paytable and
+   * working out which completed line is worth more is the skill. Printing the
+   * number would collapse that into hovering nine cells and taking the max.
+   */
+  const previewLineFor = (pos: number): Set<number> => {
+    if (stage !== 'CHOOSING_WILD' || grid[pos] === null) return new Set();
+    let best: number[] | null = null;
+    let bestTier = Infinity;
+    for (const line of WIN_LINES) {
+      if (!line.includes(pos)) continue;
+      const [a, b] = line.filter((c) => c !== pos);
+      if (grid[a] === null || grid[a] !== grid[b]) continue;
+      const tier = grid[a] as number;
+      // Lower index pays more; the bonus logo (9) always takes priority.
+      const rank = tier === 9 ? -1 : tier;
+      if (rank < bestTier) {
+        bestTier = rank;
+        best = line;
+      }
+    }
+    return new Set(best ?? []);
+  };
+
+  const hoverLine = hoverCell === null ? new Set<number>() : previewLineFor(hoverCell);
+
+  keyActionsRef.current = {
+    play: handlePlay,
+    place: handleCellClick,
+    level: (d: number) =>
+      handleLevelSelect(
+        Math.max(0, Math.min(PLAY_LEVELS.length - 1, levelIndex + d))
+      ),
+    scout: handlePreview,
   };
 
   // Render individual cell content
@@ -1014,6 +1259,8 @@ export default function SkillGame() {
                 isWild && 'skill-wild',
                 isChoosable && 'skill-choosable',
                 isTmLogoCell && 'skill-bonus-cell',
+                hoverLine.has(index) && 'skill-preview-line',
+                hoverCell === index && 'skill-preview-target',
               ]
                 .filter(Boolean)
                 .join(' ');
@@ -1031,6 +1278,8 @@ export default function SkillGame() {
                   className={cellClasses}
                   data-index={index}
                   onClick={() => handleCellClick(index)}
+                  onMouseEnter={() => setHoverCell(index)}
+                  onMouseLeave={() => setHoverCell((c) => (c === index ? null : c))}
                 >
                   <div className={symbolClasses}>
                     {renderCellContent(index)}
