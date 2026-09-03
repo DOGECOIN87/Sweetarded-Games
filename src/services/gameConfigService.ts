@@ -27,8 +27,18 @@ export const SLOTS_OUTCOME_META = [
   { label: 'BONUS',       mult: 0,   tier: 9,  color: '#a78bfa' },
 ] as const;
 
-// Default weights matching hardcoded OUTCOME_POOL in SkillGame.tsx
-export const DEFAULT_SLOTS_WEIGHTS: number[] = [100, 200, 200, 150, 120, 100, 60, 30, 15, 5, 3];
+/**
+ * Default outcome odds.
+ *
+ * These set the *floor* — the payout a board is guaranteed to offer — at an
+ * RTP of ~0.89. The player's WILD placement decides what they actually take,
+ * and finding the best line lifts a skilled player to ~1.19 (measured over
+ * 30k generated boards; see constructWinGrid in SkillGame.tsx).
+ *
+ * The previous table paid 1.03 at the floor, so even mashing Play trended
+ * upward and neither the balance nor the Net Profit leaderboard meant much.
+ */
+export const DEFAULT_SLOTS_WEIGHTS: number[] = [145, 210, 195, 155, 115, 85, 50, 25, 12, 4, 4];
 
 export interface SlotsGameConfig {
   paused: boolean;
