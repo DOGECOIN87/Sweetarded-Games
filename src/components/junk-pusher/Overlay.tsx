@@ -5,6 +5,8 @@ import { HighScoreBoard } from './HighScoreBoard';
 import { SoundControl } from './SoundControl';
 import { soundManager } from '../../lib/soundManager';
 import { COIN_TIERS, BUMP_COST, RAIN_MULTIPLIER } from '../../lib/constants';
+import { WALLET_IN_GAMES } from '../../lib/freePlay';
+import PlayerChip from '../PlayerChip';
 
 interface OverlayProps {
     gameState: GameState;
@@ -185,8 +187,15 @@ export const Overlay: React.FC<OverlayProps> = ({
                 {/* Right: Economy & Wallet */}
                 <div className="flex flex-col items-end gap-2 sm:gap-4 pointer-events-auto min-w-0">
 
-                    {/* Wallet Connect Button */}
-                    {showOnlineFeatures && <div className="relative" ref={walletMenuRef}>
+                    {/* Arcade identity. The wallet button used to live here;
+                        nothing in the arcade costs anything, so it asks for a
+                        name instead. */}
+                    {showOnlineFeatures && !WALLET_IN_GAMES && (
+                        <PlayerChip className="pointer-events-auto" />
+                    )}
+
+                    {/* Wallet Connect Button (on-chain builds only) */}
+                    {showOnlineFeatures && WALLET_IN_GAMES && <div className="relative" ref={walletMenuRef}>
                         <button
                             onClick={() => setShowWalletMenu(!showWalletMenu)}
                             className="group relative px-3 sm:px-5 py-1.5 sm:py-2 bg-black/80 border border-green-800 hover:border-purple-500/50 transition-all rounded shadow-lg overflow-hidden"
@@ -409,7 +418,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                         </button>
 
                         {/* Deposit Button (on-chain only) */}
-                        {wallet.isConnected && onChainReady && (
+                        {WALLET_IN_GAMES && wallet.isConnected && onChainReady && (
                             <button
                                 onClick={() => {
                                     soundManager.initialize();
@@ -445,7 +454,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                         )}
 
                         {/* Withdraw Controls (on-chain only) */}
-                        {wallet.isConnected && onChainReady && gameState.balance > 0 && (
+                        {WALLET_IN_GAMES && wallet.isConnected && onChainReady && gameState.balance > 0 && (
                             <>
                                 <button
                                     onClick={() => {

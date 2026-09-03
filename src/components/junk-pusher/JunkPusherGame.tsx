@@ -14,6 +14,7 @@ import { submitScore } from '../../services/leaderboardService';
 import { resolvePlayer, currentPlayerId } from '../../lib/playerIdentity';
 import { gameAsset, isRadbroRuntime, postRadbroResult } from '../../radbro/bridge';
 import { COIN_TIERS, RAIN_MULTIPLIER } from '../../lib/constants';
+import { WALLET_IN_GAMES } from '../../lib/freePlay';
 
 type MascotPhase = 'hidden' | 'rising' | 'visible' | 'falling';
 
@@ -705,7 +706,9 @@ const JunkPusherGame: React.FC = () => {
                     onRefill={handleRefill}
                     onPauseToggle={handlePauseToggle}
                     wallet={wallet}
-                    onChainReady={onChain.isProgramReady}
+                    // With wallets out of the games there is no deposit path,
+                    // so the out-of-credits popup offers the free refill.
+                    onChainReady={WALLET_IN_GAMES && onChain.isProgramReady}
                     showOnlineFeatures={!isRadbroRuntime()}
                 />
             </div>

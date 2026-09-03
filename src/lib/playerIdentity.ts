@@ -95,6 +95,49 @@ export function resolvePlayer(walletAddress?: string | null): { player: string; 
   return { player: local.id, name: local.name };
 }
 
+/**
+ * The player's portable arcade code.
+ *
+ * The handle lives in localStorage, which is gone the moment someone clears
+ * their browser or opens the site on their phone — and with no wallet in the
+ * games, that handle *is* the leaderboard identity. The code lets a player
+ * carry it: copy it on one device, paste it on the next, and the same row on
+ * the board keeps filling in.
+ *
+ * Format is `name.id` — readable enough to retype, specific enough to be the
+ * document key it already is.
+ */
+export function getArcadeCode(): string {
+  const { id, name } = getLocalPlayer();
+  return `${name}.${id}`;
+}
+
+/**
+ * Adopt an arcade code produced by `getArcadeCode`.
+ *
+ * Returns the restored identity, or null when the code doesn't parse. This
+ * only rebinds which leaderboard row this browser writes to; it can't read or
+ * alter anyone's stored scores.
+ */
+export function restoreArcadeCode(code: string): LocalPlayer | null {
+  const trimmed = code.trim();
+  const split = trimmed.lastIndexOf('.');
+  if (split <= 0 || split === trimmed.length - 1) return null;
+
+  const name = trimmed.slice(0, split).trim().slice(0, 24);
+  const id = trimmed.slice(split + 1).trim();
+  // Ids are `anon_xxxxxxxx` or a wallet address — either way, no separators.
+  if (!name || !/^[A-Za-z0-9_]{4,64}$/.test(id)) return null;
+
+  const restored: LocalPlayer = { id, name };
+  try {
+    safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(restored));
+  } catch {
+    /* storage unavailable — identity holds for this session only */
+  }
+  return restored;
+}
+
 /** The current player's row key (wallet address if connected, else anon id). */
 export function currentPlayerId(walletAddress?: string | null): string {
   return walletAddress || getLocalPlayer().id;

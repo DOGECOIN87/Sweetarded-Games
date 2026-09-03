@@ -4,7 +4,8 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { getDebrisBalance } from '../../lib/tokenService';
 import { TOKEN_CONFIG } from '../../lib/tokenConfig';
 import { useJunkPusherOnChain } from '../../lib/useJunkPusherOnChain';
-import { FREE_PLAY } from '../../lib/freePlay';
+import { FREE_PLAY, WALLET_IN_GAMES } from '../../lib/freePlay';
+import PlayerChip from '../PlayerChip';
 import { STARTING_CREDITS, getCredits, setCredits } from '../../lib/credits';
 import { getPlayerGameBalance } from '../../lib/highScoreService';
 import { PROGRAM_ID } from '../../lib/JunkPusherClient';
@@ -408,7 +409,7 @@ export default function SkillGame() {
   const [currentWin, setCurrentWin] = useState(0);
   const [stage, setStage] = useState<Stage>('IDLE');
   const [statusMessage, setStatusMessage] = useState<string | null>(
-    FREE_PLAY ? 'Free play — press Play to spin' : 'Connect Wallet to Play'
+    'Free play — press Play to spin'
   );
   const [winningCells, setWinningCells] = useState<Set<number>>(new Set());
   const [playButtonText, setPlayButtonText] = useState('Play');
@@ -501,7 +502,7 @@ export default function SkillGame() {
   useEffect(() => {
     if (connected && publicKey) {
       refreshDebrisBalance();
-      setStatusMessage('Wallet linked — press Play to spin');
+      setStatusMessage(WALLET_IN_GAMES ? 'Wallet linked — press Play to spin' : 'Free play — press Play to spin');
     } else {
       setDebrisBalance(0);
       setStatusMessage('Free play — press Play to spin');
@@ -1012,10 +1013,6 @@ export default function SkillGame() {
 
   const handlePreview = () => {
     if (stage !== 'IDLE' || isAnimating || isPreviewing) return;
-    if (!connected && !FREE_PLAY) {
-      showWalletModal(true);
-      return;
-    }
     if (previewCooldown > 0) {
       setStatusMessage(`Cooldown: ${previewCooldown}s`);
       return;
@@ -1057,10 +1054,6 @@ export default function SkillGame() {
   // Start playing
   const handlePlay = () => {
     if (stage !== 'IDLE' || isAnimating) return;
-    if (!connected && !FREE_PLAY) {
-      showWalletModal(true);
-      return;
-    }
     if (gamePaused) {
       setStatusMessage('Game temporarily paused');
       return;
@@ -1295,10 +1288,32 @@ export default function SkillGame() {
         </div>
       </div>
 
+      {/* Keyboard hints — the number keys map to the grid the way a numpad
+          does, which is far quicker than reaching for the mouse each spin. */}
+      <div className="skill-keys">
+        <span><b>Space</b> spin</span>
+        <span><b>1–9</b> place WILD</span>
+        <span><b>← →</b> play level</span>
+        <span><b>S</b> scout</span>
+      </div>
+
       {/* Control Section */}
       <div className="skill-control-section">
-        {/* Wallet & SWEET Balance Bar */}
-        {!isRadbroRuntime() && <div className="skill-wallet-bar">
+        {/* Arcade identity bar. The wallet connect prompt used to live here;
+            the game is free, so it asks for a name and offers a portable code
+            instead of an address. */}
+        {!isRadbroRuntime() && !WALLET_IN_GAMES && (
+          <div className="skill-wallet-bar">
+            <div className="skill-wallet-info">
+              <span className="skill-wallet-label">Playing as</span>
+              <span className="skill-wallet-balance">Free play · no wallet needed</span>
+            </div>
+            <PlayerChip />
+          </div>
+        )}
+
+        {/* Wallet & SWEET Balance Bar (on-chain builds only) */}
+        {!isRadbroRuntime() && WALLET_IN_GAMES && <div className="skill-wallet-bar">
           {connected && publicKey ? (
             <>
               <div className="skill-wallet-info">
@@ -1337,7 +1352,7 @@ export default function SkillGame() {
         </div>}
 
         {/* Deposit/Withdraw Panel (only when a real on-chain program is configured) */}
-        {showDepositUI && connected && onChain.isProgramReady && (
+        {WALLET_IN_GAMES && showDepositUI && connected && onChain.isProgramReady && (
           <div className="skill-deposit-panel">
             <div className="skill-deposit-row">
               <input
