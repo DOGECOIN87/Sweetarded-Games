@@ -29,8 +29,8 @@ export interface GameState {
   bumpCharge: number;
   /** Machine is tilted: bumping is locked out for a few seconds. */
   tilted: boolean;
-  /** Where the next dropped coin will land, in playfield x units. */
-  aimX: number;
+  /** Seconds left on the tilt lockout, so the HUD can count it down. */
+  tiltSecondsLeft: number;
   /** Total value of every prize coin (tier > 0) currently on the playfield. */
   prizeValueOnField: number;
   /** Most recent collection, for payout popups. */

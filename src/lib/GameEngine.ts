@@ -37,6 +37,12 @@ export class GameEngine {
   private coinMeshes: THREE.InstancedMesh[] = [];
   private coinBodies: { body: RAPIER.RigidBody; id: number; tier: number }[] = [];
   private nextCoinId = 0;
+  /** Live coin count per tier, kept in step with coinBodies. */
+  private tierCounts: number[] = COIN_TIERS.map(() => 0);
+  /** Running total of prize-coin value on the field (tier > 0). */
+  private prizeValue = 0;
+  /** Instances written per tier last frame, so only the delta needs clearing. */
+  private prevCursors: number[] = COIN_TIERS.map(() => 0);
 
   // State
   private isInitialized = false;
@@ -549,7 +555,7 @@ export class GameEngine {
       const mesh = new THREE.InstancedMesh(geometry, materials, COIN_TIER_CAPS[i]);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
-      mesh.count = COIN_TIER_CAPS[i];
+      mesh.count = 0; // grown per frame in syncGraphics to the live coin count
       this.scene.add(mesh);
       return mesh;
     });
@@ -606,25 +612,14 @@ export class GameEngine {
     return 0;
   }
 
-  /** How many coins of `tier` are currently simulated (used against the caps). */
-  private tierCount(tier: number): number {
-    let n = 0;
-    for (const c of this.coinBodies) if (c.tier === tier) n++;
-    return n;
-  }
-
-  /** True when another coin of this tier can be added without exceeding its cap. */
+  /**
+   * True when another coin of this tier fits under its cap.
+   *
+   * Counts are maintained incrementally rather than recomputed: this runs on
+   * every spawn, and the playfield holds up to MAX_COINS bodies.
+   */
   private hasRoomFor(tier: number): boolean {
-    return this.tierCount(tier) < COIN_TIER_CAPS[tier];
-  }
-
-  /** Total credit value of every prize coin sitting on the playfield. */
-  private prizeValueOnField(): number {
-    let total = 0;
-    for (const c of this.coinBodies) {
-      if (c.tier > 0) total += COIN_TIERS[c.tier].value;
-    }
-    return total;
+    return this.tierCounts[tier] < COIN_TIER_CAPS[tier];
   }
 
   private spawnInitialCoins() {
@@ -671,6 +666,8 @@ export class GameEngine {
     );
 
     this.coinBodies.push({ body, id: this.nextCoinId++, tier });
+    this.tierCounts[tier]++;
+    if (tier > 0) this.prizeValue += spec.value;
     return true;
   }
 
@@ -714,11 +711,17 @@ export class GameEngine {
     return true;
   }
 
-  /** Move the drop marker without dropping (pointer move / arrow keys). */
+  /**
+   * Move the drop marker without dropping (pointer move / arrow keys).
+   *
+   * Deliberately does NOT publish game state. This runs on every mousemove,
+   * and updateGameState re-renders the whole React overlay; the marker itself
+   * is drawn from this.aimX in syncGraphics, so nothing downstream needs to
+   * hear about it.
+   */
   public setAim(x: number) {
     const limit = DIMENSIONS.PLAYFIELD_WIDTH / 2 - 0.5;
     this.aimX = Math.max(-limit, Math.min(limit, x));
-    this.updateGameState();
   }
 
   public nudgeAim(delta: number) {
@@ -771,12 +774,27 @@ export class GameEngine {
     this.updateGameState();
   }
 
-  /** 0–1 bump recharge (1 = ready). Tilt lockout reads as 0. */
+  /**
+   * 0–1 bump readiness (1 = ready).
+   *
+   * While tilted this reports recovery from the lockout instead of the
+   * recharge, so the one meter always means the same thing to the player:
+   * wait for it to fill.
+   */
   public bumpCharge(): number {
     const now = performance.now();
-    if (now < this.tiltUntil) return 0;
+    if (now < this.tiltUntil) {
+      const remaining = this.tiltUntil - now;
+      return Math.max(0, Math.min(1, 1 - remaining / TIMING.TILT_LOCKOUT_MS));
+    }
     const elapsed = now - this.lastBumpTime;
     return Math.max(0, Math.min(1, elapsed / TIMING.BUMP_COOLDOWN_MS));
+  }
+
+  /** Seconds left on a tilt lockout, rounded up. 0 when not tilted. */
+  public tiltSecondsLeft(): number {
+    const remaining = this.tiltUntil - performance.now();
+    return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
   }
 
   public isTilted(): boolean {
@@ -794,6 +812,20 @@ export class GameEngine {
   public bump(): boolean {
     const now = performance.now();
     if (now < this.tiltUntil) return false;
+
+    // Every attempt counts toward the tilt, including ones the recharge turns
+    // away. Only counting successful bumps meant mashing during the cooldown
+    // was entirely free — precisely the impatience tilt is meant to punish.
+    this.bumpTimes = this.bumpTimes.filter((t) => now - t < TIMING.TILT_WINDOW_MS);
+    this.bumpTimes.push(now);
+    if (this.bumpTimes.length > TIMING.TILT_LIMIT) {
+      this.tiltUntil = now + TIMING.TILT_LOCKOUT_MS;
+      this.bumpTimes = [];
+      soundManager.play('game_over');
+      this.updateGameState();
+      return false;
+    }
+
     if (now - this.lastBumpTime < TIMING.BUMP_COOLDOWN_MS) return false;
     if (this.balance < BUMP_COST) {
       soundManager.play('out_of_tokens');
@@ -801,15 +833,6 @@ export class GameEngine {
     }
 
     this.lastBumpTime = now;
-
-    // Trip the tilt if the player leans on it.
-    this.bumpTimes = this.bumpTimes.filter((t) => now - t < TIMING.TILT_WINDOW_MS);
-    this.bumpTimes.push(now);
-    if (this.bumpTimes.length > TIMING.TILT_LIMIT) {
-      this.tiltUntil = now + TIMING.TILT_LOCKOUT_MS;
-      this.bumpTimes = [];
-      soundManager.play('game_over');
-    }
 
     this.balance -= BUMP_COST;
     this.netProfit -= BUMP_COST;
@@ -855,8 +878,8 @@ export class GameEngine {
         isPaused: this.isPaused,
         bumpCharge: this.bumpCharge(),
         tilted: this.isTilted(),
-        aimX: this.aimX,
-        prizeValueOnField: this.prizeValueOnField(),
+        tiltSecondsLeft: this.tiltSecondsLeft(),
+        prizeValueOnField: this.prizeValue,
         lastCollect: this.lastCollect,
       });
       this.lastCollect = null;
@@ -874,19 +897,17 @@ export class GameEngine {
     this.netProfit = 0;
     this.coinBodies.forEach(c => this.world.removeRigidBody(c.body));
     this.coinBodies = [];
+    this.tierCounts = COIN_TIERS.map(() => 0);
+    this.prizeValue = 0;
     this.lastCollect = null;
     this.bumpTimes = [];
     this.tiltUntil = 0;
     this.lastBumpTime = -Infinity;
 
-    const dummy = new THREE.Object3D();
-    dummy.scale.set(0, 0, 0);
-    dummy.updateMatrix();
     for (let t = 0; t < this.coinMeshes.length; t++) {
-      for (let i = 0; i < COIN_TIER_CAPS[t]; i++) {
-        this.coinMeshes[t].setMatrixAt(i, dummy.matrix);
-      }
+      this.coinMeshes[t].count = 0;
       this.coinMeshes[t].instanceMatrix.needsUpdate = true;
+      this.prevCursors[t] = 0;
     }
 
     this.spawnInitialCoins();
@@ -970,6 +991,8 @@ export class GameEngine {
       if (isWin) this.handleWin(tier);
       this.world.removeRigidBody(this.coinBodies[index].body);
       this.coinBodies.splice(index, 1);
+      this.tierCounts[tier]--;
+      if (tier > 0) this.prizeValue -= COIN_TIERS[tier].value;
     }
 
     if (GameEngine.DEBUG_AUTOPLAY && Math.random() < 0.05) {
@@ -1035,18 +1058,23 @@ export class GameEngine {
       cursors[tier] = slot + 1;
     }
 
-    // Collapse the unused tail of every tier so removed coins disappear.
     if (this.aimMarker) {
       this.aimMarker.position.x = this.aimX;
     }
 
+    // Hide the instances drawn last frame that aren't live any more. Clearing
+    // all the way to each tier's cap meant ~1000 matrix writes per frame with
+    // fifty coins on the table; only the shrinking edge actually moved.
     d.scale.set(0, 0, 0);
     d.updateMatrix();
     for (let t = 0; t < this.coinMeshes.length; t++) {
       const mesh = this.coinMeshes[t];
-      for (let i = cursors[t]; i < COIN_TIER_CAPS[t]; i++) {
+      for (let i = cursors[t]; i < this.prevCursors[t]; i++) {
         mesh.setMatrixAt(i, d.matrix);
       }
+      // Only the live prefix is drawn, so the tail never needs touching.
+      mesh.count = cursors[t];
+      this.prevCursors[t] = cursors[t];
       mesh.instanceMatrix.needsUpdate = true;
     }
   }

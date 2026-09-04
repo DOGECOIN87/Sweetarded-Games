@@ -94,7 +94,7 @@ const JunkPusherGame: React.FC = () => {
         isPaused: false,
         bumpCharge: 1,
         tilted: false,
-        aimX: 0,
+        tiltSecondsLeft: 0,
         prizeValueOnField: 0,
         lastCollect: null,
     });
@@ -367,6 +367,11 @@ const JunkPusherGame: React.FC = () => {
      */
     const handleBump = useCallback(async () => {
         if (engineRef.current && !gameStateRef.current.isPaused && !adminPaused) {
+            // bump() refuses while recharging or tilted, so ask it first —
+            // otherwise a refused bump still pays for an on-chain round trip.
+            if (!engineRef.current.bump()) return;
+            soundManager.play('bump');
+
             const oc = onChainRef.current;
             if (oc.isProgramReady && wallet.isConnected) {
                 try {
@@ -374,11 +379,6 @@ const JunkPusherGame: React.FC = () => {
                 } catch (err) {
                     console.warn('[JunkPusher] On-chain bump failed, continuing locally:', err);
                 }
-            }
-            // bump() refuses while recharging or tilted; only pay the on-chain
-            // round-trip and the sound when the machine actually shook.
-            if (engineRef.current.bump()) {
-                soundManager.play('bump');
             }
         }
     }, [wallet.isConnected, adminPaused]);
@@ -408,7 +408,7 @@ const JunkPusherGame: React.FC = () => {
                 isPaused: false,
         bumpCharge: 1,
         tilted: false,
-        aimX: 0,
+        tiltSecondsLeft: 0,
         prizeValueOnField: 0,
         lastCollect: null,
             });

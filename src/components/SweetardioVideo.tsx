@@ -45,11 +45,14 @@ function loadWidgets(): Promise<void> {
   return widgetsPromise;
 }
 
+type EmbedState = 'loading' | 'ready' | 'failed';
+
 const SweetardioVideo = () => {
   const holderRef = useRef<HTMLDivElement>(null);
-  // The embed can be blocked by a tracker blocker or a locked-down network, so
-  // the section always has a link card to fall back to.
-  const [failed, setFailed] = useState(false);
+  // X embeds are blocked often enough — tracker blockers, strict tracking
+  // protection, locked-down networks — that the blocked path has to look
+  // deliberate rather than like a broken section.
+  const [state, setState] = useState<EmbedState>('loading');
 
   useEffect(() => {
     let cancelled = false;
@@ -60,19 +63,26 @@ const SweetardioVideo = () => {
         window.twttr?.widgets?.load(holderRef.current);
       })
       .catch(() => {
-        if (!cancelled) setFailed(true);
+        if (!cancelled) setState('failed');
       });
 
-    // If the widget never swaps the blockquote out for an iframe, treat the
-    // embed as blocked rather than leaving a bare quote sitting on the page.
-    const timer = setTimeout(() => {
+    // Poll for the iframe the widget swaps in, so a fast load flips to 'ready'
+    // quickly instead of everyone waiting out the full timeout.
+    const started = Date.now();
+    const poll = setInterval(() => {
       if (cancelled) return;
-      if (!holderRef.current?.querySelector('iframe')) setFailed(true);
-    }, 6000);
+      if (holderRef.current?.querySelector('iframe')) {
+        setState('ready');
+        clearInterval(poll);
+      } else if (Date.now() - started > 6000) {
+        setState('failed');
+        clearInterval(poll);
+      }
+    }, 250);
 
     return () => {
       cancelled = true;
-      clearTimeout(timer);
+      clearInterval(poll);
     };
   }, []);
 
@@ -89,25 +99,49 @@ const SweetardioVideo = () => {
       />
 
       <div className="mt-10 flex justify-center">
-        <div className="w-full max-w-[550px]">
-          {!failed && (
-            <div ref={holderRef} className="sw-tweet-embed">
+        <div className={`relative w-full max-w-[550px] ${state === 'ready' ? '' : 'min-h-[320px]'}`}>
+          {/* The holder stays mounted and full width while loading so the
+              widget measures its container correctly; `invisible` hides it
+              without collapsing it, and the skeleton covers it meanwhile. An
+              unstyled blockquote flashing on the page reads as a bug. */}
+          {state !== 'failed' && (
+            <div
+              ref={holderRef}
+              aria-busy={state === 'loading'}
+              className={state === 'ready' ? 'w-full' : 'invisible absolute inset-x-0 top-0'}
+            >
               <blockquote className="twitter-tweet" data-theme="dark" data-dnt="true" data-align="center">
                 <a href={TWEET_URL}>Watch on X</a>
               </blockquote>
             </div>
           )}
 
-          {failed && (
+          {state === 'loading' && (
+            <div
+              aria-hidden
+              className="flex min-h-[320px] animate-pulse flex-col items-center justify-center gap-3 border border-white/10 bg-white/[0.03]"
+            >
+              <span className="text-xs uppercase tracking-[0.3em] text-blue-100/35">Loading the reel…</span>
+            </div>
+          )}
+
+          {state === 'failed' && (
             <a
               href={TWEET_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col items-center gap-3 border border-white/10 bg-white/[0.03] px-6 py-12 text-center transition-all hover:-translate-y-0.5 hover:border-sweetardios-cyan/60 hover:shadow-[0_0_22px_-4px_rgba(52,237,243,0.5)]"
+              className="group flex min-h-[320px] flex-col items-center justify-center gap-4 border border-sweetardios-cyan/25 bg-white/[0.03] px-6 py-12 text-center transition-all hover:-translate-y-0.5 hover:border-sweetardios-cyan/60 hover:shadow-[0_0_22px_-4px_rgba(52,237,243,0.5)]"
             >
-              <span className="font-heading text-xl text-sweetardios-cyan">Watch on X</span>
-              <span className="text-sm text-blue-100/60">
-                The embed couldn&rsquo;t load here — open the post to watch it.
+              <span
+                aria-hidden
+                className="flex h-16 w-16 items-center justify-center border border-sweetardios-cyan/40 text-2xl text-sweetardios-cyan transition-transform group-hover:scale-110"
+                style={{ borderRadius: '9999px' }}
+              >
+                ▶
+              </span>
+              <span className="font-heading text-xl text-sweetardios-cyan">Watch the reel on X</span>
+              <span className="max-w-xs text-sm leading-relaxed text-blue-100/55">
+                Your browser blocked the embed — open the post to watch it.
               </span>
             </a>
           )}

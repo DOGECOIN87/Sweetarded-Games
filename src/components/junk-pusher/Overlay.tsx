@@ -533,11 +533,12 @@ export const Overlay: React.FC<OverlayProps> = ({
                                     : 'bg-gray-950/30 border border-gray-700/30 opacity-50 cursor-not-allowed'
                             }`}
                         >
-                            {/* Recharge fill */}
-                            {!gameState.tilted && !bumpReady && (
+            {/* Recharge fill. During a tilt this tracks the lockout instead,
+                so the meter always means the same thing: wait for it to fill. */}
+                            {!bumpReady && (
                                 <span
                                     aria-hidden
-                                    className="absolute inset-y-0 left-0 bg-fuchsia-500/25 transition-[width] duration-100"
+                                    className={`absolute inset-y-0 left-0 transition-[width] duration-100 ${gameState.tilted ? 'bg-red-500/25' : 'bg-fuchsia-500/25'}`}
                                     style={{ width: `${Math.round(gameState.bumpCharge * 100)}%` }}
                                 />
                             )}
@@ -546,7 +547,7 @@ export const Overlay: React.FC<OverlayProps> = ({
                                     {gameState.tilted ? 'Tilt' : 'Bump'}
                                 </span>
                                 <span className={`text-[7px] sm:text-[8px] font-mono ${gameState.tilted ? 'text-red-400/70' : 'text-fuchsia-400/60'}`}>
-                                    {gameState.tilted ? 'locked out' : `B · -${BUMP_COST} SWEET`}
+                                    {gameState.tilted ? `locked ${gameState.tiltSecondsLeft}s` : `B · -${BUMP_COST} SWEET`}
                                 </span>
                             </div>
                         </button>

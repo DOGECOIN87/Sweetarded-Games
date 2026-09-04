@@ -38,13 +38,27 @@ export const COIN_TIER_CAPS = [PHYSICS.MAX_COINS, 160, 80, 32];
 export const TIMING = {
   /** Minimum gap between dropped coins — stops hold-to-spam flooding the field. */
   DROP_COOLDOWN_MS: 160,
-  /** Bump recharge. Bumping is powerful, so it has to be spent deliberately. */
-  BUMP_COOLDOWN_MS: 3000,
-  /** Bumps allowed inside TILT_WINDOW_MS before the machine tilts. */
+  /**
+   * Bump recharge — short on purpose.
+   *
+   * A long cooldown makes bumping safe and boring: you can never take enough
+   * of them in a row to get into trouble, so there is no decision. Keeping it
+   * short means you *can* bump a medallion off the lip with three quick
+   * shoves, and the tilt below is what makes that a gamble rather than a
+   * free action.
+   */
+  BUMP_COOLDOWN_MS: 1200,
+  /**
+   * Bumps allowed inside TILT_WINDOW_MS before the machine tilts.
+   *
+   * Tuned against the recharge so only genuine rapid-fire trips it: four
+   * attempts at the 1.2s recharge span 3.6s and tilt, while anything slower
+   * than roughly one every 2.7s never does. Ordinary eager play stays safe.
+   */
   TILT_LIMIT: 3,
-  TILT_WINDOW_MS: 15000,
+  TILT_WINDOW_MS: 8000,
   /** How long the machine locks out bumping after a tilt. */
-  TILT_LOCKOUT_MS: 10000,
+  TILT_LOCKOUT_MS: 8000,
 };
 
 /** Cost in credits of a single bump. Matches the paytable and button labels. */
