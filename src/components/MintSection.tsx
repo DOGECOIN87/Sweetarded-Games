@@ -4,11 +4,14 @@ import MintEmbed, { MINT_URL } from './MintEmbed';
 
 /**
  * LaunchMyNFT remains authoritative for mint availability. The site countdown
- * uses the same launch instant when VITE_MINT_START_AT is configured at build
- * time as an ISO-8601 value with a timezone, for example:
+ * mirrors the launch instant scheduled on the collection itself, and
+ * VITE_MINT_START_AT overrides it at build time as an ISO-8601 value with a
+ * timezone, for example:
  *   VITE_MINT_START_AT=2026-08-01T18:00:00Z
  */
-const configuredMintStart = import.meta.env.VITE_MINT_START_AT?.trim();
+const DEFAULT_MINT_START_AT = '2026-09-14T12:00:09.509Z';
+const configuredMintStart =
+  import.meta.env.VITE_MINT_START_AT?.trim() || DEFAULT_MINT_START_AT;
 const hasExplicitTimeZone = configuredMintStart
   ? /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/i.test(configuredMintStart)
   : false;

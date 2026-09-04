@@ -23,7 +23,7 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     id: 'mint',
     title: 'Sweetardio Collection mint',
     body:
-      'The Sweetardio Collection mint has been rescheduled, with the new date coming soon. Join the whitelist, then mint here on Sweetardio.fun or use LaunchMyNFT directly.',
+      'The Sweetardio Collection mint is scheduled for September 14, 2026 at 12:00 UTC. Join the whitelist, then mint here on Sweetardio.fun or use LaunchMyNFT directly.',
     tag: 'Mint',
     link: '#/mint',
     linkLabel: 'Open on-site mint',

@@ -1,4 +1,5 @@
 import { COMMUNITY_LINKS, type LinkAccent, type SocialPlatform } from '../content/siteLinks';
+import { MINT_URL } from './MintEmbed';
 import { SocialIcon } from './SocialIcon';
 import SectionHeading from './SectionHeading';
 
@@ -30,7 +31,7 @@ interface LinkItem {
 //   https://magiceden.io/marketplace/<collection-slug>
 //   https://www.tensor.trade/trade/<collection-slug>
 const MARKETPLACES: LinkItem[] = [
-  { name: 'Mint on LaunchMyNFT', url: 'https://www.launchmynft.io/mint/sweetardio', logo: 'launchmynft', accent: 'cerise', note: 'Official mint' },
+  { name: 'Mint on LaunchMyNFT', url: MINT_URL, logo: 'launchmynft', accent: 'cerise', note: 'Official mint' },
   { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cyan', note: 'Secondary · live at launch' },
   { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cerise', note: 'Secondary · live at launch' },
 ];

@@ -20,12 +20,14 @@ import { createPortal } from 'react-dom';
  * homepage and /mint without duplicate IDs, React roots, or wallet listeners.
  */
 
-export const MINT_URL = 'https://www.launchmynft.io/mint/sweetardio';
+export const MINT_URL =
+  'https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/W9rwP1XQQpeD2xl1cTtK';
 
 const LMNFT_OWNER_ID = 'Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo';
-const LMNFT_COLLECTION_ID = 'f3Xa1ZHZGsDApCLATuX7';
-const LMNFT_SCRIPT_SRC = 'https://storage.googleapis.com/scriptslmt/0.1.4/solana.js';
-const LMNFT_STYLE_HREF = 'https://storage.googleapis.com/scriptslmt/0.1.4/solana.css';
+const LMNFT_COLLECTION_ID = 'W9rwP1XQQpeD2xl1cTtK';
+// Version pinned to the snippet LaunchMyNFT's collection dashboard hands out.
+const LMNFT_SCRIPT_SRC = 'https://storage.googleapis.com/scriptslmt/0.1.3/solana.js';
+const LMNFT_STYLE_HREF = 'https://storage.googleapis.com/scriptslmt/0.1.3/solana.css';
 
 type EmbedStatus = 'loading' | 'ready' | 'error';
 type RegisterMintSlot = (slot: HTMLDivElement | null) => void;
