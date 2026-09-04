@@ -10,7 +10,12 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
+# Allow one concurrent deployment.
+#
+# NOTE: this group is shared with anything else that publishes Pages. A second
+# workflow using the same group with cancel-in-progress raced this one on every
+# push — whichever started second killed the other — so which build reached
+# production was a coin flip. Keep this the only Pages-publishing workflow.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -26,9 +31,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
+      # `npm ci` installs exactly what the lockfile pins, so a production build
+      # can't silently resolve different versions than the ones tested.
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         env:

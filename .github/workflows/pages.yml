@@ -1,8 +1,16 @@
-name: Deploy site to GitHub Pages
+name: Deploy site to GitHub Pages (manual fallback)
 
+# DISABLED ON PUSH — deploy.yml is the workflow that publishes this site.
+#
+# This one also triggered on push to main and shares deploy.yml's `pages`
+# concurrency group with cancel-in-progress, so the two raced on every push and
+# whichever started second cancelled the other. Which build reached production
+# was a coin flip, and this one does NOT run `npm run build:radbro`, so every
+# time it won the standalone game bundles were missing from the deploy.
+#
+# Kept as a manual fallback for publishing the site alone. If you run it, note
+# that it will not include /radbro/slots or /radbro/coinpusher.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
