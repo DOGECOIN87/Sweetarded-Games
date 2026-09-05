@@ -256,6 +256,18 @@
   object-fit: contain;
 }
 
+/* Resting reel face — present so the machine never reads as an empty frame,
+   dimmed so it is never mistaken for a spun result. */
+.skill-cell-idle {
+  opacity: 0.22;
+  filter: grayscale(0.5);
+  transition: opacity 0.25s ease-out;
+}
+
+.skill-grid-cell:hover .skill-cell-idle {
+  opacity: 0.34;
+}
+
 .skill-cell-symbol.skill-wild-text {
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(16px, 2vmin, 24px);

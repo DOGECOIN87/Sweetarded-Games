@@ -378,6 +378,19 @@ export default function SkillGame() {
 
   // Core game state
   const [grid, setGrid] = useState<CellValue[]>(Array(9).fill(null));
+  /**
+   * Faces shown while the machine is at rest.
+   *
+   * `grid` is null in every cell until a spin resolves, which left the reels
+   * blank on arrival and again after every reset. These are display only —
+   * nothing reads them, and placement stays gated on `stage` — so the machine
+   * looks loaded without any cell being playable before the first spin.
+   * The bonus logo (index 9) is excluded so a resting reel never reads as a
+   * live bonus.
+   */
+  const [idleFaces] = useState<number[]>(() =>
+    Array.from({ length: 9 }, () => Math.floor(Math.random() * 9))
+  );
   const [balance, setBalance] = useState(0); // restored from the shared credits store on mount
   const [netProfit, setNetProfit] = useState(0); // Track cumulative net profit for withdrawal verification
   const [levelIndex, setLevelIndex] = useState(0);
@@ -1142,7 +1155,10 @@ export default function SkillGame() {
         />
       );
     }
-    return null;
+
+    // At rest: show a dimmed face so the reels read as a loaded machine
+    // rather than an empty frame.
+    return <img src={SYMBOL_IMAGES[idleFaces[index]]} alt="" aria-hidden className="skill-cell-idle" />;
   };
 
   // Jackpot tier definitions — scaled to current play level
