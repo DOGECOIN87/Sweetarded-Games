@@ -130,3 +130,18 @@
   .tm-bar .tm-note { display: none; }
   .tm-bar .tm-title { display: none; }
 }
+
+/* Write rejected — the player's entries are not reaching the board. Loud on
+   purpose: silently losing tickets costs someone a prize. */
+.tm-warn {
+  padding: 2px 6px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+  background: #b3123c;
+}
+
+.tm-bar .tm-warn { flex: none; padding: 2px 8px; }

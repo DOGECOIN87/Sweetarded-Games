@@ -31,6 +31,12 @@ export interface CompetitionHandle {
   addPlay: (game: LeaderboardGame, units: number) => void;
   /** Tickets banked since this hook mounted — drives the "+1 ticket" callout. */
   earnedThisSession: number;
+  /**
+   * True when the last write was rejected — entries are NOT being saved.
+   * Surfaced in the UI because a competition that silently loses entries is
+   * worse than one that is visibly down.
+   */
+  saveFailed: boolean;
 }
 
 export function useCompetition(
@@ -41,6 +47,7 @@ export function useCompetition(
   const [state, setState] = useState<TicketState>(emptyTicketState);
   const [loaded, setLoaded] = useState(false);
   const [earnedThisSession, setEarnedThisSession] = useState(0);
+  const [saveFailed, setSaveFailed] = useState(false);
 
   // Refs so the save timer and addPlay never go stale between renders.
   const stateRef = useRef(state);
@@ -67,7 +74,7 @@ export function useCompetition(
     if (!dirty.current) return;
     dirty.current = false;
     const { playerId: p, name: n, wallet: w } = identityRef.current;
-    saveTickets(p, n, stateRef.current, w);
+    saveTickets(p, n, stateRef.current, w).then((ok) => setSaveFailed(!ok));
   }, []);
 
   const scheduleSave = useCallback(() => {
@@ -122,5 +129,6 @@ export function useCompetition(
     live: isLive(),
     addPlay,
     earnedThisSession,
+    saveFailed,
   };
 }

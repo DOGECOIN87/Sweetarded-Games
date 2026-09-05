@@ -61,6 +61,17 @@ export const TEAM: readonly TeamMember[] = [
     links: [{ label: 'Verified on X', url: 'https://x.com/iLLPeTiLL' }],
   },
   {
+    name: 'Jithu Mohan',
+    role: 'Community Manager / Moderator',
+    bio: 'In crypto since 2019, running community and moderation for Web3 projects since 2022.',
+    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
+    avatar: { type: 'image', src: '/team/jithu-mohan.jpg' },
+    links: [
+      { label: '@mrpishh', url: 'https://x.com/mrpishh' },
+      { label: 'Discord', url: 'https://discord.com/users/821471871732023366' },
+    ],
+  },
+  {
     name: 'Hudson',
     role: 'Web3 Writer · Wallet Tracker',
     bio: 'GOD is the greatest 👑 · Creative Web3 writer · Pro wallet tracker · building $COOK.',

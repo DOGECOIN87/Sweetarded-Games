@@ -19,7 +19,7 @@ interface TicketMeterProps {
 }
 
 export default function TicketMeter({ comp, layout = 'rail', onOpenDetails }: TicketMeterProps) {
-  const { state, loaded, room, live, earnedThisSession } = comp;
+  const { state, loaded, room, live, earnedThisSession, saveFailed } = comp;
   const [flash, setFlash] = useState(false);
   const [left, setLeft] = useState(() => timeLeftLabel());
 
@@ -71,7 +71,12 @@ export default function TicketMeter({ comp, layout = 'rail', onOpenDetails }: Ti
         </div>
       </div>
 
-      {flash && <div className="tm-earned" role="status">+1 TICKET</div>}
+      {saveFailed && (
+        <div className="tm-warn" role="alert">
+          Entries aren't saving — tell the team
+        </div>
+      )}
+      {flash && !saveFailed && <div className="tm-earned" role="status">+1 TICKET</div>}
       {loaded && room === 0 && !flash && (
         <div className="tm-note">Daily tickets maxed — back tomorrow 🍬</div>
       )}

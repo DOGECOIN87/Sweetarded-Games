@@ -71,7 +71,9 @@ export async function loadTickets(player: string): Promise<TicketState> {
 }
 
 /**
- * Persist a player's entry. Fire-and-forget; never throws to the caller.
+ * Persist a player's entry. Never throws; returns false when the write was
+ * rejected so the UI can tell the player their entries are not being saved —
+ * silently dropping them would cost someone a prize.
  *
  * `daily` is pruned to the competition window so the document cannot grow
  * without bound (and so a rejected oversized write can't lock a player out).
@@ -81,8 +83,8 @@ export async function saveTickets(
   name: string,
   state: TicketState,
   wallet: string | null
-): Promise<void> {
-  if (!db || !player) return;
+): Promise<boolean> {
+  if (!db || !player) return false;
   try {
     const daily = Object.fromEntries(
       Object.entries(state.daily)
@@ -105,8 +107,10 @@ export async function saveTickets(
       },
       { merge: true }
     );
+    return true;
   } catch (err) {
     console.warn('[competition] ticket save failed:', err);
+    return false;
   }
 }
 
