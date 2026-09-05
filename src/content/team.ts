@@ -1,3 +1,5 @@
+import type { SocialPlatform } from './siteLinks';
+
 /**
  * The Team — everyone behind Sweetardio, one card each.
  * Avatar can be a static image or a looping video (for animated avatars);
@@ -7,6 +9,8 @@
 export interface TeamLink {
   label: string;
   url: string;
+  /** Renders the matching glyph beside the label. Omit for a plain text link. */
+  icon?: SocialPlatform;
 }
 
 export interface TeamMember {
@@ -31,7 +35,11 @@ export const TEAM: readonly TeamMember[] = [
     role: 'Creator / Artist',
     bio: 'Creator/Artist for the Sweetardio Collection, a Verified Musician on Audius.',
     avatar: { type: 'image', src: '/maker/mattrick.webp' },
-    links: [{ label: 'Verified on Audius', url: 'https://audius.co/mattrickbeats' }],
+    links: [
+      { label: '@mattrickbeats', url: 'https://x.com/mattrickbeats', icon: 'x' },
+      { label: 'Verified on Audius', url: 'https://audius.co/mattrickbeats' },
+    ],
+    discord: 'mattrick8321',
   },
   {
     name: 'Kevin F.',
@@ -39,6 +47,7 @@ export const TEAM: readonly TeamMember[] = [
     role: 'Software Development Manager',
     bio: '30+ years experience in managing software development teams.',
     avatar: { type: 'video', sources: ['/team/kevin-simplex.webm', '/team/kevin-simplex.mp4'] },
+    discord: 'simplex',
   },
   {
     name: 'Michael Gbolasere',
@@ -49,7 +58,7 @@ export const TEAM: readonly TeamMember[] = [
       'global markets. He’s a Top Rated Plus freelancer on Upwork with a 100% job success score.',
     /* TODO: swap in his real portrait once it's provided as an uploaded file. */
     avatar: { type: 'image', src: '/team/michael-gbolasere.jpg' },
-    links: [{ label: '@gma_ox', url: 'https://x.com/gma_ox' }],
+    links: [{ label: '@gma_ox', url: 'https://x.com/gma_ox', icon: 'x' }],
     discord: 'gma_marketing',
   },
   {
@@ -58,7 +67,8 @@ export const TEAM: readonly TeamMember[] = [
     bio: 'Electronic music producer — sound design, groove, and emotion.',
     /* TODO: swap in his real portrait once it's provided as an uploaded file. */
     avatar: { type: 'image', src: '/team/illpetill.jpg' },
-    links: [{ label: 'Verified on X', url: 'https://x.com/iLLPeTiLL' }],
+    links: [{ label: '@iLLPeTiLL', url: 'https://x.com/iLLPeTiLL', icon: 'x' }],
+    discord: 'illpetill',
   },
   {
     name: 'Jithu Mohan',
@@ -67,9 +77,19 @@ export const TEAM: readonly TeamMember[] = [
     /* TODO: swap in his real portrait once it's provided as an uploaded file. */
     avatar: { type: 'image', src: '/team/jithu-mohan.jpg' },
     links: [
-      { label: '@mrpishh', url: 'https://x.com/mrpishh' },
-      { label: 'Discord', url: 'https://discord.com/users/821471871732023366' },
+      { label: '@mrpishh', url: 'https://x.com/mrpishh', icon: 'x' },
+      { label: '@mrfish', url: 'https://t.me/mrfish', icon: 'telegram' },
+      { label: 'Discord', url: 'https://discord.com/users/821471871732023366', icon: 'discord' },
     ],
+  },
+  {
+    name: 'Mr Sam',
+    role: 'Web3 Creative',
+    bio: 'Web3 creative mind — video and content for brands and projects.',
+    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
+    avatar: { type: 'image', src: '/team/mr-sam.jpg' },
+    links: [{ label: '@Mr0xsam', url: 'https://t.me/Mr0xsam', icon: 'telegram' }],
+    discord: 'mr0xsam',
   },
   {
     name: 'Hudson',
@@ -77,6 +97,7 @@ export const TEAM: readonly TeamMember[] = [
     bio: 'GOD is the greatest 👑 · Creative Web3 writer · Pro wallet tracker · building $COOK.',
     /* TODO: swap in his real portrait once it's provided as an uploaded file. */
     avatar: { type: 'image', src: '/team/hudson.jpg' },
-    links: [{ label: '@defi_huds', url: 'https://x.com/defi_huds' }],
+    links: [{ label: '@defi_huds', url: 'https://x.com/defi_huds', icon: 'x' }],
+    discord: 'hudson_wav',
   },
 ] as const;

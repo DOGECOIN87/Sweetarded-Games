@@ -102,6 +102,7 @@ const TeamCard = ({ member, i }: { member: TeamMember; i: number }) => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 border border-white/15 bg-white/[0.04] px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-blue-100/75 transition-colors hover:border-sweetardios-cyan/50 hover:text-sweetardios-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
                 >
+                  {link.icon && <SocialIcon platform={link.icon} className="h-3.5 w-3.5" />}
                   {link.label} <span aria-hidden>↗</span>
                 </a>
               ))}
