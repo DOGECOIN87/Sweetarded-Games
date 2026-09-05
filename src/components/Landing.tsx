@@ -488,7 +488,7 @@ const Landing = () => {
       </div>
       <div className="border-t border-white/5 px-6 py-4">
         <p className="mx-auto max-w-6xl text-center text-[11px] leading-relaxed text-white/35">
-          Disclaimer: We are not affiliated with the cookie chain.
+          Made in America 2026
         </p>
       </div>
     </footer>

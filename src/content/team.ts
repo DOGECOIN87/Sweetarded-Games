@@ -47,6 +47,7 @@ export const TEAM: readonly TeamMember[] = [
     role: 'Software Development Manager',
     bio: '30+ years experience in managing software development teams.',
     avatar: { type: 'video', sources: ['/team/kevin-simplex.webm', '/team/kevin-simplex.mp4'] },
+    links: [{ label: '@Alcapawn', url: 'https://t.me/Alcapawn', icon: 'telegram' }],
     discord: 'simplex',
   },
   {
