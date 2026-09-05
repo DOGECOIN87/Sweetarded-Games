@@ -67,7 +67,9 @@ export default function TicketMeter({ comp, layout = 'rail', onOpenDetails }: Ti
         </div>
         <div className="tm-stat">
           <span className="tm-value tm-muted">{left}</span>
-          <span className="tm-label">Left</span>
+          {/* Named, not just "Left" — the mint has its own countdown on the
+              landing page and the two must never read as the same clock. */}
+          <span className="tm-label">Cup ends</span>
         </div>
       </div>
 
