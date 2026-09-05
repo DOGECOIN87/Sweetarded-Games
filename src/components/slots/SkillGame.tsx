@@ -17,6 +17,7 @@ import './SkillGame.css';
 import BonusRound from './BonusRound';
 import AudioPlayer from '../junk-pusher/AudioPlayer';
 import { SlotsLeaderboard } from './SlotsLeaderboard';
+import LiveStandings from '../arcade/LiveStandings';
 import { submitScore } from '../../services/leaderboardService';
 import { resolvePlayer, currentPlayerId, shortAddress } from '../../lib/playerIdentity';
 import { LogoWall } from '../LogoPattern';
@@ -406,6 +407,11 @@ export default function SkillGame() {
   const [showFairness, setShowFairness] = useState(false);
   const [showBonus, setShowBonus] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  /** Bumped after every scored round so the standings panel refetches. */
+  const [standingsTick, setStandingsTick] = useState(0);
+  /** Biggest win this session — what the board's `score` column tracks.
+      Named apart from checkWin's local `bestWin`, which is per-round. */
+  const [sessionBestWin, setSessionBestWin] = useState(0);
   /** Cell the player is considering, during CHOOSING_WILD. */
   const [hoverCell, setHoverCell] = useState<number | null>(null);
 
@@ -848,6 +854,8 @@ export default function SkillGame() {
         balance: finalBalance,
         netProfit: finalNetProfit,
       });
+      if (won && winAmount > 0) setSessionBestWin((b) => Math.max(b, winAmount));
+      setStandingsTick((t) => t + 1);
     }
 
     // Record spin result on-chain (fire-and-forget)
@@ -1291,6 +1299,18 @@ export default function SkillGame() {
 
       {/* Control Section */}
       <div className="skill-control-section">
+        {/* The board, in view while you play rather than behind a button. */}
+        <LiveStandings
+          game="slots"
+          layout="bar"
+          playerId={currentPlayerId(publicKey?.toBase58() ?? null)}
+          refreshKey={standingsTick}
+          latestScore={sessionBestWin}
+          sortBy="score"
+          scoreLabel="Best win"
+          onOpenFull={() => setShowLeaderboard(true)}
+        />
+
         {/* Arcade identity bar. The wallet connect prompt used to live here;
             the game is free, so it asks for a name and offers a portable code
             instead of an address. */}
@@ -1477,6 +1497,8 @@ export default function SkillGame() {
                 balance: balance + totalWin,
                 netProfit: netProfit + totalWin,
               });
+              setSessionBestWin((b) => Math.max(b, totalWin));
+              setStandingsTick((t) => t + 1);
               setTimeout(() => {
                 setCurrentWin(0);
                 setStatusMessage(null);

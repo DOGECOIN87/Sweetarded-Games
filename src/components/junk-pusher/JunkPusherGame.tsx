@@ -125,6 +125,28 @@ const JunkPusherGame: React.FC = () => {
     const walletKeyRef = useRef(wallet.publicKey);
     walletKeyRef.current = wallet.publicKey;
 
+    /**
+     * Post the run's current standing to the board.
+     *
+     * The milestone submit below only fires on each 10th coin, so the tail of
+     * a run — and everything in it — is invisible to the leaderboard until the
+     * next milestone. Call this wherever a run stops or the score is about to
+     * be cleared. `submitScore` keeps the best score and is throttled, so
+     * calling it here is cheap and can never lower a standing.
+     */
+    const submitFinalStanding = useCallback(() => {
+        const state = gameStateRef.current;
+        if (!state || state.score <= 0) return;
+        const { player, name } = resolvePlayer(walletKeyRef.current);
+        submitScore('coinpusher', {
+            player,
+            name,
+            score: state.score,
+            balance: state.balance,
+            netProfit: state.netProfit,
+        });
+    }, []);
+
     // Stable refs for on-chain methods to avoid re-render cascades
     const onChainRef = useRef(onChain);
     onChainRef.current = onChain;
@@ -223,6 +245,10 @@ const JunkPusherGame: React.FC = () => {
             clearInterval(creditsInterval);
             // Final flush so leaving the page mid-run keeps your stack current
             setCredits(currentPlayerId(walletKeyRef.current), gameStateRef.current.balance);
+            // …and so does the board. Standings only post on 10-coin
+            // milestones, so without this the coins since the last milestone
+            // never reach the leaderboard.
+            submitFinalStanding();
         };
     }, []);
 
@@ -389,6 +415,9 @@ const JunkPusherGame: React.FC = () => {
         if (engineRef.current) {
             const oc = onChainRef.current;
             const currentState = gameStateRef.current;
+            // Reset zeroes the score, so anything since the last 10-coin
+            // milestone is gone for good unless it posts first.
+            submitFinalStanding();
             postRadbroResult(currentState.score > 0 ? 'clear' : 'gameover', currentState.score);
             radbroRunStartedRef.current = false;
             if (oc.isProgramReady && wallet.isConnected && currentState.score > 0) {

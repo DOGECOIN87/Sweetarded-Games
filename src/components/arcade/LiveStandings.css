@@ -1,0 +1,250 @@
+/**
+ * Live standings panel.
+ *
+ * Sits inside the cabinet next to the machine, so the styling follows the
+ * games' own chrome (hard edges, mono type, neon accents) rather than the
+ * marketing site's.
+ */
+
+.ls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 8px 6px;
+  background: rgba(6, 10, 26, 0.72);
+  border: 1px solid rgba(52, 237, 243, 0.28);
+  box-shadow: inset 0 0 18px rgba(52, 237, 243, 0.06);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  min-width: 0;
+}
+
+.ls-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ls-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #34edf3;
+  box-shadow: 0 0 8px #34edf3;
+  animation: ls-pulse 1.8s ease-in-out infinite;
+  flex: none;
+}
+
+@keyframes ls-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.28; }
+}
+
+.ls-title {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(206, 226, 255, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ls-more {
+  margin-left: auto;
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #34edf3;
+  background: transparent;
+  border: 1px solid rgba(52, 237, 243, 0.4);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ls-more:hover {
+  background: #34edf3;
+  color: #041022;
+}
+
+/* The payoff moment — brief, loud, then gone. */
+.ls-celebrate {
+  padding: 3px 6px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-align: center;
+  color: #061021;
+  background: linear-gradient(90deg, #f715ab, #ffc93c);
+  animation: ls-flash 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes ls-flash {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.35); }
+}
+
+.ls-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ls-row,
+.ls-you {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  font-size: 10px;
+  color: rgba(206, 226, 255, 0.78);
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid transparent;
+}
+
+.ls-rank {
+  font-weight: 800;
+  color: rgba(206, 226, 255, 0.45);
+  text-align: right;
+}
+
+.ls-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ls-score {
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Podium — gold, silver, bronze. Enough to make the top worth chasing. */
+.ls-row-p1 { border-left-color: #ffc93c; }
+.ls-row-p1 .ls-rank, .ls-row-p1 .ls-score { color: #ffc93c; }
+.ls-row-p2 { border-left-color: #cfd8e6; }
+.ls-row-p2 .ls-rank { color: #cfd8e6; }
+.ls-row-p3 { border-left-color: #e08a4a; }
+.ls-row-p3 .ls-rank { color: #e08a4a; }
+
+.ls-row-me,
+.ls-you {
+  border-left-color: #f715ab;
+  background: rgba(247, 21, 171, 0.12);
+  color: #fff;
+}
+
+.ls-row-me .ls-name,
+.ls-you .ls-name {
+  font-weight: 800;
+  color: #f715ab;
+}
+
+.ls-you {
+  margin-top: 2px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.14);
+}
+
+.ls-note {
+  padding: 6px 2px;
+  font-size: 9px;
+  line-height: 1.4;
+  color: rgba(206, 226, 255, 0.45);
+  text-align: center;
+}
+
+.ls-foot {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(206, 226, 255, 0.32);
+  text-align: right;
+}
+
+/* On phones the panel moves below the reels, so it can afford more room. */
+@media (max-width: 768px) {
+  .ls-row,
+  .ls-you {
+    font-size: 11px;
+    padding: 3px 5px;
+  }
+
+  .ls-title { font-size: 10px; }
+}
+
+/* ── Bar layout ──────────────────────────────────────────────────────
+   One horizontal strip for cabinets with width to spare but no spare
+   column height. Everything sits on a single line and scrolls sideways
+   rather than wrapping, so the machine's own layout never shifts. */
+.ls-panel.ls-bar {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ls-panel.ls-bar::-webkit-scrollbar { display: none; }
+
+.ls-bar .ls-head { flex: none; }
+.ls-bar .ls-more { margin-left: 0; }
+
+.ls-bar .ls-rows {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ls-bar .ls-row,
+.ls-bar .ls-you {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  margin-top: 0;
+  border-top: none;
+  border-left-width: 3px;
+  padding: 2px 8px 2px 6px;
+  font-size: 11px;
+  max-width: 210px;
+}
+
+.ls-bar .ls-name { max-width: 116px; }
+
+.ls-bar .ls-rank {
+  text-align: left;
+  font-size: 11px;
+}
+
+.ls-bar .ls-celebrate {
+  flex: none;
+  padding: 3px 10px;
+  font-size: 10px;
+}
+
+.ls-bar .ls-note {
+  padding: 2px 0;
+  white-space: nowrap;
+}
+
+.ls-bar .ls-foot {
+  flex: none;
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+@media (max-width: 640px) {
+  .ls-bar .ls-foot { display: none; }
+  .ls-bar .ls-name { max-width: 78px; }
+}

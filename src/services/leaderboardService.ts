@@ -110,9 +110,29 @@ const pendingSubmits = new Map<LeaderboardGame, ScoreSubmission>();
 const flushTimers = new Map<LeaderboardGame, ReturnType<typeof setTimeout>>();
 const lastSubmitAt = new Map<LeaderboardGame, number>();
 
+/**
+ * Fold a new submission into one already waiting on the trailing flush.
+ *
+ * Only the coalesced submission is ever written, so plain replacement loses
+ * the best score whenever a jackpot is followed by a weaker round inside the
+ * throttle window — exactly what a fast player does after a big win. `score`
+ * is a personal best, so it takes the max; balance, netProfit and name are
+ * "latest wins" because they describe the player's current standing.
+ */
+export function mergeSubmission(
+  prev: ScoreSubmission | undefined,
+  next: ScoreSubmission
+): ScoreSubmission {
+  if (!prev || prev.player !== next.player) return next;
+  return {
+    ...next,
+    score: Math.max(clampUint(prev.score), clampUint(next.score)),
+  };
+}
+
 export function submitScore(game: LeaderboardGame, sub: ScoreSubmission): void {
   if (!db || !sub.player) return;
-  pendingSubmits.set(game, sub);
+  pendingSubmits.set(game, mergeSubmission(pendingSubmits.get(game), sub));
   if (flushTimers.has(game)) return; // a trailing flush is already scheduled
 
   const elapsed = Date.now() - (lastSubmitAt.get(game) ?? 0);

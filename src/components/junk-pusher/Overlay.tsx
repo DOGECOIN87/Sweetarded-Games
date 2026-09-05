@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GameState } from '../../lib/types';
 import type { GameEngine } from '../../lib/GameEngine';
 import { HighScoreBoard } from './HighScoreBoard';
+import LiveStandings from '../arcade/LiveStandings';
+import { currentPlayerId } from '../../lib/playerIdentity';
 import { SoundControl } from './SoundControl';
 import { soundManager } from '../../lib/soundManager';
 import { COIN_TIERS, BUMP_COST, RAIN_MULTIPLIER } from '../../lib/constants';
@@ -182,6 +184,21 @@ export const Overlay: React.FC<OverlayProps> = ({
                             {wallet.isConnected ? 'Wallet Connected' : 'System Online'}
                         </span>
                     </div>
+
+                    {/* The board, live while you play. Score drives the refresh
+                        signal; the panel itself throttles the reads. */}
+                    {showOnlineFeatures && (
+                        <div className="mt-3 hidden w-[170px] pointer-events-auto sm:block">
+                            <LiveStandings
+                                game="coinpusher"
+                                playerId={currentPlayerId(wallet.publicKey)}
+                                refreshKey={gameState.score}
+                                sortBy="score"
+                                scoreLabel="Coins"
+                                onOpenFull={() => setShowHighScores(true)}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Right: Economy & Wallet */}
