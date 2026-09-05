@@ -57,8 +57,9 @@ export const TEAM: readonly TeamMember[] = [
       'Web3 and crypto marketing specialist and founder of GMA Marketing Agency. In crypto since 2017, ' +
       'he runs campaigns across community growth, KOL deployment, NFT projects, and token launches for ' +
       'global markets. He’s a Top Rated Plus freelancer on Upwork with a 100% job success score.',
-    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
-    avatar: { type: 'image', src: '/team/michael-gbolasere.jpg' },
+    /* Sweetardio #4056 — the gold waffle on the Starfield plate, same
+       treatment as Simplex's. Swap for a real portrait any time. */
+    avatar: { type: 'video', sources: ['/team/4056.webm', '/team/4056.mp4'] },
     links: [{ label: '@gma_ox', url: 'https://x.com/gma_ox', icon: 'x' }],
     discord: 'gma_marketing',
   },
@@ -66,8 +67,9 @@ export const TEAM: readonly TeamMember[] = [
     name: 'iLLPeTiLL',
     role: 'Verified Music Producer',
     bio: 'Electronic music producer — sound design, groove, and emotion.',
-    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
-    avatar: { type: 'image', src: '/team/illpetill.jpg' },
+    /* Sweetardio #3241 — the twinkie on the Starfield plate, same
+       treatment as Simplex's. Swap for a real portrait any time. */
+    avatar: { type: 'video', sources: ['/team/3241.webm', '/team/3241.mp4'] },
     links: [{ label: '@iLLPeTiLL', url: 'https://x.com/iLLPeTiLL', icon: 'x' }],
     discord: 'illpetill',
   },
@@ -75,8 +77,9 @@ export const TEAM: readonly TeamMember[] = [
     name: 'Jithu Mohan',
     role: 'Community Manager / Moderator',
     bio: 'In crypto since 2019, running community and moderation for Web3 projects since 2022.',
-    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
-    avatar: { type: 'image', src: '/team/jithu-mohan.jpg' },
+    /* Sweetardio #2246 — the glazed doughnut on the Starfield plate, same
+       treatment as Simplex's. Swap for a real portrait any time. */
+    avatar: { type: 'video', sources: ['/team/2246.webm', '/team/2246.mp4'] },
     links: [
       { label: '@mrpishh', url: 'https://x.com/mrpishh', icon: 'x' },
       { label: '@mrfish', url: 'https://t.me/mrfish', icon: 'telegram' },
@@ -87,8 +90,9 @@ export const TEAM: readonly TeamMember[] = [
     name: 'Mr Sam',
     role: 'Web3 Creative',
     bio: 'Web3 creative mind — video and content for brands and projects.',
-    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
-    avatar: { type: 'image', src: '/team/mr-sam.jpg' },
+    /* Sweetardio #2629 — the graham cracker on the Starfield plate, same
+       treatment as Simplex's. Swap for a real portrait any time. */
+    avatar: { type: 'video', sources: ['/team/2629.webm', '/team/2629.mp4'] },
     links: [{ label: '@Mr0xsam', url: 'https://t.me/Mr0xsam', icon: 'telegram' }],
     discord: 'mr0xsam',
   },
@@ -96,8 +100,9 @@ export const TEAM: readonly TeamMember[] = [
     name: 'Hudson',
     role: 'Web3 Writer · Wallet Tracker',
     bio: 'GOD is the greatest 👑 · Creative Web3 writer · Pro wallet tracker · building $COOK.',
-    /* TODO: swap in his real portrait once it's provided as an uploaded file. */
-    avatar: { type: 'image', src: '/team/hudson.jpg' },
+    /* Sweetardio #684 — the marshmallow on the Starfield plate, same
+       treatment as Simplex's. Swap for a real portrait any time. */
+    avatar: { type: 'video', sources: ['/team/684.webm', '/team/684.mp4'] },
     links: [{ label: '@defi_huds', url: 'https://x.com/defi_huds', icon: 'x' }],
     discord: 'hudson_wav',
   },
