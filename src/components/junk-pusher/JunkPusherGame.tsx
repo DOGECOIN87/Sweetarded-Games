@@ -12,6 +12,7 @@ import { pushGameEvent } from '../../services/activityService';
 import { subscribeToJunkPusherConfig } from '../../services/gameConfigService';
 import { submitScore } from '../../services/leaderboardService';
 import { resolvePlayer, currentPlayerId } from '../../lib/playerIdentity';
+import { useCompetition } from '../../lib/useCompetition';
 import { gameAsset, isRadbroRuntime, postRadbroResult } from '../../radbro/bridge';
 import { COIN_TIERS, RAIN_MULTIPLIER } from '../../lib/constants';
 import { WALLET_IN_GAMES } from '../../lib/freePlay';
@@ -125,6 +126,17 @@ const JunkPusherGame: React.FC = () => {
     const walletKeyRef = useRef(wallet.publicKey);
     walletKeyRef.current = wallet.publicKey;
 
+    /** Arcade Cup entries. Coins collected bank toward the next ticket. */
+    const competition = useCompetition(
+        currentPlayerId(wallet.publicKey),
+        resolvePlayer(wallet.publicKey).name,
+        wallet.publicKey
+    );
+    const competitionRef = useRef(competition);
+    competitionRef.current = competition;
+    /** Score already banked, so only the delta counts toward tickets. */
+    const bankedScoreRef = useRef<number | null>(null);
+
     /**
      * Post the run's current standing to the board.
      *
@@ -190,6 +202,27 @@ const JunkPusherGame: React.FC = () => {
             return next;
         });
     }, [wallet.isConnected]);
+
+    /**
+     * Bank coins collected into Arcade Cup tickets.
+     *
+     * This has to be an effect, not part of the score updater: updaters must
+     * stay pure and React re-invokes them (twice under StrictMode), which
+     * would count every coin more than once. Seeded from the first observed
+     * score so a restored session does not re-bank what it already counted,
+     * and a reset back to zero just re-seeds rather than going negative.
+     */
+    useEffect(() => {
+        const score = gameState.score;
+        if (bankedScoreRef.current === null) {
+            bankedScoreRef.current = score;
+            return;
+        }
+        if (score > bankedScoreRef.current) {
+            competitionRef.current.addPlay('coinpusher', score - bankedScoreRef.current);
+        }
+        bankedScoreRef.current = score;
+    }, [gameState.score]);
 
     // Silently restore saved state so a refresh (or crash) never eats coins.
     // Balance comes from the shared arcade credits stack (per player identity —
@@ -726,6 +759,7 @@ const JunkPusherGame: React.FC = () => {
             />
             <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
                 <Overlay
+                    competition={competition}
                     gameState={gameState}
                     onDropCoin={handleDropCoin}
                     onBump={handleBump}

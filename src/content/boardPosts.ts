@@ -39,4 +39,14 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     linkLabel: 'Enter the arcade',
     paper: 'cyan',
   },
+  {
+    id: 'arcade-cup',
+    title: 'Arcade Cup — 55 free mints',
+    body:
+      'Every round you play banks a ticket toward the Arcade Cup. Ten winners are drawn when entries close on September 12 at 12:00 UTC — first drawn takes 10 free mints, down to 1 for tenth. Ten tickets a day is the cap, so a short run every day beats one long grind. Connect a wallet so the draw can reach you.',
+    tag: 'Mint',
+    link: '#/leaderboard',
+    linkLabel: 'See the prize ladder',
+    paper: 'pink',
+  },
 ];

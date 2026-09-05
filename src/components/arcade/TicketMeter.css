@@ -1,0 +1,132 @@
+/* Arcade Cup readout. Shares the cabinet chrome of LiveStandings. */
+
+.tm-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px 8px;
+  background: rgba(6, 10, 26, 0.72);
+  border: 1px solid rgba(255, 201, 60, 0.32);
+  box-shadow: inset 0 0 18px rgba(255, 201, 60, 0.06);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  min-width: 0;
+  position: relative;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tm-panel.tm-flash {
+  border-color: #ffc93c;
+  box-shadow: 0 0 18px rgba(255, 201, 60, 0.35), inset 0 0 18px rgba(255, 201, 60, 0.14);
+}
+
+.tm-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.tm-cup { font-size: 11px; flex: none; }
+
+.tm-title {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffc93c;
+  white-space: nowrap;
+}
+
+.tm-info {
+  margin-left: auto;
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #061021;
+  background: #ffc93c;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+}
+
+.tm-info:hover { filter: brightness(1.15); }
+
+.tm-body {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.tm-stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tm-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-value.tm-muted {
+  font-size: 11px;
+  color: rgba(206, 226, 255, 0.7);
+}
+
+.tm-label {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(206, 226, 255, 0.4);
+}
+
+.tm-earned {
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-align: center;
+  color: #061021;
+  background: #ffc93c;
+  animation: tm-pop 0.5s ease-out;
+}
+
+@keyframes tm-pop {
+  from { transform: scale(0.86); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.tm-note {
+  font-size: 8px;
+  line-height: 1.35;
+  color: rgba(206, 226, 255, 0.45);
+}
+
+/* Bar layout — one horizontal line, to sit in a full-width control strip. */
+.tm-panel.tm-bar {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.tm-bar .tm-head { flex: none; }
+.tm-bar .tm-body { gap: 12px; }
+.tm-bar .tm-stat { flex-direction: row; align-items: baseline; gap: 4px; }
+.tm-bar .tm-value { font-size: 12px; }
+.tm-bar .tm-value.tm-muted { font-size: 11px; }
+.tm-bar .tm-earned { flex: none; padding: 2px 8px; }
+.tm-bar .tm-note { flex: none; }
+
+@media (max-width: 640px) {
+  .tm-bar .tm-note { display: none; }
+  .tm-bar .tm-title { display: none; }
+}

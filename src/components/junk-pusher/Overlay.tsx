@@ -3,7 +3,9 @@ import { GameState } from '../../lib/types';
 import type { GameEngine } from '../../lib/GameEngine';
 import { HighScoreBoard } from './HighScoreBoard';
 import LiveStandings from '../arcade/LiveStandings';
+import TicketMeter from '../arcade/TicketMeter';
 import { currentPlayerId } from '../../lib/playerIdentity';
+import type { CompetitionHandle } from '../../lib/useCompetition';
 import { SoundControl } from './SoundControl';
 import { soundManager } from '../../lib/soundManager';
 import { COIN_TIERS, BUMP_COST, RAIN_MULTIPLIER } from '../../lib/constants';
@@ -25,6 +27,8 @@ interface OverlayProps {
     onChainReady?: boolean;
     /** Hide wallet and external leaderboard controls in platform-native builds. */
     showOnlineFeatures?: boolean;
+    /** Arcade Cup entry state, owned by the game so play keeps banking. */
+    competition?: CompetitionHandle;
 }
 
 export const Overlay: React.FC<OverlayProps> = ({
@@ -39,6 +43,7 @@ export const Overlay: React.FC<OverlayProps> = ({
     wallet,
     onChainReady = false,
     showOnlineFeatures = true,
+    competition,
 }) => {
     const walletMenuRef = useRef<HTMLDivElement>(null);
     const [showWalletMenu, setShowWalletMenu] = useState(false);
@@ -185,10 +190,15 @@ export const Overlay: React.FC<OverlayProps> = ({
                         </span>
                     </div>
 
-                    {/* The board, live while you play. Score drives the refresh
-                        signal; the panel itself throttles the reads. */}
-                    {showOnlineFeatures && (
+                    {/* What you're playing for, then where you stand. Score
+                        drives the refresh signal; the panel throttles reads. */}
+                    {showOnlineFeatures && competition && (
                         <div className="mt-3 hidden w-[170px] pointer-events-auto sm:block">
+                            <TicketMeter comp={competition} onOpenDetails={() => setShowHighScores(true)} />
+                        </div>
+                    )}
+                    {showOnlineFeatures && (
+                        <div className="mt-2 hidden w-[170px] pointer-events-auto sm:block">
                             <LiveStandings
                                 game="coinpusher"
                                 playerId={currentPlayerId(wallet.publicKey)}

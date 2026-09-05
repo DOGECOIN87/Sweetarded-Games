@@ -15,6 +15,7 @@ import {
   setPlayerName,
 } from '../lib/playerIdentity';
 import { STARTING_CREDITS } from '../lib/credits';
+import CompetitionPanel from '../components/arcade/CompetitionPanel';
 
 /* ── Metric definitions per game ─────────────────────────────── */
 
@@ -191,11 +192,11 @@ export default function LeaderboardPage() {
               className="h-16 w-16 shrink-0 drop-shadow-[0_0_16px_rgba(247,21,171,0.5)]"
             />
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="font-heading text-xl text-white">Top players eat first at mint</h2>
+              <h2 className="font-heading text-xl text-white">Play now, mint free at launch</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-blue-100/70">
-                When the Sweetardios NFT collection launches, the highest climbers on these boards get
-                launch perks — think whitelist priority and airdrop love. Standings are keyed to your
-                wallet address, so connect before you grind to make your run count.
+                Every round you play banks tickets for the Arcade Cup below — 55 free Sweetardio
+                mints, drawn across ten winners. Connect a wallet so the draw has somewhere to send
+                them. The boards on this page are for bragging rights; the mints come from the draw.
               </p>
             </div>
             {connected && publicKey ? (
@@ -248,6 +249,9 @@ export default function LeaderboardPage() {
             </span>
           )}
         </div>
+
+        {/* What the boards are actually for, right at the top. */}
+        <CompetitionPanel />
 
         {/* Game switcher */}
         <div className="mt-10 flex justify-center gap-3">

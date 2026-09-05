@@ -256,6 +256,15 @@
   object-fit: contain;
 }
 
+/* Arcade Cup strip. Sits above the standings bar in the control section so
+   the prize and the board read as one block under the reels. */
+.skill-cup-row {
+  display: flex;
+  justify-content: stretch;
+}
+
+.skill-cup-row > * { flex: 1; min-width: 0; }
+
 /* Resting reel face — present so the machine never reads as an empty frame,
    dimmed so it is never mistaken for a spun result. */
 .skill-cell-idle {

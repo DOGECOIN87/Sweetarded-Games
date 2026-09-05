@@ -23,7 +23,7 @@ const FEATURES: { icon: string; title: string; desc: string; to?: string }[] = [
   { icon: '🎮', title: 'Free to Play', desc: `Every player starts with ${STARTING_CREDITS.toLocaleString()} SWEET credits — off-chain, just for fun.` },
   { icon: '🏆', title: 'Live Leaderboards', desc: 'Net profit, biggest wins and coins pushed — tracked live, per player.', to: '/leaderboard' },
   { icon: '👛', title: 'Any Solana Wallet', desc: 'Phantom, Backpack, Nightly, Solflare and more — connect to save your rank.' },
-  { icon: '🍬', title: 'Perks at Mint', desc: 'Top players when the Sweetardios collection launches get rewarded.', to: '/leaderboard' },
+  { icon: '🎟', title: '55 Free Mints', desc: 'Play either game to bank Arcade Cup tickets — ten winners drawn at close.', to: '/leaderboard' },
 ];
 
 /* Sugar dust drifting through the shop air — positions, sizes, tempos. */
@@ -384,12 +384,12 @@ const Landing = () => {
         <div className="flex flex-col items-center gap-8 bg-[#081038] px-8 py-10 md:flex-row md:gap-10 md:px-12">
           <div className="text-6xl drop-shadow-[0_0_25px_rgba(52,237,243,0.5)]" aria-hidden>🏆</div>
           <div className="flex-1 text-center md:text-left">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">Season zero is live</p>
-            <h2 className="font-heading mt-2 text-3xl text-white sm:text-4xl">Grind now, feast at mint</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">The Arcade Cup is live</p>
+            <h2 className="font-heading mt-2 text-3xl text-white sm:text-4xl">Play now, mint free at launch</h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-blue-100/70">
-              Both games feed live leaderboards. When the Sweetardios NFT collection launches, the top
-              players on the boards get launch perks. Connect any Solana wallet so your standings are
-              tied to your address — then go break the arcade.
+              Every round in either game banks tickets for the Arcade Cup — 55 free Sweetardio mints,
+              drawn across ten winners when entries close. Ten tickets a day is the cap, so showing up
+              beats grinding. Connect any Solana wallet so the draw can reach you.
             </p>
           </div>
           <Link

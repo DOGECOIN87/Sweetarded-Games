@@ -18,6 +18,8 @@ import BonusRound from './BonusRound';
 import AudioPlayer from '../junk-pusher/AudioPlayer';
 import { SlotsLeaderboard } from './SlotsLeaderboard';
 import LiveStandings from '../arcade/LiveStandings';
+import TicketMeter from '../arcade/TicketMeter';
+import { useCompetition } from '../../lib/useCompetition';
 import { submitScore } from '../../services/leaderboardService';
 import { resolvePlayer, currentPlayerId, shortAddress } from '../../lib/playerIdentity';
 import { LogoWall } from '../LogoPattern';
@@ -412,6 +414,12 @@ export default function SkillGame() {
   /** Biggest win this session — what the board's `score` column tracks.
       Named apart from checkWin's local `bestWin`, which is per-round. */
   const [sessionBestWin, setSessionBestWin] = useState(0);
+  /** Arcade Cup entries. One spin of play banks toward the next ticket. */
+  const competition = useCompetition(
+    currentPlayerId(publicKey?.toBase58() ?? null),
+    resolvePlayer(publicKey?.toBase58() ?? null).name,
+    publicKey?.toBase58() ?? null
+  );
   /** Cell the player is considering, during CHOOSING_WILD. */
   const [hoverCell, setHoverCell] = useState<number | null>(null);
 
@@ -857,6 +865,9 @@ export default function SkillGame() {
       if (won && winAmount > 0) setSessionBestWin((b) => Math.max(b, winAmount));
       setStandingsTick((t) => t + 1);
     }
+    // Every completed round is play, win or lose — the Cup rewards showing
+    // up, not the size of the number.
+    competition.addPlay('slots', 1);
 
     // Record spin result on-chain (fire-and-forget)
     if (onChain.isProgramReady && connected) {
@@ -1300,6 +1311,9 @@ export default function SkillGame() {
       {/* Control Section */}
       <div className="skill-control-section">
         {/* The board, in view while you play rather than behind a button. */}
+        <div className="skill-cup-row">
+          <TicketMeter comp={competition} layout="bar" onOpenDetails={() => setShowLeaderboard(true)} />
+        </div>
         <LiveStandings
           game="slots"
           layout="bar"

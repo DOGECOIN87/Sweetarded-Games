@@ -113,6 +113,52 @@ service cloud.firestore {
             || (d.netProfit - prev.netProfit <= 50000000 && prev.netProfit - d.netProfit <= 50000000));
     }
 
+    // ── Arcade Cup entries (free-mint competition) ─────────────────────
+    // One document per player holding banked tickets. Publicly readable so
+    // the site can show the size of the prize pool.
+    //
+    // These caps ARE the anti-cheat. Tickets buy entries into a draw, not a
+    // rank, and `tickets` is hard-capped at 80 — the same ceiling a player
+    // who maxes the 10/day allowance every day of the window reaches. There
+    // is no number above it to forge, so a script gains nothing a diligent
+    // player would not already have. Per-write movement is capped at one
+    // day's allowance and rate-limited, so the ceiling also cannot be
+    // reached in a single burst.
+    //
+    // What this does NOT stop is sybils — one person farming several
+    // wallets. That shows up in the data; review the drawn winners before
+    // allocating mints (scripts/draw-competition.mjs prints the audit).
+    match /competition_tickets/{player} {
+      allow read: if true;
+      allow create: if isValidTicketEntry(player) && request.resource.data.tickets <= 10;
+      allow update: if isValidTicketEntry(player) && isSaneTicketUpdate();
+    }
+
+    function isValidTicketEntry(playerId) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['player', 'name', 'wallet', 'tickets', 'daily', 'progress', 'updatedAt'])
+        && d.player is string
+        && d.player == playerId
+        && d.player.size() >= 1 && d.player.size() <= 64
+        && d.name is string && d.name.size() <= 24
+        && (d.wallet == null || (d.wallet is string && d.wallet.size() <= 64))
+        && d.tickets is int && d.tickets >= 0 && d.tickets <= 80
+        && d.daily is map && d.daily.keys().size() <= 14
+        && d.progress is map && d.progress.keys().size() <= 4
+        && d.updatedAt == request.time;
+    }
+
+    // Tickets only ever go up, by at most one day's allowance per write, and
+    // no faster than one write every 2 s.
+    function isSaneTicketUpdate() {
+      let d = request.resource.data;
+      let prev = resource.data;
+      return (!('updatedAt' in prev) || prev.updatedAt == null
+              || request.time.toMillis() >= prev.updatedAt.toMillis() + 2000)
+        && (!('tickets' in prev) || !(prev.tickets is int)
+            || (d.tickets >= prev.tickets && d.tickets - prev.tickets <= 10));
+    }
+
     // ── The Board (notice board posts) ─────────────────────────────────
     // Publicly readable so every visitor sees the board. Client writes are
     // denied — the team pins new notes from the Firebase console
