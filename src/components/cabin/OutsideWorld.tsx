@@ -421,7 +421,7 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
                 </g>
                 {/* Land, as ochre under the weather */}
                 <g fill="#6B7A4E" opacity="0.4">
-                  {terrain.cells.slice(0, 60).map((c, i) => (
+                  {terrain.cells.slice(0, 60).map((_cell, i) => (
                     <ellipse key={i} cx={(i - 30) * 46} cy={horizonY + 66 + (i % 7) * 26} rx="72" ry="9" />
                   ))}
                 </g>

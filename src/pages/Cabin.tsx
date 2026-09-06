@@ -133,7 +133,6 @@ export default function CabinPage() {
 
   const viewSeat = useMemo(() => representativeSeat(viewZone, viewPosition), [viewZone, viewPosition]);
   const viewZoneDef = CABIN_ZONES.find((z) => z.key === viewZone) ?? CABIN_ZONES[0];
-  const zoneIndex = CABIN_ZONES.findIndex((z) => z.key === viewZone);
 
   const nextId = useRef(0);
   const say = useCallback((text: string, tone: LogEntry['tone']) => {

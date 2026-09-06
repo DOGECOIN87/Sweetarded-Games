@@ -5,7 +5,7 @@ import type { BandState } from '../../lib/flightModel';
 import { formatCap, formatChange } from '../../lib/flightModel';
 import type { SkyState } from '../../lib/sky';
 import { useAttitude } from '../../lib/useAttitude';
-import { ALL_SEATS, CABIN_ZONES, type CabinSeat } from '../../content/cabin';
+import { ALL_SEATS, type CabinSeat } from '../../content/cabin';
 
 /**
  * The whole aircraft, from outside.
