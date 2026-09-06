@@ -24,6 +24,7 @@ from the main marketplace so the games can be redesigned in isolation.
 | `/arcade`      | Arcade walk-through scene                                      |
 | `/leaderboard` | **Leaderboards** — site-wide standings for both games          |
 | `/board`       | **The Board** — cork notice board with team announcements      |
+| `/cabin`       | **SEAT AIRWAYS** — flight-sim cabin driven by one market number |
 | `/mint`        | Dedicated on-site LaunchMyNFT mint controls                    |
 | `/whitelist`   | Whitelist signup                                               |
 
@@ -50,6 +51,78 @@ widget stays available and the timer safely displays `TBA`.
 For the GitHub Pages deployment, create an Actions repository variable named
 `VITE_MINT_START_AT` under **Settings → Secrets and variables → Actions**. The
 Pages workflow passes that value into the production build on each `main` push.
+
+## SEAT AIRWAYS (`/cabin`)
+
+A flight simulator where the aircraft is flown by a single number. The premise
+is the seat ladder: **your bag is your seat, bigger bag better seat**, seats are
+finite, and a bigger bag can take yours.
+
+### What drives it
+
+| Input | Becomes |
+| ----- | ------- |
+| 24h price change | Pitch attitude, and its rate of change becomes bank |
+| Market cap | Altitude, in feet, read straight off the number |
+| Holder count | Souls on board |
+| Attitude | The overhead annunciators, and the PA announcements they trigger |
+
+**Altitude bands.** Market cap is altitude, so the milestones are literal:
+below $1M you are in the weather with terrain underneath; **$1M** breaks you out
+on top of the cloud deck; **$10M** turns the sky black and curves the horizon;
+**$50M** is the lunar surface. Thresholds live in `src/lib/flightModel.ts`
+(`BAND_CLOUDS` / `BAND_SPACE` / `BAND_MOON`).
+
+### Views
+
+The aircraft is walkable. Each zone has its own view, and within a zone the
+window, middle and aisle seats genuinely see different things — the middle seat
+has a neighbour between it and the daylight, the aisle seat can barely see out.
+Claiming a seat on the seat map walks you to it. Every view supports zoom and
+pan (wheel, pinch, buttons, or `+` / `-` / `0` and the arrow keys).
+
+- `FlightDeck.tsx` — the cockpit: overhead panel, windshield, MCP, PFD and
+  navigation display, throttle quadrant
+- `CabinView.tsx` — a passenger seat: window, seat-back screen, and the zone's
+  own furniture (the exit door, the lavatory, a First suite)
+- `OutsideWorld.tsx` — everything outside, shared by both so they are
+  unmistakably the same flight
+
+### The sky is live
+
+Time of day comes from the visitor's own clock: solar elevation is computed for
+the date and latitude, so the cabin is dark at midnight and golden at 7pm, with
+no network needed. Weather comes from [Open-Meteo](https://open-meteo.com/)
+(no key, CORS-enabled), with coordinates derived from the browser's IANA
+timezone rather than a location permission prompt. If the request fails or the
+zone is unknown, a modelled sky stands in — the page never waits on it. All of
+this is `src/lib/sky.ts`.
+
+### The market feed is simulated
+
+`src/lib/flightFeed.ts` is the **only** file that has to change to go live.
+Implement the `FlightFeed` interface against your indexer and hand it to
+`CabinPage`; the horizon, tapes, annunciators, seat ladder and radio log all
+keep working untouched. The file documents the swap. The **Market cap** buttons
+under the view (Ground / Above the clouds / Space / The moon) call the
+simulator's optional `jumpTo` and hide themselves automatically against a feed
+that does not implement it.
+
+### Where things live
+
+```
+src/lib/flightFeed.ts     the data seam + the simulator
+src/lib/flightModel.ts    pure derivations: pitch, bank, bands, occupancy
+src/lib/useAttitude.ts    one rAF loop, shared by every view
+src/lib/sky.ts            solar position, weather, palettes
+src/lib/useSky.ts         the live sky as React state
+src/content/cabin.ts      seat layout, zone copy, radio chatter
+src/components/cabin/     the views and their chrome
+```
+
+Seat occupancy is seeded (`CABIN_SEED` in `src/pages/Cabin.tsx`), so the cabin
+is the same aircraft on every visit rather than reshuffling per render, and the
+forward cabin runs fuller than the back — which is the premise, made visible.
 
 ## Wallets, credits & leaderboards
 

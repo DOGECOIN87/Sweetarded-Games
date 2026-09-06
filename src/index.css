@@ -470,6 +470,28 @@ body {
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--rv-i, 0) * 90ms);
 }
 
+/* ── SEAT AIRWAYS — flight deck ───────────────────────────────────────
+   The HUD is one glow filter over the whole glass rather than a stroke
+   per element: the instruments animate by transform only, so the filter
+   result stays cheap to composite. */
+.sw-hud { contain: paint; }
+.sd-glass { filter: drop-shadow(0 0 5px rgba(52, 237, 243, 0.55)); }
+.sd-plane { filter: drop-shadow(0 16px 24px rgba(3, 7, 29, 0.65)) drop-shadow(0 0 18px rgba(52, 237, 243, 0.25)); }
+
+/* Airframe shake — reserved for a move big enough to earn it. */
+@keyframes sd-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, -2px); }
+  80% { transform: translate(1px, 2px); }
+}
+.sd-shake { animation: sd-shake 0.17s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-shake { animation: none !important; }
+}
+
 /* ── Neon-sign headers ────────────────────────────────────────────── */
 .sw-sign { position: relative; display: inline-block; }
 .sw-sign::before, .sw-sign::after {
