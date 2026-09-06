@@ -4,6 +4,7 @@ import FlightDeck from '../components/cabin/FlightDeck';
 import CabinView from '../components/cabin/CabinView';
 import CabinSideView from '../components/cabin/CabinSideView';
 import ExteriorView from '../components/cabin/ExteriorView';
+import CargoHold from '../components/cabin/CargoHold';
 import ViewFrame from '../components/cabin/ViewFrame';
 import Annunciators from '../components/cabin/Annunciators';
 import SeatMap from '../components/cabin/SeatMap';
@@ -88,7 +89,7 @@ const FACINGS: { key: Facing; label: string }[] = [
  * looking forward. `exterior` is what you get by zooming all the way out —
  * one plane, everyone in it.
  */
-type Camera = 'exterior' | 'deck' | 'seat';
+type Camera = 'exterior' | 'deck' | 'seat' | 'hold';
 
 const clockNow = () => {
   const d = new Date();
@@ -122,6 +123,8 @@ export default function CabinPage() {
 
   const passenger = useMemo(() => getLocalPlayer().name, []);
   const taken = useMemo(() => occupiedSeats(ALL_SEATS, CABIN_SEED, LAVATORY_SEATS), []);
+  /* Souls on board, less the ones who got a seat. */
+  const belowCutoff = Math.max(0, tick.holders - taken.size);
 
   const claimedSeat = useMemo(() => findSeat(claimed), [claimed]);
   const claimedZone = useMemo(
@@ -230,7 +233,9 @@ export default function CabinPage() {
             label={
               camera === 'exterior'
                 ? 'Outside · FL350'
-                : camera === 'deck'
+                : camera === 'hold'
+                  ? 'Cargo hold · below the floor'
+                  : camera === 'deck'
                   ? 'Flight deck'
                   : `${viewZoneDef.name} · ${viewSeat.id} · ${facing === 'forward' ? 'forward' : `looking ${facing}`}`
             }
@@ -269,7 +274,9 @@ export default function CabinPage() {
               )
             }
           >
-            {camera === 'exterior' ? (
+            {camera === 'hold' ? (
+              <CargoHold feed={feed} band={band} belowCutoff={belowCutoff} />
+            ) : camera === 'exterior' ? (
               <ExteriorView
                 feed={feed}
                 sky={sky}
@@ -338,6 +345,18 @@ export default function CabinPage() {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => setCamera('hold')}
+              aria-pressed={camera === 'hold'}
+              className={`shrink-0 whitespace-nowrap border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+                camera === 'hold'
+                  ? 'border-sweetardios-cerise/70 bg-sweetardios-cerise/15 text-white'
+                  : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
+              }`}
+            >
+              Cargo hold
+            </button>
           </div>
 
           {camera === 'seat' && (
