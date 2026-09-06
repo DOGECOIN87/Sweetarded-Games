@@ -112,6 +112,12 @@ export interface CabinSeat {
   zone: ZoneKey;
   row: number | null;
   position: SeatPosition;
+  /** Which side of the aisle. Decides what turning your head actually shows. */
+  bank: 'left' | 'right';
+  /** Index outward from the aisle-side end of this bank. */
+  index: number;
+  /** How many seats are in this bank. */
+  bankSize: number;
 }
 
 /**
@@ -136,12 +142,18 @@ export const ALL_SEATS: readonly CabinSeat[] = CABIN_ZONES.flatMap((zone) =>
       zone: zone.key,
       row: row.n,
       position: positionIn(i, row.left.length, 'left'),
+      bank: 'left' as const,
+      index: i,
+      bankSize: row.left.length,
     })),
     ...row.right.map((letter, i) => ({
       id: row.n === null ? letter : `${row.n}${letter}`,
       zone: zone.key,
       row: row.n,
       position: positionIn(i, row.right.length, 'right'),
+      bank: 'right' as const,
+      index: i,
+      bankSize: row.right.length,
     })),
   ]),
 );
@@ -207,3 +219,54 @@ export const CALLOUTS = {
   climb: 'Cabin crew, prepare for climb.',
   turbulence: 'Rough air ahead. Seat belt sign is on.',
 } as const;
+
+/* ── Turning your head ────────────────────────────────────────────────────
+   What is beside you is not the same for every seat. From 8A the window is
+   one turn to the left; from 8F the same window is the far side of the
+   aircraft, across two seats, the aisle and three more seats. `lookFrom`
+   walks outward from a seat in one direction and reports what is in the way,
+   in order, so the side view can draw the real thing rather than assuming
+   everyone is sitting by a window. */
+
+export type Facing = 'left' | 'forward' | 'right';
+
+export type SightItem =
+  | { kind: 'seat'; id: string }
+  | { kind: 'aisle' }
+  | { kind: 'window' }
+  | { kind: 'wall' };
+
+/**
+ * Everything between a seat and the side of the aircraft, looking one way.
+ *
+ * The row is modelled as it physically is — left window, left bank, aisle,
+ * right bank, right window — and the answer is simply that list read outward
+ * from your seat. Doing it this way rather than by seat letter is what keeps
+ * 8D and 8C correct: they are the two seats either side of the aisle, and
+ * each has three seats and a window on one side and one on the other.
+ *
+ * Seats come back nearest-first; the last item is what you end at.
+ */
+export function lookFrom(seat: CabinSeat, facing: 'left' | 'right'): SightItem[] {
+  if (seat.row === null) return [{ kind: 'window' }];
+
+  const row = seatsInRow(seat.row);
+  const left = row.filter((s) => s.bank === 'left').sort((a, b) => a.index - b.index);
+  const right = row.filter((s) => s.bank === 'right').sort((a, b) => a.index - b.index);
+
+  // The row across the aircraft, port window to starboard window.
+  const ordered: SightItem[] = [
+    { kind: 'window' },
+    ...left.map((s) => ({ kind: 'seat', id: s.id }) as SightItem),
+    { kind: 'aisle' },
+    ...right.map((s) => ({ kind: 'seat', id: s.id }) as SightItem),
+    { kind: 'window' },
+  ];
+
+  const here = ordered.findIndex((item) => item.kind === 'seat' && item.id === seat.id);
+  if (here === -1) return [{ kind: 'wall' }];
+
+  return facing === 'left'
+    ? ordered.slice(0, here).reverse()
+    : ordered.slice(here + 1);
+}

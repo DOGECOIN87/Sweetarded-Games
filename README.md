@@ -75,18 +75,40 @@ on top of the cloud deck; **$10M** turns the sky black and curves the horizon;
 
 ### Views
 
-The aircraft is walkable. Each zone has its own view, and within a zone the
-window, middle and aisle seats genuinely see different things — the middle seat
-has a neighbour between it and the daylight, the aisle seat can barely see out.
-Claiming a seat on the seat map walks you to it. Every view supports zoom and
-pan (wheel, pinch, buttons, or `+` / `-` / `0` and the arrow keys).
+The page opens **in a seat, looking forward**. From there you can turn your
+head, walk the aircraft, or zoom out of it entirely.
+
+| Camera | What it is |
+| ------ | ---------- |
+| Seat · forward | The default. The row ahead, its passengers, and your seat-back screen. |
+| Seat · look left / right | Your head turned. What you see depends on where you sit. |
+| Flight deck | The cockpit, for the top two holders. |
+| Outside | The whole aircraft. Zoom out past 1× from any view to get here. |
+
+**Turning your head is seat-specific.** From 8A the window is one turn to the
+left and fills the frame; from 8F that same window is the far side of the
+cabin — two seats, the aisle, three more seats and a porthole the size of a
+coin. `lookFrom` in `src/content/cabin.ts` models the row as it physically is
+(port window, left bank, aisle, right bank, starboard window) and reads it
+outward from your seat, so every seat gets the right answer without any
+per-letter special-casing.
+
+Every view supports zoom and pan (wheel, pinch, buttons, or `+` / `-` / `0`
+and the arrow keys). Zooming out at the minimum leaves the aircraft.
 
 - `FlightDeck.tsx` — the cockpit: overhead panel, windshield, MCP, PFD and
   navigation display, throttle quadrant
-- `CabinView.tsx` — a passenger seat: window, seat-back screen, and the zone's
-  own furniture (the exit door, the lavatory, a First suite)
-- `OutsideWorld.tsx` — everything outside, shared by both so they are
+- `CabinView.tsx` — a seat looking forward: the rows ahead and who is in them
+- `CabinSideView.tsx` — a seat with your head turned, across the cabin
+- `ExteriorView.tsx` — the whole aircraft, its windows lit by real occupancy
+  and your own seat marked
+- `OutsideWorld.tsx` — everything outside, shared by all of them so they are
   unmistakably the same flight
+
+**The occupancy is one roll.** The seat map, the passengers in the rows ahead,
+the people beside you when you turn your head, and the lit windows on the
+exterior all read the same seeded set — so a window lit from outside is a row
+somebody has genuinely booked.
 
 ### The sky is live
 

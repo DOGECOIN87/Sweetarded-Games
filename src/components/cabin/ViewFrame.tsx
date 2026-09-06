@@ -21,9 +21,17 @@ interface ViewFrameProps {
   label: string;
   /** Right-hand chrome, e.g. the walk-through controls. */
   actions?: ReactNode;
+  /**
+   * Called when the viewer keeps zooming out at the minimum — the gesture for
+   * leaving the cabin altogether and looking at the whole aircraft. Omitted
+   * on the exterior view itself, where there is nowhere further out to go.
+   */
+  onZoomOutBeyond?: () => void;
+  /** Hint shown on the zoom-out button when that will pop you outside. */
+  zoomOutHint?: string;
 }
 
-const ViewFrame = ({ children, label, actions }: ViewFrameProps) => {
+const ViewFrame = ({ children, label, actions, onZoomOutBeyond, zoomOutHint }: ViewFrameProps) => {
   const boxRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -46,6 +54,12 @@ const ViewFrame = ({ children, label, actions }: ViewFrameProps) => {
   const zoomAbout = useCallback(
     (nextScale: number, clientX?: number, clientY?: number) => {
       const box = boxRef.current;
+      // Already all the way out and still zooming out: that is the request to
+      // leave the aircraft, not a no-op.
+      if (nextScale < MIN && scale <= MIN + 0.001 && onZoomOutBeyond) {
+        onZoomOutBeyond();
+        return;
+      }
       const s = clamp(nextScale, MIN, MAX);
       setScale((prev) => {
         if (!box || clientX === undefined || clientY === undefined) {
@@ -59,7 +73,7 @@ const ViewFrame = ({ children, label, actions }: ViewFrameProps) => {
         return s;
       });
     },
-    [clampPan],
+    [clampPan, scale, onZoomOutBeyond],
   );
 
   const onWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
@@ -172,8 +186,9 @@ const ViewFrame = ({ children, label, actions }: ViewFrameProps) => {
           <button
             type="button"
             onClick={() => zoomAbout(scale / 1.25)}
-            disabled={scale <= MIN + 0.001}
-            aria-label="Zoom out"
+            disabled={scale <= MIN + 0.001 && !onZoomOutBeyond}
+            aria-label={scale <= MIN + 0.001 && zoomOutHint ? zoomOutHint : 'Zoom out'}
+            title={scale <= MIN + 0.001 && zoomOutHint ? zoomOutHint : undefined}
             className="h-9 w-9 border border-white/12 bg-white/[0.03] text-lg leading-none text-blue-100/70 transition-colors hover:border-white/25 hover:text-white disabled:opacity-30 disabled:hover:border-white/12 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
           >
             −

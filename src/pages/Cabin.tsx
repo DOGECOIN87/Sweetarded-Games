@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import FlightDeck from '../components/cabin/FlightDeck';
 import CabinView from '../components/cabin/CabinView';
+import CabinSideView from '../components/cabin/CabinSideView';
+import ExteriorView from '../components/cabin/ExteriorView';
 import ViewFrame from '../components/cabin/ViewFrame';
 import Annunciators from '../components/cabin/Annunciators';
 import SeatMap from '../components/cabin/SeatMap';
@@ -15,6 +17,7 @@ import {
   LAVATORY_SEATS,
   findSeat,
   type CabinSeat,
+  type Facing,
   type SeatPosition,
   type ZoneKey,
 } from '../content/cabin';
@@ -72,6 +75,22 @@ const POSITIONS: { key: SeatPosition; label: string }[] = [
   { key: 'aisle', label: 'Aisle' },
 ];
 
+/** Which way you are looking from a seat. */
+const FACINGS: { key: Facing; label: string }[] = [
+  { key: 'left', label: '← Look left' },
+  { key: 'forward', label: 'Forward' },
+  { key: 'right', label: 'Look right →' },
+];
+
+/**
+ * Where the camera is.
+ *
+ * `seat` is the default and where the page opens: you are sitting down,
+ * looking forward. `exterior` is what you get by zooming all the way out —
+ * one plane, everyone in it.
+ */
+type Camera = 'exterior' | 'deck' | 'seat';
+
 const clockNow = () => {
   const d = new Date();
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -92,8 +111,11 @@ export default function CabinPage() {
   const band = useMemo(() => bandFor(tick.marketCap), [tick.marketCap]);
 
   const [mode, setMode] = useState<FlightMode>('live');
-  /** Where you are standing. Independent of where you are ticketed. */
-  const [viewZone, setViewZone] = useState<ZoneKey>('deck');
+  /** The page opens in a seat, looking forward — not on the flight deck. */
+  const [camera, setCamera] = useState<Camera>('seat');
+  const [facing, setFacing] = useState<Facing>('forward');
+  /** Where you are sitting. Independent of where you are ticketed. */
+  const [viewZone, setViewZone] = useState<ZoneKey>('economy');
   const [viewPosition, setViewPosition] = useState<SeatPosition>('window');
   /** Where you are ticketed. Null until you claim one. */
   const [claimed, setClaimed] = useState<string | null>(null);
@@ -162,7 +184,11 @@ export default function CabinPage() {
     if (next === 'turbulence') say(CALLOUTS.turbulence, 'pa');
   };
 
-  const walkTo = (zone: ZoneKey) => setViewZone(zone);
+  const walkTo = (zone: ZoneKey) => {
+    setViewZone(zone);
+    setCamera(zone === 'deck' ? 'deck' : 'seat');
+    if (zone === 'deck') setFacing('forward');
+  };
 
   const claim = (id: string, zoneKey: ZoneKey) => {
     const seat = findSeat(id);
@@ -171,6 +197,8 @@ export default function CabinPage() {
     if (first) setBoardedAt(tick.marketCap);
     // Claiming a seat walks you to it — the point is to see what you bought.
     setViewZone(zoneKey);
+    setCamera(zoneKey === 'deck' ? 'deck' : 'seat');
+    setFacing('forward');
     if (seat) setViewPosition(seat.position);
     const label = CABIN_ZONES.find((z) => z.key === zoneKey)?.className ?? '';
     say(first ? `Passenger seated in ${id}. ${label}.` : `Passenger reseated to ${id}.`, 'pa');
@@ -202,31 +230,60 @@ export default function CabinPage() {
         {/* ── The view ── */}
         <div className={`sw-reveal mt-10 ${lamps.shaking ? 'sd-shake' : ''}`}>
           <ViewFrame
-            label={viewZone === 'deck' ? 'Flight deck' : `${viewZoneDef.name} · ${viewSeat.id} · ${viewSeat.position}`}
+            label={
+              camera === 'exterior'
+                ? 'Outside · FL350'
+                : camera === 'deck'
+                  ? 'Flight deck'
+                  : `${viewZoneDef.name} · ${viewSeat.id} · ${facing === 'forward' ? 'forward' : `looking ${facing}`}`
+            }
+            onZoomOutBeyond={camera === 'exterior' ? undefined : () => setCamera('exterior')}
+            zoomOutHint="Zoom out of the aircraft"
             actions={
-              <div className="flex flex-wrap items-center gap-2">
+              camera === 'seat' ? (
+                <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Turn your head">
+                  {FACINGS.map((f) => {
+                    const on = facing === f.key;
+                    return (
+                      <button
+                        key={f.key}
+                        type="button"
+                        onClick={() => setFacing(f.key)}
+                        aria-pressed={on}
+                        className={`border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+                          on
+                            ? 'border-sweetardios-cyan/70 bg-sweetardios-cyan/15 text-white'
+                            : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
                 <button
                   type="button"
-                  onClick={() => walkTo(CABIN_ZONES[Math.max(0, zoneIndex - 1)].key)}
-                  disabled={zoneIndex <= 0}
-                  className="border border-white/12 bg-white/[0.03] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-100/60 transition-colors hover:border-white/25 hover:text-white disabled:opacity-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
+                  onClick={() => setCamera('seat')}
+                  className="border border-white/12 bg-white/[0.03] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-100/60 transition-colors hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
                 >
-                  ← Forward
+                  Back to your seat
                 </button>
-                <button
-                  type="button"
-                  onClick={() => walkTo(CABIN_ZONES[Math.min(CABIN_ZONES.length - 1, zoneIndex + 1)].key)}
-                  disabled={zoneIndex >= CABIN_ZONES.length - 1}
-                  className="border border-white/12 bg-white/[0.03] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-100/60 transition-colors hover:border-white/25 hover:text-white disabled:opacity-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
-                >
-                  Aft →
-                </button>
-              </div>
+              )
             }
           >
-            {viewZone === 'deck' ? (
+            {camera === 'exterior' ? (
+              <ExteriorView
+                feed={feed}
+                sky={sky}
+                band={band}
+                taken={taken}
+                claimed={claimedSeat}
+                viewing={viewSeat}
+              />
+            ) : camera === 'deck' ? (
               <FlightDeck feed={feed} lamps={lamps} sky={sky} band={band} />
-            ) : (
+            ) : facing === 'forward' ? (
               <CabinView
                 feed={feed}
                 sky={sky}
@@ -234,6 +291,16 @@ export default function CabinPage() {
                 seat={viewSeat}
                 zone={viewZoneDef}
                 lavatory={lavatory}
+                taken={taken}
+              />
+            ) : (
+              <CabinSideView
+                feed={feed}
+                sky={sky}
+                band={band}
+                seat={viewSeat}
+                zone={viewZoneDef}
+                facing={facing}
                 taken={taken}
               />
             )}
@@ -244,6 +311,18 @@ export default function CabinPage() {
         <div className="mt-5 flex flex-col gap-3 border border-white/10 bg-[#080f33]/70 px-4 py-4 backdrop-blur-sm sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Walk the aircraft</span>
+            <button
+              type="button"
+              onClick={() => setCamera('exterior')}
+              aria-pressed={camera === 'exterior'}
+              className={`border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+                camera === 'exterior'
+                  ? 'border-sweetardios-cerise/70 bg-sweetardios-cerise/15 text-white'
+                  : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
+              }`}
+            >
+              Outside
+            </button>
             {CABIN_ZONES.map((z) => {
               const on = viewZone === z.key;
               return (
@@ -264,7 +343,7 @@ export default function CabinPage() {
             })}
           </div>
 
-          {viewZone !== 'deck' && (
+          {camera === 'seat' && (
             <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
               <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Seat</span>
               {POSITIONS.map((p) => {
