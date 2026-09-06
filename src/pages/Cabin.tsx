@@ -35,7 +35,6 @@ import {
 import { useFlightState } from '../lib/useFlightState';
 import { useSky } from '../lib/useSky';
 import { getLocalPlayer } from '../lib/playerIdentity';
-import { useAmbient } from '../motion/useAmbient';
 
 /**
  * SEAT AIRWAYS — the cabin.
@@ -103,7 +102,6 @@ function representativeSeat(zone: ZoneKey, position: SeatPosition): CabinSeat {
 }
 
 export default function CabinPage() {
-  useAmbient();
 
   const feed = useMemo(() => createSimulatedFeed(), []);
   const { tick, lamps } = useFlightState(feed);
@@ -216,7 +214,7 @@ export default function CabinPage() {
       <section className="mx-auto max-w-6xl px-5 pb-24 pt-12 sm:px-6">
         <header className="text-center">
           <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-sweetardios-cyan">Flight FL350 · Nonstop</p>
-          <h1 className="font-heading mt-1 text-5xl sm:text-6xl">
+          <h1 className="font-heading mt-1 text-4xl sm:text-5xl md:text-6xl">
             <span className="sw-glow-cerise text-sweetardios-cerise">Seat</span>{' '}
             <span className="sw-glow-cyan text-sweetardios-cyan">Airways</span>
           </h1>
@@ -227,7 +225,7 @@ export default function CabinPage() {
         </header>
 
         {/* ── The view ── */}
-        <div className={`sw-reveal mt-10 ${lamps.shaking ? 'sd-shake' : ''}`}>
+        <div className={`mt-10 ${lamps.shaking ? 'sd-shake' : ''}`}>
           <ViewFrame
             label={
               camera === 'exterior'
@@ -240,7 +238,7 @@ export default function CabinPage() {
             zoomOutHint="Zoom out of the aircraft"
             actions={
               camera === 'seat' ? (
-                <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Turn your head">
+                <div className="sd-chrome flex shrink-0 items-center gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible" role="group" aria-label="Turn your head">
                   {FACINGS.map((f) => {
                     const on = facing === f.key;
                     return (
@@ -249,7 +247,7 @@ export default function CabinPage() {
                         type="button"
                         onClick={() => setFacing(f.key)}
                         aria-pressed={on}
-                        className={`border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+                        className={`shrink-0 whitespace-nowrap border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
                           on
                             ? 'border-sweetardios-cyan/70 bg-sweetardios-cyan/15 text-white'
                             : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
@@ -264,7 +262,7 @@ export default function CabinPage() {
                 <button
                   type="button"
                   onClick={() => setCamera('seat')}
-                  className="border border-white/12 bg-white/[0.03] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-100/60 transition-colors hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
+                  className="shrink-0 whitespace-nowrap border border-white/12 bg-white/[0.03] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-100/60 transition-colors hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
                 >
                   Back to your seat
                 </button>
@@ -308,13 +306,13 @@ export default function CabinPage() {
 
         {/* ── Walk the aircraft ── */}
         <div className="mt-5 flex flex-col gap-3 border border-white/10 bg-[#080f33]/70 px-4 py-4 backdrop-blur-sm sm:flex-row sm:items-center">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Walk the aircraft</span>
+          <div className="sd-chrome -mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+            <span className="mr-1 shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Walk the aircraft</span>
             <button
               type="button"
               onClick={() => setCamera('exterior')}
               aria-pressed={camera === 'exterior'}
-              className={`border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+              className={`shrink-0 whitespace-nowrap border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
                 camera === 'exterior'
                   ? 'border-sweetardios-cerise/70 bg-sweetardios-cerise/15 text-white'
                   : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
@@ -330,7 +328,7 @@ export default function CabinPage() {
                   type="button"
                   onClick={() => walkTo(z.key)}
                   aria-pressed={on}
-                  className={`border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+                  className={`shrink-0 whitespace-nowrap border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
                     on
                       ? 'border-sweetardios-cerise/70 bg-sweetardios-cerise/15 text-white'
                       : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
@@ -343,8 +341,8 @@ export default function CabinPage() {
           </div>
 
           {camera === 'seat' && (
-            <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Seat</span>
+            <div className="sd-chrome -mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:ml-auto sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+              <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Seat</span>
               {POSITIONS.map((p) => {
                 const on = viewPosition === p.key;
                 return (
@@ -353,7 +351,7 @@ export default function CabinPage() {
                     type="button"
                     onClick={() => setViewPosition(p.key)}
                     aria-pressed={on}
-                    className={`border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+                    className={`shrink-0 whitespace-nowrap border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
                       on
                         ? 'border-sweetardios-cyan/70 bg-sweetardios-cyan/15 text-white'
                         : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
@@ -377,8 +375,8 @@ export default function CabinPage() {
           ].map((cell) => (
             <div key={cell.k} className="bg-[#080f33]/80 px-4 py-3.5">
               <dt className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-100/40">{cell.k}</dt>
-              <dd className="mt-1 truncate text-lg text-white" title={cell.v}>{cell.v}</dd>
-              <dd className="mt-0.5 truncate text-[11px] text-blue-100/45">{cell.s}</dd>
+              <dd className="mt-1 text-base leading-snug text-white sm:text-lg">{cell.v}</dd>
+              <dd className="mt-0.5 text-[11px] leading-snug text-blue-100/45">{cell.s}</dd>
             </div>
           ))}
         </dl>
@@ -399,8 +397,8 @@ export default function CabinPage() {
 
         {/* ── Flight sim ── */}
         <div className="mt-4 flex flex-col gap-3 border border-white/10 bg-[#080f33]/70 px-4 py-4 backdrop-blur-sm">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Flight sim</span>
+          <div className="sd-chrome -mx-1 flex items-center gap-2.5 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+            <span className="mr-1 shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Flight sim</span>
             {MODES.map((m) => {
               const on = mode === m.key;
               return (
@@ -409,7 +407,7 @@ export default function CabinPage() {
                   type="button"
                   onClick={() => flyMode(m.key)}
                   aria-pressed={on}
-                  className={`border px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
+                  className={`shrink-0 whitespace-nowrap border px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan ${
                     on
                       ? 'border-sweetardios-cerise/70 bg-sweetardios-cerise/15 text-white'
                       : 'border-white/12 bg-white/[0.03] text-blue-100/60 hover:border-white/25 hover:text-white'
@@ -422,8 +420,8 @@ export default function CabinPage() {
           </div>
 
           {feed.jumpTo && (
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Market cap</span>
+            <div className="sd-chrome -mx-1 flex items-center gap-2.5 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+              <span className="mr-1 shrink-0 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-100/40">Market cap</span>
               {ALTITUDES.map((a) => (
                 <button
                   key={a.label}
@@ -432,7 +430,7 @@ export default function CabinPage() {
                     feed.jumpTo?.(a.cap);
                     setMode('cruise');
                   }}
-                  className="border border-white/12 bg-white/[0.03] px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-100/60 transition-colors hover:border-sweetardios-cyan/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
+                  className="shrink-0 whitespace-nowrap border border-white/12 bg-white/[0.03] px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-blue-100/60 transition-colors hover:border-sweetardios-cyan/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sweetardios-cyan"
                 >
                   {a.label}
                   <span className="ml-2 tabular-nums text-blue-100/35">{formatCap(a.cap)}</span>
@@ -448,7 +446,7 @@ export default function CabinPage() {
 
         {/* ── Cabin + pass ── */}
         <div className="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
-          <div className="sw-reveal">
+          <div>
             <header className="border-b border-white/10 pb-4">
               <h2 className="font-heading text-3xl text-white sm:text-4xl">Cabin</h2>
               <p className="mt-1.5 text-sm text-blue-100/60">
@@ -461,7 +459,7 @@ export default function CabinPage() {
             </div>
           </div>
 
-          <div className="sw-reveal">
+          <div>
             <header className="border-b border-white/10 pb-4">
               <h2 className="font-heading text-3xl text-white sm:text-4xl">Your pass</h2>
               <p className="mt-1.5 text-sm text-blue-100/60">Screenshot it. It's the whole marketing budget.</p>
