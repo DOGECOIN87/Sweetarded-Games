@@ -152,6 +152,17 @@ export function findSeat(id: string | null): CabinSeat | null {
   return ALL_SEATS.find((s) => s.id === id) ?? null;
 }
 
+/**
+ * The seats in one row, left to right across the aircraft.
+ *
+ * Used to populate the rows ahead of you in the cabin view: who you can see
+ * over the seat back is decided by the same occupancy roll as the seat map, so
+ * the cabin you are looking at is the cabin you are booking into.
+ */
+export function seatsInRow(row: number): CabinSeat[] {
+  return ALL_SEATS.filter((s) => s.row === row);
+}
+
 /** The worst seat on the aircraft, kept free so anyone can always board. */
 export const LAVATORY_SEATS = ['30B', '30E'] as const;
 

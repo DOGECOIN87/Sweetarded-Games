@@ -210,9 +210,12 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
           <clipPath id={id('earthclip')}>
             <circle cx="0" cy={horizonY + earthR} r={earthR} />
           </clipPath>
+          <clipPath id={id('earthdisc')}>
+            <circle cx={spread * 0.09} cy={horizonY - 300} r="86" />
+          </clipPath>
           <linearGradient id={id('ground')} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={p.horizon} stopOpacity="0.55" />
-            <stop offset="10%" stopColor={p.groundNear} />
+            <stop offset="0%" stopColor={p.horizon} stopOpacity="0.45" />
+            <stop offset="2.5%" stopColor={p.groundNear} />
             <stop offset="100%" stopColor={p.groundFar} />
           </linearGradient>
           <radialGradient id={id('glow')} cx="0.5" cy="0.5" r="0.5">
@@ -260,6 +263,17 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
             height={1500}
             fill={inAtmosphere || aboveClouds ? `url(#${id('sky')})` : `url(#${id('deepsky')})`}
           />
+          {/* Altitude darkens the zenith: there is simply less air above you. */}
+          {aboveClouds && (
+            <rect
+              x={-spread}
+              y={horizonY - 1500}
+              width={w}
+              height={1500}
+              fill="#020615"
+              opacity={0.2 + band.progress * 0.5}
+            />
+          )}
 
           <g fill="#FFFFFF">
             {stars.map((s, i) => {
@@ -280,7 +294,7 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
             </g>
           )}
 
-          {/* ══ IN THE WEATHER ══════════════════════════════════════════ */}
+          {/* ══ IN THE WEATHER — below $1M ══════════════════════════════ */}
           {inAtmosphere && (
             <>
               <rect x={-spread} y={horizonY} width={w} height="1300" fill={`url(#${id('ground')})`} />
@@ -292,7 +306,7 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
                     const rand = seeded(c.seed);
                     return (
                       <g key={i}>
-                        <ellipse cx={c.cx} cy={c.cy} rx={c.r * 1.5} ry={c.r * 0.42} fill="#FFCE7A" opacity="0.10" />
+                        <ellipse cx={c.cx} cy={c.cy} rx={c.r * 1.6} ry={c.r * 0.44} fill="#FFCE7A" opacity="0.12" />
                         {Array.from({ length: c.n }, (_, k) => (
                           <circle
                             key={k}
@@ -319,10 +333,10 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
               )}
 
               {/* Haze thickens toward the horizon, as it really does */}
-              <rect x={-spread} y={horizonY} width={w} height="330" fill={`url(#${id('haze')})`} transform={`translate(0 ${-330})`} />
+              <rect x={-spread} y={horizonY - 330} width={w} height="330" fill={`url(#${id('haze')})`} />
               <rect x={-spread} y={horizonY - 2} width={w} height="3" fill={p.horizon} opacity="0.9" />
 
-              {/* Weather you can see */}
+              {/* Cloud you are flying among, thinning as you climb through it */}
               {sky.cloudCover > 0.1 && (
                 <g>
                   {clouds.slice(0, Math.round(sky.cloudCover * 30)).map((c, i) => (
@@ -332,6 +346,7 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
                   ))}
                 </g>
               )}
+
               {(sky.weather === 'rain' || sky.weather === 'storm' || sky.weather === 'snow') && (
                 <g
                   stroke={sky.weather === 'snow' ? '#FFFFFF' : '#C9E4FF'}
@@ -357,7 +372,7 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
                   width={w}
                   height="1700"
                   fill={night ? '#141A2C' : '#B9C6D6'}
-                  opacity={sky.weather === 'fog' ? 0.6 : 0.3}
+                  opacity={sky.weather === 'fog' ? 0.55 : 0.26}
                 />
               )}
             </>
@@ -366,9 +381,11 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
           {/* ══ ABOVE THE CLOUDS — $1M ══════════════════════════════════ */}
           {aboveClouds && (
             <>
+              {/* The air between you and the deck. Without this the page
+                  background showed through as a dark band under the sky. */}
+              <rect x={-spread} y={horizonY - 4} width={w} height={deckDrop + 8} fill={p.horizon} />
               {/* An unbroken deck, falling further away as you climb */}
               <rect x={-spread} y={horizonY + deckDrop} width={w} height="1300" fill={night ? '#2A3450' : '#E9F1FA'} />
-              <rect x={-spread} y={horizonY + deckDrop} width={w} height="220" fill={`url(#${id('haze')})`} opacity="0.7" />
               <g>
                 {clouds.map((c, i) => (
                   <g key={i} transform={`translate(0 ${horizonY + deckDrop + c.y * 0.45})`}>
@@ -383,43 +400,43 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
           {/* ══ SPACE — $10M ════════════════════════════════════════════ */}
           {inSpace && (
             <>
-              {/* The planet, and everything on it clipped to its disc */}
+              {/* The planet, with everything on it clipped to its disc */}
               <circle cx="0" cy={horizonY + earthR} r={earthR} fill={`url(#${id('earth')})`} />
               <g clipPath={`url(#${id('earthclip')})`}>
-                {/* Weather systems, stretched flat by the viewing angle */}
+                {/* Weather systems, flattened by the viewing angle */}
                 <g fill="#FFFFFF">
                   {clouds.map((c, i) => (
-                    <g key={i} opacity={0.32 + (i % 5) * 0.1}>
+                    <g key={i} opacity={0.3 + (i % 5) * 0.1}>
                       {c.puffs.map((q, k) => (
                         <ellipse
                           key={k}
                           cx={c.x * 0.9 + q.dx * 0.7}
-                          cy={horizonY + 34 + Math.abs(c.y) * 0.9 + Math.abs(q.dy) * 0.5}
-                          rx={q.r * 0.9 * c.scale}
-                          ry={q.r * 0.14 * c.scale}
+                          cy={horizonY + 30 + Math.abs(c.y) * 0.8 + Math.abs(q.dy) * 0.5}
+                          rx={q.r * 0.95 * c.scale}
+                          ry={q.r * 0.13 * c.scale}
                         />
                       ))}
                     </g>
                   ))}
                 </g>
-                {/* Land, as a haze of ochre under the weather */}
-                <g fill="#6B7A4E" opacity="0.35">
+                {/* Land, as ochre under the weather */}
+                <g fill="#6B7A4E" opacity="0.4">
                   {terrain.cells.slice(0, 60).map((c, i) => (
-                    <ellipse key={i} cx={(i - 30) * 46} cy={horizonY + 70 + (i % 7) * 26} rx="70" ry="9" />
+                    <ellipse key={i} cx={(i - 30) * 46} cy={horizonY + 66 + (i % 7) * 26} rx="72" ry="9" />
                   ))}
                 </g>
                 {night && (
                   <g fill="#FFD79A" opacity="0.85">
                     {cities.map((c, i) => (
-                      <circle key={i} cx={c.cx * 0.72} cy={horizonY + 40 + (i % 6) * 30} r="1.7" />
+                      <circle key={i} cx={c.cx * 0.72} cy={horizonY + 38 + (i % 6) * 30} r="1.7" />
                     ))}
                   </g>
                 )}
               </g>
-              {/* The atmosphere, lit on the limb — thin, bright, and outside the disc */}
+              {/* The atmosphere, lit on the limb: thin, bright, outside the disc */}
               <circle cx="0" cy={horizonY + earthR} r={earthR + 5} fill="none" stroke="#BFE4FF" strokeWidth="4" opacity="0.9" />
               <circle cx="0" cy={horizonY + earthR} r={earthR + 20} fill="none" stroke="#4E9BEA" strokeWidth="22" opacity="0.28" />
-              <circle cx="0" cy={horizonY + earthR} r={earthR + 54} fill="none" stroke="#2C6BC0" strokeWidth="46" opacity="0.10" />
+              <circle cx="0" cy={horizonY + earthR} r={earthR + 54} fill="none" stroke="#2C6BC0" strokeWidth="46" opacity="0.1" />
             </>
           )}
 
@@ -427,21 +444,30 @@ const OutsideWorld = forwardRef<SVGGElement, OutsideWorldProps>(
           {onMoon && (
             <>
               <rect x={-spread} y={horizonY} width={w} height="1300" fill={`url(#${id('moon')})`} />
+              {/* Mare — the dark basalt plains that make the moon legible */}
+              <g fill="#3B3934" opacity="0.5">
+                {craters.slice(0, 7).map((c, i) => (
+                  <ellipse key={`m${i}`} cx={c.x * 1.4} cy={c.y} rx={c.r * 4.2} ry={c.r * 0.7} />
+                ))}
+              </g>
               {craters.map((c, i) => (
                 <g key={i}>
-                  <ellipse cx={c.x} cy={c.y} rx={c.r} ry={c.r * 0.3} fill="#3A3733" opacity="0.8" />
-                  <ellipse cx={c.x} cy={c.y - c.r * 0.06} rx={c.r * 0.88} ry={c.r * 0.24} fill="#8A857D" opacity="0.45" />
-                  <ellipse cx={c.x} cy={c.y + c.r * 0.05} rx={c.r * 0.7} ry={c.r * 0.18} fill="#2A2825" opacity="0.6" />
+                  <ellipse cx={c.x} cy={c.y} rx={c.r} ry={c.r * 0.3} fill="#332F2B" opacity="0.85" />
+                  <ellipse cx={c.x} cy={c.y - c.r * 0.07} rx={c.r * 0.9} ry={c.r * 0.25} fill="#B0A99E" opacity="0.4" />
+                  <ellipse cx={c.x} cy={c.y + c.r * 0.06} rx={c.r * 0.66} ry={c.r * 0.16} fill="#241F1C" opacity="0.7" />
                 </g>
               ))}
-              <rect x={-spread} y={horizonY - 3} width={w} height="4" fill="#CFC9BE" opacity="0.85" />
-              {/* Earthrise */}
+              <rect x={-spread} y={horizonY - 3} width={w} height="4" fill="#E4DED2" opacity="0.9" />
+              {/* Earthrise, kept inside the narrowest window on the aircraft */}
               <g>
-                <circle cx={spread * 0.32} cy={horizonY - 430} r="150" fill="#3E86D8" opacity="0.16" />
-                <circle cx={spread * 0.32} cy={horizonY - 430} r="78" fill={`url(#${id('earth')})`} />
-                <ellipse cx={spread * 0.32 - 16} cy={horizonY - 452} rx="40" ry="15" fill="#FFFFFF" opacity="0.55" />
-                <ellipse cx={spread * 0.32 + 22} cy={horizonY - 408} rx="30" ry="12" fill="#FFFFFF" opacity="0.4" />
-                <circle cx={spread * 0.32} cy={horizonY - 430} r="80" fill="none" stroke="#8FD0FF" strokeWidth="3" opacity="0.5" />
+                <circle cx={spread * 0.09} cy={horizonY - 300} r="170" fill="#3E86D8" opacity="0.13" />
+                <circle cx={spread * 0.09} cy={horizonY - 300} r="86" fill={`url(#${id('earth')})`} />
+                <g clipPath={`url(#${id('earthdisc')})`}>
+                  <ellipse cx={spread * 0.09 - 20} cy={horizonY - 326} rx="46" ry="16" fill="#FFFFFF" opacity="0.6" />
+                  <ellipse cx={spread * 0.09 + 26} cy={horizonY - 278} rx="34" ry="13" fill="#FFFFFF" opacity="0.45" />
+                  <ellipse cx={spread * 0.09 - 6} cy={horizonY - 252} rx="40" ry="11" fill="#6E8A4E" opacity="0.5" />
+                </g>
+                <circle cx={spread * 0.09} cy={horizonY - 300} r="88" fill="none" stroke="#9FD6FF" strokeWidth="3" opacity="0.55" />
               </g>
             </>
           )}

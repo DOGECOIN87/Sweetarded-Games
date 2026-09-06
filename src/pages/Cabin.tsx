@@ -227,7 +227,15 @@ export default function CabinPage() {
             {viewZone === 'deck' ? (
               <FlightDeck feed={feed} lamps={lamps} sky={sky} band={band} />
             ) : (
-              <CabinView feed={feed} sky={sky} band={band} seat={viewSeat} zone={viewZoneDef} lavatory={lavatory} />
+              <CabinView
+                feed={feed}
+                sky={sky}
+                band={band}
+                seat={viewSeat}
+                zone={viewZoneDef}
+                lavatory={lavatory}
+                taken={taken}
+              />
             )}
           </ViewFrame>
         </div>

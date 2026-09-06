@@ -1,11 +1,11 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import OutsideWorld from './OutsideWorld';
 import type { FlightFeed } from '../../lib/flightFeed';
 import type { BandState } from '../../lib/flightModel';
 import { formatChange, formatFeet } from '../../lib/flightModel';
 import type { SkyState } from '../../lib/sky';
 import { useAttitude } from '../../lib/useAttitude';
-import type { CabinSeat, CabinZone } from '../../content/cabin';
+import { seatsInRow, type CabinSeat, type CabinZone } from '../../content/cabin';
 
 /**
  * The view from a seat.
@@ -48,9 +48,26 @@ interface CabinViewProps {
   zone: CabinZone;
   /** True for the last row, where the view ahead is the lavatory door. */
   lavatory: boolean;
+  /** Which seats are sold — the same roll the seat map draws from. */
+  taken: ReadonlySet<string>;
 }
 
-const CabinView = ({ feed, sky, band, seat, zone, lavatory }: CabinViewProps) => {
+/* Passengers, so the cabin ahead is not empty. Muted enough to stay
+   background, varied enough that it reads as a cabin full of people. */
+const HAIR = ['#2B2118', '#4A3524', '#0F0C0A', '#6B5238', '#8A7A6A', '#3A2418', '#B9A184'];
+const SKIN = ['#C99A72', '#8D5F3F', '#E3B894', '#6B4529', '#A8724C', '#D9A87E', '#5A3A22'];
+
+/** One passenger, seen from behind: head, hair and shoulders over a seat back. */
+const Passenger = ({ x, y, s, i }: { x: number; y: number; s: number; i: number }) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <ellipse cx="0" cy="26" rx="34" ry="20" fill="#2E3540" />
+    <ellipse cx="0" cy="0" rx="19" ry="22" fill={SKIN[i % SKIN.length]} />
+    <path d="M-19 -3 A 19 22 0 0 1 19 -3 L17 -8 A 17 19 0 0 0 -17 -8 Z" fill={HAIR[i % HAIR.length]} />
+    <ellipse cx="0" cy="-9" rx="19" ry="13" fill={HAIR[i % HAIR.length]} />
+  </g>
+);
+
+const CabinView = ({ feed, sky, band, seat, zone, lavatory, taken }: CabinViewProps) => {
   const world = useRef<SVGGElement>(null);
   const screenAlt = useRef<SVGTextElement>(null);
   const screenChg = useRef<SVGTextElement>(null);
@@ -63,16 +80,35 @@ const CabinView = ({ feed, sky, band, seat, zone, lavatory }: CabinViewProps) =>
      window goes black and the reading lights become the only light in shot. */
   const inAir = band.band === 'atmosphere' || band.band === 'above-clouds';
   const wash = inAir ? sky.palette.horizon : '#0A1024';
-  const washStrength = inAir ? 0.42 : 0.1;
+  const washStrength = inAir ? 0.16 : 0.06;
 
   /* The seat ahead: wider and further off in the premium cabins. */
-  const seatTop = premium ? 250 : 300;
+  const seatTop = premium ? 392 : 406;
   const seatL = premium ? 392 : 430;
   const seatR = premium ? 1010 : 972;
   const screen = premium
-    ? { x: 508, y: 306, w: 386, h: 240 }
-    : { x: 528, y: 350, w: 346, h: 214 };
+    ? { x: 512, y: 428, w: 378, h: 196 }
+    : { x: 532, y: 442, w: 340, h: 182 };
   const screenCx = screen.x + screen.w / 2;
+
+  /* The rows in front of you, receding toward the front of the aircraft.
+     Occupancy comes from the same set the seat map uses, so the person two
+     rows up is a seat somebody really has taken. */
+  const rowsAhead = useMemo(() => {
+    if (seat.row === null) return [];
+    const out: { seats: { id: string; occupied: boolean }[]; y: number; scale: number; depth: number }[] = [];
+    for (let d = 1; d <= 3; d++) {
+      const inRow = seatsInRow(seat.row - d);
+      if (inRow.length === 0) break;
+      out.push({
+        seats: inRow.map((sx) => ({ id: sx.id, occupied: taken.has(sx.id) })),
+        y: 336 - d * 34,
+        scale: 1 - d * 0.17,
+        depth: d,
+      });
+    }
+    return out.reverse();
+  }, [seat.row, taken]);
 
   useAttitude(feed, (a, tick) => {
     world.current?.setAttribute(
@@ -200,7 +236,7 @@ const CabinView = ({ feed, sky, band, seat, zone, lavatory }: CabinViewProps) =>
                 <circle cx={f.cx + f.rx * 0.5} cy={f.cy + f.ry * 0.4} r="4" fill={RED} />
               </g>
             )}
-            <rect x={f.cx - f.rx} y={f.cy - f.ry} width={f.rx * 2} height={f.ry * 2} fill="url(#cv-daylight)" opacity="0.55" />
+            <rect x={f.cx - f.rx} y={f.cy - f.ry} width={f.rx * 2} height={f.ry * 2} fill="url(#cv-daylight)" opacity="0.3" />
             <path
               d={`M${f.cx - f.rx * 0.62} ${f.cy + f.ry} L${f.cx + f.rx * 0.08} ${f.cy - f.ry} l${f.rx * 0.3} 0 L${f.cx - f.rx * 0.32} ${f.cy + f.ry} Z`}
               fill="#FFFFFF"
@@ -230,8 +266,37 @@ const CabinView = ({ feed, sky, band, seat, zone, lavatory }: CabinViewProps) =>
           </g>
         ) : (
           <g>
-            {/* The seat one row further on, for depth */}
-            <path d={`M${seatL + 96} ${seatTop - 78} C ${seatL + 220} ${seatTop - 108} ${seatR - 220} ${seatTop - 108} ${seatR - 96} ${seatTop - 78} L${seatR - 84} ${seatTop} L${seatL + 84} ${seatTop} Z`} fill="#3A362F" />
+            {/* The rows ahead, with the people who booked them */}
+            {rowsAhead.map((row) => {
+              const cx = (seatL + seatR) / 2;
+              // Derived from the near seat's width so the rows converge rather
+              // than splay: further away is narrower, always.
+              const pitch = ((seatR - seatL) / row.seats.length) * row.scale * 0.94;
+              const half = (row.seats.length - 1) / 2;
+              return (
+                <g key={row.depth}>
+                  {row.seats.map((st, i) => {
+                    // An aisle gap down the middle, as there is in the cabin.
+                    const side = i < row.seats.length / 2 ? -1 : 1;
+                    const x = cx + (i - half) * pitch + side * 14 * row.scale;
+                    return (
+                      <g key={st.id}>
+                        {st.occupied && (
+                          <Passenger x={x} y={row.y - 26 * row.scale} s={row.scale * 0.62} i={st.id.charCodeAt(0) + i + row.depth} />
+                        )}
+                        {/* Seat back, drawn over the passenger's shoulders */}
+                        <path
+                          d={`M${x - pitch * 0.46} ${row.y} q ${pitch * 0.46} ${-14 * row.scale} ${pitch * 0.92} 0 l ${5 * row.scale} ${74 * row.scale} h ${-pitch * 0.92 - 10 * row.scale} Z`}
+                          fill={premium ? '#333B4E' : '#2E3540'}
+                          stroke="#454E5E"
+                          strokeWidth={1.2 * row.scale}
+                        />
+                      </g>
+                    );
+                  })}
+                </g>
+              );
+            })}
 
             {/* Seat back directly ahead */}
             <path
@@ -249,9 +314,9 @@ const CabinView = ({ feed, sky, band, seat, zone, lavatory }: CabinViewProps) =>
             <path d={`M${seatR - 6} ${seatTop + 16} L${seatR + 24} ${H}`} stroke="#7C7566" strokeWidth="2" fill="none" opacity="0.5" />
             {/* Headrest */}
             <path
-              d={`M${seatL + 56} ${seatTop - 58} C ${seatL + 150} ${seatTop - 96} ${seatR - 150} ${seatTop - 96} ${seatR - 56} ${seatTop - 58} L${seatR - 46} ${seatTop + 6} C ${seatR - 150} ${seatTop - 28} ${seatL + 150} ${seatTop - 28} ${seatL + 46} ${seatTop + 6} Z`}
-              fill="#5E594E"
-              stroke="#7C7566"
+              d={`M${seatL + 128} ${seatTop - 46} C ${seatL + 210} ${seatTop - 76} ${seatR - 210} ${seatTop - 76} ${seatR - 128} ${seatTop - 46} L${seatR - 120} ${seatTop + 4} C ${seatR - 210} ${seatTop - 22} ${seatL + 210} ${seatTop - 22} ${seatL + 120} ${seatTop + 4} Z`}
+              fill="#39414F"
+              stroke="#5A6270"
               strokeWidth="1.6"
             />
 
