@@ -49,4 +49,24 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     linkLabel: 'See the prize ladder',
     paper: 'pink',
   },
+  {
+    id: 'weather',
+    title: 'The weather moves',
+    body:
+      '444 tokens carry a seamless weather loop. Tornado, Flooded, Blizzard, Storm, Fog, Snow, Rain — all seven states now play on the landing, right under the stickers.',
+    tag: 'Collection',
+    link: '#/rarity',
+    linkLabel: 'Open the rarity vault',
+    paper: 'cyan',
+  },
+  {
+    id: 'roadmap',
+    title: 'The roadmap',
+    body:
+      'Build actually fun to play PVP games on Solana. Arcade now, mint Sunday, holders next. Real PVP when the programs are live — not before.',
+    tag: 'Announcement',
+    link: '#/',
+    linkLabel: 'See the landing',
+    paper: 'yellow',
+  },
 ];
