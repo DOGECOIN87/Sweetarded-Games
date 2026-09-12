@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ArtistRares from './ArtistRares';
 import GetStarted from './GetStarted';
 import SweetardioVideo from './SweetardioVideo';
 import MintSection from './MintSection';
 import MusicFeature from './MusicFeature';
 import { SocialIcon } from './SocialIcon';
-import NeonArrow, { ArrowColor, ArrowDir } from './scene/NeonArrow';
+import NeonArrow from './scene/NeonArrow';
 import { STICKERS, stickerSrc } from '../content/stickers';
 import { COMMUNITY_LINKS } from '../content/siteLinks';
 import { STARTING_CREDITS } from '../lib/credits';
@@ -14,10 +13,11 @@ import AgentMint from './AgentMint';
 import MakerBio from './MakerBio';
 import RarityTeaser from './RarityTeaser';
 import Team from './Team';
-import { shouldPlayPowerOn, useHeroPowerOn } from '../motion/heroPowerOn';
 import { useAmbient } from '../motion/useAmbient';
 import SectionHeading from './SectionHeading';
 import NeonDivider from './scene/NeonDivider';
+import FlipCountdown from './FlipCountdown';
+import { MINT_URL } from './MintEmbed';
 
 const FEATURES: { icon: string; title: string; desc: string; to?: string }[] = [
   { icon: '🎮', title: 'Free to Play', desc: `Every player starts with ${STARTING_CREDITS.toLocaleString()} SWEET credits — off-chain, just for fun.` },
@@ -135,39 +135,9 @@ const GameCard = ({ to, variant, kicker, title, blurb, features, video, poster, 
   );
 };
 
-/* ── Hero navigation arrow (walks you into the arcade) ──────── */
-
-interface HeroArrowProps {
-  dir: ArrowDir;
-  color: ArrowColor;
-  caption: string;
-  label: string;
-  size: number;
-  floor?: boolean;
-  onClick: () => void;
-}
-
-const HeroArrow = ({ dir, color, caption, label, size, floor, onClick }: HeroArrowProps) => (
-  <div className="flex flex-col items-center gap-2">
-    <NeonArrow dir={dir} color={color} label={label} size={size} floor={floor} onClick={onClick} />
-    <span
-      className={`text-[10px] font-bold uppercase tracking-[0.22em] ${
-        color === 'cyan' ? 'text-sweetardios-cyan' : 'text-sweetardios-cerise'
-      }`}
-    >
-      {caption}
-    </span>
-  </div>
-);
-
 /* ── Landing page (now navigation hub) ──────────────────────── */
 
 const Landing = () => {
-  const navigate = useNavigate();
-  /* Arcade power-on: Theatre.js choreographs the hero once per session;
-     skipped entirely under prefers-reduced-motion (see src/motion/). */
-  const [powerOn] = useState(shouldPlayPowerOn);
-  const reg = useHeroPowerOn(powerOn);
   useAmbient();
 
   return (
@@ -189,79 +159,47 @@ const Landing = () => {
       <div aria-hidden className="sw-grain absolute inset-0" />
     </div>
 
-    {/* HERO */}
-    <section className="relative flex min-h-[calc(100dvh-var(--navbar-height,96px))] items-center justify-center overflow-hidden px-6 py-16">
-      {/* cinematic vignette */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{ background: 'radial-gradient(125% 95% at 50% 22%, transparent 38%, rgba(7,15,52,0.55) 76%, rgba(7,15,52,0.92) 100%)' }}
-      />
-
-      {/* gradient-bordered glass panel */}
-      <div ref={reg('panel')} className="relative z-10 w-full max-w-4xl sw-conic-border p-px shadow-[0_50px_140px_-40px_rgba(0,0,0,0.95)]">
-        <div className="relative flex flex-col items-center overflow-hidden bg-sweetardios-oxford/80 px-8 py-12 text-center backdrop-blur-2xl sm:px-16 sm:py-16">
-          {/* top edge highlight */}
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-
-          <div ref={reg('badge')} className="relative mb-7 flex justify-center">
-            <div aria-hidden className="sw-blob absolute left-1/2 top-1/2 h-52 w-52 -translate-x-1/2 -translate-y-1/2" style={{ background: '#F715AB', opacity: 0.38 }} />
-            <img src="/logos/sweetardio-collection-badge-512.png" alt="Sweetardio Collection" className="sw-float relative h-32 w-32 drop-shadow-[0_16px_40px_rgba(52,237,243,0.4)] sm:h-40 sm:w-40" />
+    {/* HERO — marshmallow sunset banner + split-flap mint countdown */}
+    <section className="relative overflow-hidden">
+      <div className="relative">
+        <img
+          src="/art/hero-banner.jpg"
+          alt="Sweetardio Collection — marshmallow clouds at sunset"
+          className="w-full object-cover object-center max-md:min-h-[220px] md:max-h-[min(72vh,720px)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-36"
+          style={{ background: 'linear-gradient(to top, #070F34, rgba(7,15,52,0.55), transparent)' }}
+        />
+      </div>
+      <div className="relative bg-sweetardios-oxford">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-7 px-4 pb-10 pt-0 text-center sm:px-6 sm:pb-14">
+          <div className="relative z-10 -mt-14 sm:-mt-[4.5rem]">
+            <FlipCountdown />
           </div>
-
-          <span ref={reg('chip')} className="mb-7 inline-flex items-center gap-2.5 border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-blue-100/75 backdrop-blur sm:tracking-[0.32em]">
-            <span className="h-1.5 w-1.5 bg-sweetardios-cyan shadow-[0_0_8px_#34EDF3]" style={{ borderRadius: '9999px' }} />
-            <span>Free to Play<span className="hidden sm:inline"> · Powered by Sweetardios</span></span>
-          </span>
-
-          <h1 ref={reg('wordmark')} className="whitespace-nowrap font-heading text-4xl leading-[0.92] min-[380px]:text-5xl sm:text-8xl">
-            <span className="sw-glow-cerise sw-neon-buzz">SWEET</span><span className="sw-glow-cyan sw-neon-buzz" style={{ animationDelay: '2.3s' }}>ARDIO</span>
-          </h1>
-          <div ref={reg('fun')} className="sw-gradient-text font-heading mt-3 text-3xl tracking-[0.5em] sm:text-5xl">
-            .FUN
-          </div>
-
-          <p ref={reg('tagline')} className="mt-7 max-w-md text-base leading-relaxed text-blue-100/70 sm:text-lg">
-            A sugar-coated arcade starring the <span className="font-semibold text-white">Sweetardios</span>. Two games, free to play.
+          <p className="max-w-xl text-base leading-relaxed text-blue-100/80 sm:text-lg">
+            4,444 sugar-addicted conspiracy theorists, armed to the teeth, who
+            refuse to take their meds. One mint. One holder. One believer at a
+            time.
           </p>
-
-          <p ref={reg('kicker')} className="mt-4 text-xs uppercase tracking-[0.22em] text-sweetardios-cyan/70">
-            Follow the neon — pick your way in
-          </p>
-
-          {/* Navigation begins here: neon arrows walk you into the arcade */}
-          <div className="mt-8 flex items-end justify-center gap-8 sm:gap-14">
-            <div ref={reg('arrowL')}>
-            <HeroArrow
-              dir="left"
-              color="cerise"
-              caption="Slots"
-              label="Go to Slots"
-              size={62}
-              onClick={() => navigate('/arcade?to=slots')}
-            />
-            </div>
-            <div ref={reg('arrowC')}>
-            <HeroArrow
-              dir="up"
-              color="cerise"
-              caption="Enter Arcade"
-              label="Enter the Arcade"
-              size={84}
-              floor
-              onClick={() => navigate('/arcade')}
-            />
-            </div>
-            <div ref={reg('arrowR')}>
-            <HeroArrow
-              dir="right"
-              color="cyan"
-              caption="Coinpusher"
-              label="Go to Coinpusher"
-              size={62}
-              onClick={() => navigate('/arcade?to=pusher')}
-            />
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={MINT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sw-shine inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-extrabold uppercase tracking-wide text-white transition-transform hover:-translate-y-0.5"
+              style={{ background: '#F715AB', borderRadius: 16 }}
+            >
+              Mint on LaunchMyNFT <span aria-hidden>↗</span>
+            </a>
+            <Link
+              to="/arcade"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5"
+              style={{ background: 'rgba(255,247,241,0.9)', borderRadius: 16 }}
+            >
+              Enter the arcade
+            </Link>
           </div>
         </div>
       </div>

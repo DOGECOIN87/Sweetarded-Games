@@ -561,3 +561,312 @@ body {
   .sw-reveal { opacity: 1; transform: none; transition: none; }
   .sw-wash::before, .sw-wash::after { transition: none; }
 }
+
+/* Sweetardio marshmallow hero — tokens + split-flap clock.
+   Import this AFTER Tailwind. Map tokens into @theme (v4) or tailwind.config (v3). */
+
+:root {
+  --color-cream: #fff7f1;
+  --color-foam: #ffeef4;
+  --color-blush: #f3c9c6;
+  --color-cerise: #f715ab;
+  --color-cerise-deep: #c40d86;
+  --color-navy: #070f34;
+  --color-navy-soft: #121a45;
+  --color-ink: #241436;
+  --color-muted: #6d5678;
+  --color-chrome: #eef2f8;
+  --font-display: "Fredoka", "Nunito", system-ui, sans-serif;
+  --font-sans: "Nunito", system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* If Tailwind v3: add these to theme.extend.colors / fontFamily:
+   cream, foam, blush, cerise, cerise-deep, navy, navy-soft, ink, muted, chrome
+   display: Fredoka, sans: Nunito
+*/
+
+.count-board {
+  --flip-w: 2.15rem;
+  --flip-h: 2.9rem;
+  --flip-r: 10px;
+  --flip-ms: 320ms;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.05rem 0.9rem 0.95rem;
+  border-radius: 36px;
+}
+
+.count-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: color-mix(in oklab, var(--color-navy) 42%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, white 22%, transparent),
+    0 28px 60px -28px color-mix(in oklab, var(--color-navy) 70%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 18%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  pointer-events: none;
+}
+
+.count-board > * {
+  position: relative;
+  z-index: 1;
+}
+
+.count-board-compact {
+  --flip-w: 1.95rem;
+  --flip-h: 2.55rem;
+  padding: 0.85rem 0.75rem 0.75rem;
+  border-radius: 28px;
+}
+
+.count-kicker,
+.count-caption {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-cream) 82%, transparent);
+}
+
+.count-caption {
+  letter-spacing: 0.16em;
+  color: color-mix(in oklab, var(--color-chrome) 62%, transparent);
+}
+
+.count-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.count-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.count-pair {
+  display: flex;
+  gap: 0.22rem;
+}
+
+.count-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-cream) 72%, transparent);
+}
+
+.count-unit.is-accent .flip {
+  box-shadow:
+    0 10px 18px -12px color-mix(in oklab, var(--color-cerise) 55%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-cerise) 32%, transparent);
+}
+
+.count-colon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  width: 0.65rem;
+  height: var(--flip-h);
+}
+
+.count-colon span {
+  display: block;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: var(--color-cerise);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--color-cerise) 70%, transparent);
+  animation: colon-pulse 1s var(--ease-out) infinite;
+}
+
+.count-colon span:last-child {
+  animation-delay: 0.5s;
+}
+
+.count-live-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-cerise);
+  animation: live-ping 1.6s ease-out infinite;
+}
+
+.count-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.35rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-navy) 50%, transparent);
+  color: var(--color-cream);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.flip {
+  position: relative;
+  width: var(--flip-w);
+  height: var(--flip-h);
+  perspective: 12rem;
+  border-radius: var(--flip-r);
+  background: var(--color-foam);
+  box-shadow:
+    0 10px 16px -12px color-mix(in oklab, var(--color-navy) 50%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.flip-flap {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.flip-flap.top {
+  top: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #fff7f1 100%);
+  border-radius: var(--flip-r) var(--flip-r) 0 0;
+  transform-origin: 50% 100%;
+}
+
+.flip-flap.bottom {
+  bottom: 0;
+  background: linear-gradient(180deg, #ffe8f0 0%, #f3c9c6 100%);
+  border-radius: 0 0 var(--flip-r) var(--flip-r);
+  transform-origin: 50% 0%;
+}
+
+.flip-num {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: calc(var(--flip-h) * 0.72);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #ff79c8 0%, #f715ab 42%, #c40d86 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 #fff);
+}
+
+.flip-flap.top .flip-num { top: 0; }
+.flip-flap.bottom .flip-num { bottom: 0; }
+
+.flip-flap.fold {
+  z-index: 4;
+  animation: flip-fold var(--flip-ms) ease-in both;
+}
+
+.flip-flap.unfold {
+  z-index: 3;
+  transform: rotateX(90deg);
+  animation: flip-unfold var(--flip-ms) ease-out var(--flip-ms) both;
+}
+
+.flip-hinge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  z-index: 6;
+  height: 1px;
+  background: color-mix(in oklab, var(--color-navy) 22%, transparent);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+.flip-axle {
+  position: absolute;
+  top: 50%;
+  z-index: 7;
+  width: 5px;
+  height: 7px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #d9c2cc, #8a6b7a);
+  transform: translateY(-50%);
+}
+
+.flip-axle.left { left: -2px; }
+.flip-axle.right { right: -2px; }
+
+@keyframes flip-fold {
+  0% { transform: rotateX(0deg); filter: brightness(1); }
+  100% { transform: rotateX(-90deg); filter: brightness(0.55); }
+}
+@keyframes flip-unfold {
+  0% { transform: rotateX(90deg); filter: brightness(0.55); }
+  100% { transform: rotateX(0deg); filter: brightness(1); }
+}
+@keyframes colon-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.82); }
+  50% { opacity: 1; transform: scale(1); }
+}
+@keyframes live-ping {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-cerise) 65%, transparent); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@media (min-width: 640px) {
+  .count-board {
+    --flip-w: 3.05rem;
+    --flip-h: 4.15rem;
+    --flip-r: 14px;
+    padding: 1.25rem 1.45rem 1.1rem;
+    gap: 0.95rem;
+  }
+  .count-board-compact { --flip-w: 2.55rem; --flip-h: 3.4rem; }
+  .count-row { gap: 0.35rem; }
+  .count-pair { gap: 0.3rem; }
+  .count-colon { width: 0.8rem; }
+  .count-colon span { width: 0.42rem; height: 0.42rem; }
+}
+
+@media (max-width: 399px) {
+  .count-board {
+    --flip-w: 1.85rem;
+    --flip-h: 2.55rem;
+    --flip-r: 8px;
+    padding: 0.85rem 0.6rem 0.75rem;
+  }
+  .count-colon { width: 0.45rem; }
+  .count-colon span { width: 0.28rem; height: 0.28rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-flap.fold,
+  .flip-flap.unfold { animation: none; }
+}
