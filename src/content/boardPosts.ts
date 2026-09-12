@@ -60,10 +60,10 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     paper: 'cyan',
   },
   {
-    id: 'menu',
-    title: "What's cooking",
+    id: 'roadmap',
+    title: 'The roadmap',
     body:
-      'The shop is open, the drop is Sunday, holders get the arcade after that. Everything in the back is cooking — not promised. The full menu is on the landing.',
+      'Build actually fun to play PVP games on Solana. Arcade now, mint Sunday, holders next. Real PVP when the programs are live — not before.',
     tag: 'Announcement',
     link: '#/',
     linkLabel: 'See the landing',

@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom';
 import SectionHeading from './SectionHeading';
-import { ROADMAP, ROADMAP_DISCLAIMER, type RoadmapAccent } from '../content/roadmap';
+import {
+  ROADMAP,
+  ROADMAP_DISCLAIMER,
+  ROADMAP_NORTH_STAR_LINES,
+  ROADMAP_SUB,
+  type RoadmapAccent,
+} from '../content/roadmap';
 
-/* ── What's cooking — three beats, no quarters, no over-promise ── */
+/* ── Roadmap — three beats toward PVP on Solana ── */
 
 const ACCENT: Record<
   RoadmapAccent,
@@ -32,11 +38,17 @@ const ACCENT: Record<
 };
 
 const Roadmap = () => (
-  <section id="cooking" aria-label="What's cooking" className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
+  <section id="roadmap" aria-label="Roadmap" className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
     <SectionHeading
-      eyebrow="What's cooking"
-      title="The menu"
-      sub="The shop is open. The drop is Sunday. After that, holders get the arcade — and we keep building machines."
+      eyebrow="Roadmap"
+      title={
+        <>
+          {ROADMAP_NORTH_STAR_LINES[0]}
+          <br />
+          {ROADMAP_NORTH_STAR_LINES[1]}
+        </>
+      }
+      sub={ROADMAP_SUB}
       accent="cyan"
     />
 

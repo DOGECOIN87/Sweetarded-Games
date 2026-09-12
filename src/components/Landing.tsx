@@ -303,9 +303,9 @@ const Landing = () => {
       </div>
     </section>
 
-    <NeonDivider aisle="07" label="What's Cooking" accent="cyan" />
+    <NeonDivider aisle="07" label="The Roadmap" accent="cyan" />
 
-    {/* THE MENU — three-beat public plan */}
+    {/* ROADMAP — three beats toward PVP on Solana */}
     <Roadmap />
 
     <NeonDivider aisle="08" label="The Sounds" accent="cyan" />
@@ -420,11 +420,11 @@ const Landing = () => {
             </a>
             <Link to="/rarity" className="transition-colors hover:text-sweetardios-cerise">Rarity</Link>
             <a
-              href="#cooking"
-              onClick={(e) => { e.preventDefault(); document.getElementById('cooking')?.scrollIntoView({ behavior: 'smooth' }); }}
+              href="#roadmap"
+              onClick={(e) => { e.preventDefault(); document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="transition-colors hover:text-sweetardios-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
             >
-              The Menu
+              Roadmap
             </a>
             <Link to="/leaderboard" className="transition-colors hover:text-sweetardios-cyan">Leaderboard</Link>
             <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>

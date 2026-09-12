@@ -1,13 +1,13 @@
 /**
- * What's cooking — the public plan, kept short on purpose.
+ * Public roadmap — three beats, no quarters, no over-promise.
  *
- * Only name things already in motion. Dates belong only on items that
- * already have a clock (mint, Arcade Cup). Everything in the back is
+ * The heading is the destination. Dates belong only on items that
+ * already have a clock (mint, Arcade Cup). Everything later is
  * cooking, not promised. Edit this file when a beat flips.
  */
 
 export type RoadmapAccent = 'cerise' | 'cyan' | 'violet';
-export type RoadmapStatus = 'LIVE' | 'NEXT' | 'IN THE BACK';
+export type RoadmapStatus = 'NOW' | 'NEXT' | 'LATER';
 
 export interface RoadmapItem {
   label: string;
@@ -23,13 +23,19 @@ export interface RoadmapBeat {
   items: RoadmapItem[];
 }
 
+export const ROADMAP_NORTH_STAR = 'Build actually fun to play PVP games on Solana';
+export const ROADMAP_NORTH_STAR_LINES = ['Build actually fun to play', 'PVP games on Solana'] as const;
+
+export const ROADMAP_SUB =
+  'Arcade now. Mint Sunday. Holders walk in after that. Real PVP when the programs are live — not before.';
+
 export const ROADMAP_DISCLAIMER =
-  'Dates only for things that already have a clock. Everything in the back is cooking, not promised.';
+  'Dates only for things that already have a clock. Later is the destination, not a promise.';
 
 export const ROADMAP: readonly RoadmapBeat[] = [
   {
-    id: 'live',
-    status: 'LIVE',
+    id: 'now',
+    status: 'NOW',
     accent: 'cerise',
     title: 'The shop is open',
     items: [
@@ -67,14 +73,14 @@ export const ROADMAP: readonly RoadmapBeat[] = [
     ],
   },
   {
-    id: 'back',
-    status: 'IN THE BACK',
+    id: 'later',
+    status: 'LATER',
     accent: 'violet',
-    title: 'Still cooking',
+    title: 'PVP on Solana',
     items: [
       {
-        label: 'Real stakes',
-        detail: 'On-chain games once the new programs are live. No date.',
+        label: 'The real games',
+        detail: 'On-chain PVP that is actually fun to play. No date.',
       },
       {
         label: 'More machines',
