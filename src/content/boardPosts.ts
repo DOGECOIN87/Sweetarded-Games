@@ -49,4 +49,24 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     linkLabel: 'See the prize ladder',
     paper: 'pink',
   },
+  {
+    id: 'weather',
+    title: 'The weather moves',
+    body:
+      '444 tokens carry a seamless weather loop. Tornado, Flooded, Blizzard, Storm, Fog, Snow, Rain — all seven states now play on the landing, right under the stickers.',
+    tag: 'Collection',
+    link: '#/rarity',
+    linkLabel: 'Open the rarity vault',
+    paper: 'cyan',
+  },
+  {
+    id: 'menu',
+    title: "What's cooking",
+    body:
+      'The shop is open, the drop is Sunday, holders get the arcade after that. Everything in the back is cooking — not promised. The full menu is on the landing.',
+    tag: 'Announcement',
+    link: '#/',
+    linkLabel: 'See the landing',
+    paper: 'yellow',
+  },
 ];

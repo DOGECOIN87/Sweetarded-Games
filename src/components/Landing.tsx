@@ -13,6 +13,8 @@ import AgentMint from './AgentMint';
 import MakerBio from './MakerBio';
 import RarityTeaser from './RarityTeaser';
 import Team from './Team';
+import AnimatedRares from './AnimatedRares';
+import Roadmap from './Roadmap';
 import { useAmbient } from '../motion/useAmbient';
 import SectionHeading from './SectionHeading';
 import NeonDivider from './scene/NeonDivider';
@@ -233,22 +235,27 @@ const Landing = () => {
       </div>
     </Link>
 
-    <NeonDivider aisle="01" label="The Reel" accent="cyan" />
+    <NeonDivider aisle="01" label="The Weather" accent="cerise" />
+
+    {/* ANIMATED RARES — weather loops, featured right under the stickers */}
+    <AnimatedRares />
+
+    <NeonDivider aisle="02" label="The Reel" accent="cyan" />
 
     {/* THE REEL — featured Sweetardio post, embedded from X */}
     <SweetardioVideo />
 
-    <NeonDivider aisle="02" label="The Rare Wall" accent="cerise" />
+    <NeonDivider aisle="03" label="The Rare Wall" accent="cerise" />
 
     {/* ARTIST SERIES — looping carousel of 1/1 guest-artist rares */}
     <ArtistRares />
 
-    <NeonDivider aisle="03" label="The Odds" accent="cerise" />
+    <NeonDivider aisle="04" label="The Odds" accent="cerise" />
 
     {/* RARITY — headline odds, linking into the full vault */}
     <RarityTeaser />
 
-    <NeonDivider aisle="04" label="The Mint" accent="cyan" />
+    <NeonDivider aisle="05" label="The Mint" accent="cyan" />
 
     {/* UPCOMING MINT — LaunchMyNFT embed */}
     <MintSection />
@@ -256,7 +263,7 @@ const Landing = () => {
     {/* AGENTIC CHECKOUT — mint via PayBox in the user's own assistant */}
     <AgentMint />
 
-    <NeonDivider aisle="05" label="The Arcade" accent="cerise" />
+    <NeonDivider aisle="06" label="The Arcade" accent="cerise" />
 
     {/* GAMES — Clean Navigation Grid with Integrated Arrows */}
     <section className="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
@@ -296,22 +303,27 @@ const Landing = () => {
       </div>
     </section>
 
-    <NeonDivider aisle="06" label="The Sounds" accent="cyan" />
+    <NeonDivider aisle="07" label="What's Cooking" accent="cyan" />
+
+    {/* THE MENU — three-beat public plan */}
+    <Roadmap />
+
+    <NeonDivider aisle="08" label="The Sounds" accent="cyan" />
 
     {/* HIGHLIGHTED MUSIC FEATURE — Audius player */}
     <MusicFeature />
 
-    <NeonDivider aisle="07" label="The Team" accent="cerise" />
+    <NeonDivider aisle="09" label="The Team" accent="cerise" />
 
     {/* THE TEAM — everyone behind Sweetardio */}
     <Team />
 
-    <NeonDivider aisle="08" label="The Maker" accent="cyan" />
+    <NeonDivider aisle="10" label="The Maker" accent="cyan" />
 
     {/* THE MAKER — who's behind the counter */}
     <MakerBio />
 
-    <NeonDivider aisle="09" label="The Ecosystem" accent="cerise" />
+    <NeonDivider aisle="11" label="The Ecosystem" accent="cerise" />
 
     {/* ECOSYSTEM / MARKETPLACE LINKS */}
     <GetStarted />
@@ -386,6 +398,13 @@ const Landing = () => {
               Mint
             </a>
             <a
+              href="#weather"
+              onClick={(e) => { e.preventDefault(); document.getElementById('weather')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="transition-colors hover:text-sweetardios-cerise focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
+            >
+              Weather
+            </a>
+            <a
               href="#rares"
               onClick={(e) => { e.preventDefault(); document.getElementById('rares')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="transition-colors hover:text-sweetardios-cerise focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
@@ -400,6 +419,13 @@ const Landing = () => {
               Music
             </a>
             <Link to="/rarity" className="transition-colors hover:text-sweetardios-cerise">Rarity</Link>
+            <a
+              href="#cooking"
+              onClick={(e) => { e.preventDefault(); document.getElementById('cooking')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="transition-colors hover:text-sweetardios-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sweetardios-cyan"
+            >
+              The Menu
+            </a>
             <Link to="/leaderboard" className="transition-colors hover:text-sweetardios-cyan">Leaderboard</Link>
             <Link to="/stickers" className="transition-colors hover:text-sweetardios-cerise">Stickers</Link>
             <Link to="/board" className="transition-colors hover:text-sweetardios-cerise">The Board</Link>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { RARITY_CATEGORIES, SUPPLY } from '../../content/rarity';
+import { WEATHER_STATES, weatherPoster, weatherSrc } from '../../content/weather';
 
 /* ── Showcase — what the scarce traits actually look like ──────────
    The counts here are looked up from the rarity data by trait name, so
@@ -11,7 +12,7 @@ const rowFor = (categoryId: string, name: string) =>
 const oneIn = (count: number) => Math.round(SUPPLY / count);
 
 /** Weather loops, rarest first — file slugs match public/rarity/weather/. */
-const WEATHER = ['Tornado', 'Flooded', 'Blizzard', 'Storm', 'Fog', 'Snow', 'Rain'];
+const WEATHER = WEATHER_STATES;
 
 /** Scarce plates, rarest first — slugs match public/rarity/plates/. */
 const PLATES = [
@@ -41,7 +42,6 @@ const ANIMATED_PLATES = new Set(['Starfield']);
 const WeatherTile = ({ name, count, i }: { name: string; count: number; i: number }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
-  const s = slug(name);
 
   useEffect(() => {
     const el = ref.current;
@@ -73,7 +73,7 @@ const WeatherTile = ({ name, count, i }: { name: string; count: number; i: numbe
         {inView ? (
           <video
             className="h-full w-full object-cover"
-            poster={`/rarity/weather/${s}-poster.webp`}
+            poster={weatherPoster(name)}
             autoPlay
             loop
             muted
@@ -81,11 +81,11 @@ const WeatherTile = ({ name, count, i }: { name: string; count: number; i: numbe
             preload="none"
             aria-label={`${name} weather loop`}
           >
-            <source src={`/rarity/weather/${s}.webm`} type="video/webm" />
+            <source src={weatherSrc(name)} type="video/webm" />
           </video>
         ) : (
           <img
-            src={`/rarity/weather/${s}-poster.webp`}
+            src={weatherPoster(name)}
             alt={`${name} weather`}
             loading="lazy"
             decoding="async"
