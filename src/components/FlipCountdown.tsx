@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MINT_TARGET_MS } from './MintSection';
+import { MINT_SHORT_LABEL, MINT_TARGET_MS } from './MintSection';
 
 function parts(ms: number) {
   const clamped = Math.max(0, ms);
@@ -154,7 +154,7 @@ export default function FlipCountdown() {
         <Colon />
         <Pair value={t.s} label="Secs" accent />
       </div>
-      <p className="count-caption">September 14 · 12:00 UTC</p>
+      <p className="count-caption">{MINT_SHORT_LABEL}</p>
     </div>
   );
 }

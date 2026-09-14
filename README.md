@@ -30,18 +30,18 @@ from the main marketplace so the games can be redesigned in isolation.
 ## NFT mint embed and countdown
 
 The landing page and `/mint` route share one persistent LaunchMyNFT widget for
-the [Sweetardio collection](https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/W9rwP1XQQpeD2xl1cTtK)
-(owner `Hn1i…nELo`, collection `W9rwP1XQQpeD2xl1cTtK`). LaunchMyNFT remains
+the [Sweetardio collection](https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/8azF6Zkfb5ExKPty13RO)
+(owner `Hn1i…nELo`, collection `8azF6Zkfb5ExKPty13RO`). LaunchMyNFT remains
 authoritative for price, supply, eligibility, start/end state, and the
 transaction itself.
 
 The countdown defaults to the launch instant scheduled on that collection —
-`2026-09-14T12:00:09.509Z` (`DEFAULT_MINT_START_AT` in
+`2026-09-14T16:15:08.618Z` (`DEFAULT_MINT_START_AT` in
 `src/components/MintSection.tsx`). Update that constant when LaunchMyNFT's
 launch date changes, or override it per deployment without a code change:
 
 ```bash
-VITE_MINT_START_AT=2026-09-14T12:00:00Z
+VITE_MINT_START_AT=2026-09-14T16:15:00Z
 ```
 
 Use ISO-8601 with `Z` or an explicit UTC offset. If the override is invalid, the

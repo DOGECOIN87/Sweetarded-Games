@@ -21,10 +21,10 @@ import { createPortal } from 'react-dom';
  */
 
 export const MINT_URL =
-  'https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/W9rwP1XQQpeD2xl1cTtK';
+  'https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/8azF6Zkfb5ExKPty13RO';
 
 const LMNFT_OWNER_ID = 'Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo';
-const LMNFT_COLLECTION_ID = 'W9rwP1XQQpeD2xl1cTtK';
+const LMNFT_COLLECTION_ID = '8azF6Zkfb5ExKPty13RO';
 // Version pinned to the snippet LaunchMyNFT's collection dashboard hands out.
 const LMNFT_SCRIPT_SRC = 'https://storage.googleapis.com/scriptslmt/0.1.3/solana.js';
 const LMNFT_STYLE_HREF = 'https://storage.googleapis.com/scriptslmt/0.1.3/solana.css';

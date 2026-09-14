@@ -9,7 +9,7 @@ import MintEmbed, { MINT_URL } from './MintEmbed';
  * timezone, for example:
  *   VITE_MINT_START_AT=2026-08-01T18:00:00Z
  */
-const DEFAULT_MINT_START_AT = '2026-09-14T12:00:09.509Z';
+const DEFAULT_MINT_START_AT = '2026-09-14T16:15:08.618Z';
 const configuredMintStart =
   import.meta.env.VITE_MINT_START_AT?.trim() || DEFAULT_MINT_START_AT;
 const hasExplicitTimeZone = configuredMintStart
@@ -33,6 +33,21 @@ export const MINT_DATE_LABEL = MINT_TARGET_MS === null
       minute: '2-digit',
       timeZoneName: 'short',
     }).format(new Date(MINT_TARGET_MS));
+
+/* Short UTC caption for the hero split-flap board, derived from the same
+   instant so it cannot drift from the timer above it. */
+export const MINT_SHORT_LABEL = MINT_TARGET_MS === null
+  ? 'TBA'
+  : `${new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    }).format(new Date(MINT_TARGET_MS))} \u00b7 ${new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'UTC',
+    }).format(new Date(MINT_TARGET_MS))} UTC`;
 
 interface Remaining { days: number; hours: number; minutes: number; seconds: number; done: boolean; }
 
@@ -90,7 +105,7 @@ const Countdown = ({ targetMs }: { targetMs: number }) => {
   if (remaining.done) {
     return (
       <p role="status" className="sw-glow-cerise font-heading text-xl text-sweetardios-cerise sm:text-3xl">
-        Countdown ended — check mint availability below 🍬
+        Mint is live — grab a Sweetardio below 🍬
       </p>
     );
   }
