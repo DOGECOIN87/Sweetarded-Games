@@ -9,7 +9,7 @@ import MintEmbed, { MINT_URL } from './MintEmbed';
  * timezone, for example:
  *   VITE_MINT_START_AT=2026-08-01T18:00:00Z
  */
-const DEFAULT_MINT_START_AT = '2026-09-14T16:15:08.618Z';
+const DEFAULT_MINT_START_AT = '2026-09-14T13:59:00.000Z';
 const configuredMintStart =
   import.meta.env.VITE_MINT_START_AT?.trim() || DEFAULT_MINT_START_AT;
 const hasExplicitTimeZone = configuredMintStart

@@ -36,12 +36,12 @@ authoritative for price, supply, eligibility, start/end state, and the
 transaction itself.
 
 The countdown defaults to the launch instant scheduled on that collection —
-`2026-09-14T16:15:08.618Z` (`DEFAULT_MINT_START_AT` in
+`2026-09-14T13:59:00.000Z` (`DEFAULT_MINT_START_AT` in
 `src/components/MintSection.tsx`). Update that constant when LaunchMyNFT's
 launch date changes, or override it per deployment without a code change:
 
 ```bash
-VITE_MINT_START_AT=2026-09-14T16:15:00Z
+VITE_MINT_START_AT=2026-09-14T13:59:00Z
 ```
 
 Use ISO-8601 with `Z` or an explicit UTC offset. If the override is invalid, the
