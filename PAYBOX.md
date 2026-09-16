@@ -27,7 +27,7 @@ passkey model do its job. That's what `src/components/AgentMint.tsx` ships.
   cross-check the mint page's ownership and confirm every amount before approval.
 
 ## Safety posture
-- Sweetardio never touches user funds; LaunchMyNFT remains the authoritative mint.
+- Sweetardio never touches user funds; OpenSea remains the authoritative mint.
 - The panel states PayBox is a MoonPay product, unaffiliated, brand-new, and tells
   users to verify every approval. Keep that copy.
 - If you ever change the mint URL, change `MINT_URL` in MintEmbed — the prompt
@@ -37,6 +37,6 @@ passkey model do its job. That's what `src/components/AgentMint.tsx` ships.
 PayBox agents can "pay x402 services." Becoming an x402 *merchant* (selling mint
 passes / NFTs the agent can buy directly over HTTP 402 + USDC) is a real backend
 project: an x402-speaking endpoint (their Node SDK / CLI could sit in a Cloudflare
-Worker), payment→delivery logic, and a mint mechanism you control (LaunchMyNFT's
-contract can't deliver on x402 payment). Revisit after the mint, if agent-native
+Worker), payment→delivery logic, and a mint mechanism you control (the OpenSea
+SeaDrop contract can't deliver on x402 payment). Revisit after the mint, if agent-native
 sales are worth owning end-to-end.

@@ -42,8 +42,11 @@ export const buildAgentMintPrompt = (mintUrl: string): string =>
 Official mint page: ${mintUrl}
 (Cross-check it belongs to @Sweetardio / sweetardio.fun before paying anything.)
 
-1. Check the live mint price and whether the mint is open.
-2. Make sure my PayBox Solana wallet holds enough SOL for the mint plus fees — fund it if it doesn't.
-3. Walk me through completing the mint on that page.
+The mint is on Robinhood Chain (an EVM network) and is priced in ETH.
+
+1. Check the live mint price, per-wallet limit, and whether the mint is open.
+2. Check whether my PayBox can hold and send ETH on Robinhood Chain. If it can't, tell me and stop.
+3. Make sure that wallet holds enough ETH on Robinhood Chain for the mint plus gas — fund it if it doesn't.
+4. Walk me through completing the mint on that page.
 
 Confirm every amount and every address with me before I approve anything with my passkey.`;

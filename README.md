@@ -24,24 +24,26 @@ from the main marketplace so the games can be redesigned in isolation.
 | `/arcade`      | Arcade walk-through scene                                      |
 | `/leaderboard` | **Leaderboards** — site-wide standings for both games          |
 | `/board`       | **The Board** — cork notice board with team announcements      |
-| `/mint`        | Dedicated on-site LaunchMyNFT mint controls                    |
+| `/mint`        | Mint page — hands off to the official OpenSea mint             |
 | `/whitelist`   | Whitelist signup                                               |
 
-## NFT mint embed and countdown
+## NFT mint and countdown
 
-The landing page and `/mint` route share one persistent LaunchMyNFT widget for
-the [Sweetardio collection](https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/8azF6Zkfb5ExKPty13RO)
-(owner `Hn1i…nELo`, collection `8azF6Zkfb5ExKPty13RO`). LaunchMyNFT remains
-authoritative for price, supply, eligibility, start/end state, and the
-transaction itself.
+The Sweetardio collection mints on OpenSea (SeaDrop ERC-721 on Robinhood Chain):
+<https://opensea.io/collection/sweetardio>. The link lives in one place —
+`MINT_URL` in `src/components/MintEmbed.tsx` — and every mint button, the Get
+Started links, the whitelist page and the AgentMint prompt import it. OpenSea
+remains authoritative for price, supply, per-wallet limits, stage timing and the
+transaction itself. OpenSea has no embeddable mint widget, so the on-site slot
+is a hand-off card rather than third-party controls.
 
-The countdown defaults to the launch instant scheduled on that collection —
-`2026-09-14T13:59:00.000Z` (`DEFAULT_MINT_START_AT` in
-`src/components/MintSection.tsx`). Update that constant when LaunchMyNFT's
-launch date changes, or override it per deployment without a code change:
+The countdown defaults to the start of the first OpenSea drop stage —
+`2026-09-16T00:47:52.000Z` (`DEFAULT_MINT_START_AT` in
+`src/components/MintSection.tsx`). Update that constant if the drop schedule
+changes, or override it per deployment without a code change:
 
 ```bash
-VITE_MINT_START_AT=2026-09-14T13:59:00Z
+VITE_MINT_START_AT=2026-09-16T00:47:52Z
 ```
 
 Use ISO-8601 with `Z` or an explicit UTC offset. If the override is invalid, the

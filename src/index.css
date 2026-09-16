@@ -382,28 +382,6 @@ body {
   color: #070F34;
 }
 
-/* LaunchMyNFT's stylesheet is injected after the app CSS, so these scoped
-   selectors intentionally carry enough specificity to keep its embedded
-   wallet button on-brand. */
-.lmnft-embed .wallet-adapter-button {
-  border-radius: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.lmnft-embed .wallet-adapter-button-trigger {
-  background: #F715AB;
-  color: #070F34;
-  box-shadow: 0 0 24px rgba(247, 21, 171, 0.3);
-}
-.lmnft-embed .wallet-adapter-button-trigger:not([disabled]):hover {
-  background: #34EDF3;
-  color: #070F34;
-  box-shadow: 0 0 28px rgba(52, 237, 243, 0.35);
-}
-
 /* ═══════════════════════════════════════════════════════════════════
    MIDNIGHT CANDY SHOP — landing atmosphere & sign system
    The landing page reads as one physical arcade: neon-tube aisle

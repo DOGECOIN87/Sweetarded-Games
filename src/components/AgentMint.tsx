@@ -4,7 +4,7 @@ import { AGENT_MINT_ENABLED, PAYBOX, buildAgentMintPrompt } from '../content/age
 
 /* ── Agentic checkout — "Mint by talking to your AI" ─────────────────
    PayBox (by MoonPay) lives inside the user's own assistant: connect
-   once, then the agent can check the price, fund their Solana wallet,
+   once, then the agent can check the price, fund their wallet,
    and walk them through the mint — with a passkey approving anything
    that moves money. This panel is signage for that rail: the setup
    link, the connector URL, and a precomposed, safety-first prompt.  */
@@ -69,7 +69,7 @@ const AgentMint = () => {
               <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-blue-100/65 lg:mx-0">
                 No wallet set up? Connect <span className="font-semibold text-white">PayBox</span> — MoonPay's
                 non-custodial vault for AI agents — to Claude or ChatGPT, and your assistant handles the rest:
-                checks the price, funds your Solana wallet, walks you through the mint.
+                checks the price, funds your wallet, walks you through the mint.
               </p>
               <p className="mx-auto mt-5 max-w-md text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-100/45 lg:mx-0">
                 Non-custodial · You approve every transaction by passkey · Sweetardio never touches your funds
@@ -155,7 +155,7 @@ const AgentMint = () => {
             PayBox is a MoonPay product (launched July 2026) and is not affiliated with Sweetardio.
             Agentic payments are new — double-check every approval. The official mint remains{' '}
             <a href={MINT_URL} target="_blank" rel="noopener noreferrer" className="text-sweetardios-cyan/70 underline-offset-2 hover:underline">
-              LaunchMyNFT
+              OpenSea
             </a>
             , with or without an agent. <a href={PAYBOX.docs} target="_blank" rel="noopener noreferrer" className="text-white/45 underline-offset-2 hover:underline">PayBox docs ↗</a>
           </p>

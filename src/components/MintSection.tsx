@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import MintEmbed, { MINT_URL } from './MintEmbed';
+import MintEmbed from './MintEmbed';
 
 /**
- * LaunchMyNFT remains authoritative for mint availability. The site countdown
- * mirrors the launch instant scheduled on the collection itself, and
+ * OpenSea remains authoritative for mint availability. The site countdown
+ * mirrors the start of the collection's first SeaDrop stage on OpenSea, and
  * VITE_MINT_START_AT overrides it at build time as an ISO-8601 value with a
  * timezone, for example:
  *   VITE_MINT_START_AT=2026-08-01T18:00:00Z
  */
-const DEFAULT_MINT_START_AT = '2026-09-14T13:59:00.000Z';
+const DEFAULT_MINT_START_AT = '2026-09-16T00:47:52.000Z';
 const configuredMintStart =
   import.meta.env.VITE_MINT_START_AT?.trim() || DEFAULT_MINT_START_AT;
 const hasExplicitTimeZone = configuredMintStart
@@ -132,7 +132,7 @@ const MintSection = ({ asPage = false }: MintSectionProps) => {
 
           <span className="mb-5 inline-flex items-center gap-2.5 border border-sweetardios-cerise/40 bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-sweetardios-cerise backdrop-blur">
             <span className="h-1.5 w-1.5 bg-sweetardios-cerise shadow-[0_0_8px_#F715AB]" style={{ borderRadius: '9999px' }} />
-            <span>On-site Mint<span className="hidden min-[400px]:inline"> · Powered by LaunchMyNFT</span></span>
+            <span>Official Mint<span className="hidden min-[400px]:inline"> · On OpenSea</span></span>
           </span>
 
           <Heading className="font-heading text-4xl text-white sm:text-5xl">
@@ -167,22 +167,13 @@ const MintSection = ({ asPage = false }: MintSectionProps) => {
 
           <div className="mt-10">
             <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-blue-100/70">
-              Connect your Solana wallet and mint without leaving Sweetardio.fun. LaunchMyNFT controls
-              the live price, eligibility, supply, and transaction details.
+              Sweetardio mints on OpenSea on Robinhood Chain — bring an EVM wallet with ETH on that
+              network. OpenSea controls the live price, per-wallet limit, supply, and transaction details.
             </p>
             <MintEmbed />
           </div>
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href={MINT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="sw-shine inline-flex w-full items-center justify-center gap-2 px-3 py-3 text-xs font-extrabold uppercase tracking-wide text-sweetardios-oxford transition-transform hover:-translate-y-0.5 sm:w-auto sm:px-7 sm:text-sm"
-              style={{ background: '#34EDF3' }}
-            >
-              Use LaunchMyNFT directly <span aria-hidden>↗</span>
-            </a>
             <Link
               to="/whitelist"
               className="inline-flex w-full items-center justify-center gap-2 border border-sweetardios-cyan/50 px-3 py-3 text-xs font-extrabold uppercase tracking-wide text-sweetardios-cyan transition-colors hover:bg-sweetardios-cyan hover:text-sweetardios-oxford sm:w-auto sm:px-7 sm:text-sm"

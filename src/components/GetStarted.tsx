@@ -31,7 +31,7 @@ interface LinkItem {
 //   https://magiceden.io/marketplace/<collection-slug>
 //   https://www.tensor.trade/trade/<collection-slug>
 const MARKETPLACES: LinkItem[] = [
-  { name: 'Mint on LaunchMyNFT', url: MINT_URL, logo: 'launchmynft', accent: 'cerise', note: 'Official mint' },
+  { name: 'Mint on OpenSea', url: MINT_URL, logo: 'opensea', accent: 'cerise', note: 'Official mint · Robinhood Chain' },
   { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cyan', note: 'Secondary · live at launch' },
   { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cerise', note: 'Secondary · live at launch' },
 ];
