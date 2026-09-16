@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { MINT_DATE_LABEL } from '../components/MintSection';
 import { MINT_URL } from '../components/MintEmbed';
-import { submitWhitelist, isValidSolanaAddress } from '../services/whitelistService';
+import { submitWhitelist, isValidWalletAddress } from '../services/whitelistService';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -12,7 +12,7 @@ export default function WhitelistPage() {
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
 
-  const walletLooksValid = wallet.trim() === '' || isValidSolanaAddress(wallet);
+  const walletLooksValid = wallet.trim() === '' || isValidWalletAddress(wallet);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ export default function WhitelistPage() {
                 <span className="sw-glow-cyan text-sweetardios-cyan">your spot</span>
               </h1>
               <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-blue-100/70">
-                Drop your Solana wallet to join the Sweetardio whitelist. Mint day:{' '}
+                Drop your wallet address to join the Sweetardio whitelist. Mint day:{' '}
                 <span className="font-semibold text-white">{MINT_DATE_LABEL}</span>.
               </p>
             </header>
@@ -76,7 +76,7 @@ export default function WhitelistPage() {
               <form onSubmit={onSubmit} className="mt-9 space-y-5">
                 <div>
                   <label htmlFor="wl-wallet" className="mb-1.5 block text-xs font-bold uppercase tracking-[0.2em] text-blue-100/70">
-                    Solana wallet address <span className="text-sweetardios-cerise">*</span>
+                    Wallet address <span className="text-sweetardios-cerise">*</span>
                   </label>
                   <input
                     id="wl-wallet"
@@ -92,7 +92,7 @@ export default function WhitelistPage() {
                     }`}
                   />
                   {!walletLooksValid && (
-                    <p className="mt-1.5 text-xs text-rose-400">That doesn’t look like a valid Solana address.</p>
+                    <p className="mt-1.5 text-xs text-rose-400">That doesn’t look like a valid wallet address.</p>
                   )}
                 </div>
 

@@ -1,6 +1,6 @@
 /**
  * Generated Client SDK for Coinpusher Game Program
- * Configured for Gorbagana (Solana fork) deployment
+ * Configured for Gorbagana deployment
  * 
  * SECURITY: All transactions are validated to ensure:
  * - Only DEBRIS tokens are accepted for deposits
@@ -24,12 +24,12 @@ const DEBRIS_MINT = new PublicKey(TOKEN_CONFIG.DEBRIS.address);
 // Program ID from environment, falls back to placeholder
 function getProgramId(): PublicKey {
   const envProgramId = typeof import.meta !== 'undefined'
-    ? import.meta.env?.VITE_SOLANA_PROGRAM_ID
+    ? import.meta.env?.VITE_GAME_PROGRAM_ID
     : undefined;
 
   if (!envProgramId || envProgramId === '11111111111111111111111111111111') {
     console.warn(
-      '[JunkPusherClient] Using placeholder Program ID. Deploy the program and set VITE_SOLANA_PROGRAM_ID in .env.local'
+      '[JunkPusherClient] Using placeholder Program ID. Deploy the program and set VITE_GAME_PROGRAM_ID in .env.local'
     );
   }
 
@@ -68,7 +68,7 @@ export interface WithdrawBalanceParams {
  * SECURITY FEATURES:
  * - Token validation: Only DEBRIS tokens accepted
  * - Amount validation: Prevents overflow/underflow
- * - Wallet validation: Ensures valid Solana addresses
+ * - Wallet validation: Ensures valid wallet addresses
  * - Withdrawal protection: Only allows withdrawal of verified winnings
  */
 export class JunkPusherClient {

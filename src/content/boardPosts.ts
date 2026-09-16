@@ -63,7 +63,7 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     id: 'roadmap',
     title: 'The roadmap',
     body:
-      'Build actually fun to play PVP games on Solana. Arcade now, mint Sunday, holders next. Real PVP when the programs are live — not before.',
+      'Build actually fun to play on-chain PVP games. Arcade now, mint Sunday, holders next. Real PVP when the programs are live — not before.',
     tag: 'Announcement',
     link: '#/',
     linkLabel: 'See the landing',

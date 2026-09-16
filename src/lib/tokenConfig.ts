@@ -3,7 +3,7 @@
  *
  * DEBRIS Token: The sole token used in this dapp
  *
- * CRITICAL: All tokens use 9 decimals (Solana standard)
+ * CRITICAL: All tokens use 9 decimals
  */
 
 // Game treasury wallet - holds DEBRIS tokens for player payouts

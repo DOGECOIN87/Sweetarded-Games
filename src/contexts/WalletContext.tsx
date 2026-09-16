@@ -100,7 +100,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       
       const data = await response.json();
       if (data.result?.value !== undefined) {
-        // Convert from lamports to GOR (assuming 9 decimals like Solana)
+        // Convert from base units to GOR (9 decimals)
         return data.result.value / Math.pow(10, GORBAGANA_CONFIG.currency.decimals);
       }
       return null;

@@ -24,7 +24,7 @@ import { MINT_URL } from './MintEmbed';
 const FEATURES: { icon: string; title: string; desc: string; to?: string }[] = [
   { icon: '🎮', title: 'Free to Play', desc: `Every player starts with ${STARTING_CREDITS.toLocaleString()} SWEET credits — off-chain, just for fun.` },
   { icon: '🏆', title: 'Live Leaderboards', desc: 'Net profit, biggest wins and coins pushed — tracked live, per player.', to: '/leaderboard' },
-  { icon: '👛', title: 'Any Solana Wallet', desc: 'Phantom, Backpack, Nightly, Solflare and more — connect to save your rank.' },
+  { icon: '👛', title: 'Connect Any Wallet', desc: 'Phantom, Backpack, Nightly, Solflare and more — connect to save your rank.' },
   { icon: '🎟', title: '55 Free Mints', desc: 'Play either game to bank Arcade Cup tickets — ten winners drawn at close.', to: '/leaderboard' },
 ];
 
@@ -305,7 +305,7 @@ const Landing = () => {
 
     <NeonDivider aisle="07" label="The Roadmap" accent="cyan" />
 
-    {/* ROADMAP — three beats toward PVP on Solana */}
+    {/* ROADMAP — three beats toward on-chain PVP */}
     <Roadmap />
 
     <NeonDivider aisle="08" label="The Sounds" accent="cyan" />
@@ -339,7 +339,7 @@ const Landing = () => {
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-blue-100/70">
               Every round in either game banks tickets for the Arcade Cup — 55 free Sweetardio mints,
               drawn across ten winners when entries close. Ten tickets a day is the cap, so showing up
-              beats grinding. Connect any Solana wallet so the draw can reach you.
+              beats grinding. Connect any supported wallet so the draw can reach you.
             </p>
           </div>
           <Link

@@ -1,7 +1,7 @@
 /**
  * Whitelist signup service.
  *
- * Stores Solana wallet submissions (plus an optional X/Twitter handle) in
+ * Stores wallet submissions (plus an optional X/Twitter handle) in
  * Firestore, keyed by wallet address so re-submissions are idempotent.
  *
  * Writes go through Firestore's plain REST `:commit` endpoint instead of the
@@ -12,7 +12,6 @@
  * user always gets an answer. The same Firestore security rules validate the
  * document either way (see firestore.rules → `whitelist`).
  */
-import { PublicKey } from '@solana/web3.js';
 import app from '../firebase.config';
 
 export const WHITELIST_COLLECTION = 'whitelist';
@@ -31,14 +30,36 @@ export interface WhitelistResult {
   message: string;
 }
 
-/** True when `value` is a structurally valid Solana public key. */
-export function isValidSolanaAddress(value: string): boolean {
-  try {
-    // PublicKey throws for bad base58 / wrong length; toBytes guards edge cases.
-    return new PublicKey(value.trim()).toBytes().length === 32;
-  } catch {
-    return false;
+const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+/**
+ * Decode base58 and report the byte length, or -1 when `value` is not base58.
+ * Leading '1's are the base58 encoding of leading zero bytes, so they are
+ * counted separately from the big-integer body.
+ */
+function base58ByteLength(value: string): number {
+  if (value.length === 0) return -1;
+
+  let leadingZeros = 0;
+  while (leadingZeros < value.length && value[leadingZeros] === '1') leadingZeros += 1;
+
+  // Horner's method over the remaining digits; BigInt keeps 32-byte keys exact.
+  let acc = 0n;
+  for (let i = leadingZeros; i < value.length; i += 1) {
+    const digit = BASE58_ALPHABET.indexOf(value[i]);
+    if (digit === -1) return -1;
+    acc = acc * 58n + BigInt(digit);
   }
+
+  let bodyBytes = 0;
+  for (let n = acc; n > 0n; n >>= 8n) bodyBytes += 1;
+
+  return leadingZeros + bodyBytes;
+}
+
+/** True when `value` is a structurally valid 32-byte base58 wallet address. */
+export function isValidWalletAddress(value: string): boolean {
+  return base58ByteLength(value.trim()) === 32;
 }
 
 /** Normalise an X/Twitter handle: strip a leading @ and any profile URL. */
@@ -110,8 +131,8 @@ export async function submitWhitelist(
 ): Promise<WhitelistResult> {
   const wallet = walletInput.trim();
 
-  if (!isValidSolanaAddress(wallet)) {
-    return { ok: false, message: 'That doesn’t look like a valid Solana wallet address.' };
+  if (!isValidWalletAddress(wallet)) {
+    return { ok: false, message: 'That doesn’t look like a valid wallet address.' };
   }
 
   const { projectId, apiKey } = app.options;

@@ -8,7 +8,7 @@
  * WHY A SEED
  * ----------
  * A draw nobody can check is just an announcement. Publish the seed BEFORE
- * running this — a Solana block hash from a stated slot is ideal, because you
+ * running this — a block hash from a stated height is ideal, because you
  * cannot have known it while the competition was open — and anyone can re-run
  * this script against the public entries and get byte-identical winners.
  *
