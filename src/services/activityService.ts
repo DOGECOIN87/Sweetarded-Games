@@ -142,7 +142,7 @@ function subscribeToGorbagioActivity(
         return {
           id: `gorbagio-list-${doc.id}`,
           type: 'LIST' as ActivityType,
-          text: `${name} listed for ${data.priceSol} GOR`,
+          text: `${name} listed for ${data.priceSol} SOL`,
           timestamp: ts,
           source: 'gorbagio' as const,
         };
@@ -165,7 +165,7 @@ function subscribeToGorbagioActivity(
         return {
           id: `gorbagio-sale-${doc.id}`,
           type: 'SALE' as ActivityType,
-          text: `${name} sold for ${data.priceSol} GOR`,
+          text: `${name} sold for ${data.priceSol} SOL`,
           timestamp: ts,
           source: 'gorbagio' as const,
         };

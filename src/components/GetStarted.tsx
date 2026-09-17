@@ -3,7 +3,7 @@ import { MINT_URL } from './MintEmbed';
 import { SocialIcon } from './SocialIcon';
 import SectionHeading from './SectionHeading';
 
-/* NFT marketplace links. Foreground accents on Oxford bg. */
+/* Solana NFT marketplace links. Foreground accents on Oxford bg. */
 const ACCENT = {
   cerise: {
     text: 'text-sweetardios-cerise',
@@ -26,17 +26,14 @@ interface LinkItem {
   note?: string;
 }
 
-// OpenSea is the one official marketplace: it hosts the mint and, after the
-// drop, every secondary listing. MINT_URL is that collection page, so a single
-// card covers both roles — anything else claiming to list us is a fake.
+// Solana NFT marketplaces — the official mint leads; secondaries go live at
+// launch. After launch, point ME/Tensor at the collection pages, e.g.
+//   https://magiceden.io/marketplace/<collection-slug>
+//   https://www.tensor.trade/trade/<collection-slug>
 const MARKETPLACES: LinkItem[] = [
-  {
-    name: 'Sweetardio on OpenSea',
-    url: MINT_URL,
-    logo: 'opensea',
-    accent: 'cerise',
-    note: 'Official mint & secondary · Robinhood Chain',
-  },
+  { name: 'Mint on OpenSea', url: MINT_URL, logo: 'opensea', accent: 'cerise', note: 'Official mint · Robinhood Chain' },
+  { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cyan', note: 'Secondary · live at launch' },
+  { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cerise', note: 'Secondary · live at launch' },
 ];
 
 const LinkButton = ({ item }: { item: LinkItem }) => {
@@ -95,16 +92,16 @@ const GetStarted = () => (
     <SectionHeading
       eyebrow="The Ecosystem"
       title="Verify, then ape"
-      sub="The only official marketplace and channels. Anything else wearing our face is a fake."
+      sub="The only official marketplaces and channels. Anything else wearing our face is a fake."
       accent="cyan"
     />
 
     {/* Marketplaces */}
     <div>
       <h3 className="mb-5 text-center text-sm font-bold uppercase tracking-[0.3em] text-sweetardios-cerise">
-        Marketplace · Grab a Sweetardio
+        Marketplaces · Grab a Sweetardio
       </h3>
-      <div className="mx-auto grid max-w-md grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {MARKETPLACES.map((m) => <LinkButton key={m.name} item={m} />)}
       </div>
     </div>

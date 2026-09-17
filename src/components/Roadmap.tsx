@@ -8,7 +8,7 @@ import {
   type RoadmapAccent,
 } from '../content/roadmap';
 
-/* ── Roadmap — three beats toward on-chain PVP ── */
+/* ── Roadmap — three beats toward PVP on Solana ── */
 
 const ACCENT: Record<
   RoadmapAccent,

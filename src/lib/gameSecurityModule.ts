@@ -95,7 +95,7 @@ export function validateWalletAddress(address: string | PublicKey): boolean {
  * Validates transaction signature format
  */
 export function validateTransactionSignature(signature: string): boolean {
-  // Signatures are base58 encoded and typically 88 characters
+  // Solana signatures are base58 encoded and typically 88 characters
   if (typeof signature !== 'string' || signature.length < 50 || signature.length > 100) {
     return false;
   }

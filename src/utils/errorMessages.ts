@@ -1,7 +1,7 @@
 /**
- * Error Message Parser for on-chain / Anchor Transactions
+ * Error Message Parser for Solana/Anchor Transactions
  *
- * Translates raw Anchor error codes and transaction errors
+ * Translates raw Anchor error codes and Solana transaction errors
  * into user-friendly messages.
  */
 
@@ -31,7 +31,7 @@ const ANCHOR_ERROR_MAP: Record<number, string> = {
   2010: 'Constraint executable — account must be executable.',
 };
 
-// Common transaction / wallet error patterns
+// Common Solana/wallet error patterns
 const ERROR_PATTERNS: [RegExp, string][] = [
   [/User rejected/i, 'Transaction cancelled by user.'],
   [/user rejected the request/i, 'Transaction cancelled by user.'],
@@ -49,7 +49,7 @@ const ERROR_PATTERNS: [RegExp, string][] = [
 
 /**
  * Parse a raw error into a user-friendly message.
- * Handles Anchor custom error codes, transaction errors, and wallet adapter errors.
+ * Handles Anchor custom error codes, Solana errors, and wallet adapter errors.
  */
 export function parseTransactionError(error: unknown): string {
   if (!error) return 'An unknown error occurred.';

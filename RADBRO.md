@@ -30,5 +30,5 @@ so `index.html` remains at the ZIP root.
   final `clear` when the player resets a non-empty run.
 
 The builds answer `radbro:game-ready-request` and send `radbro:game-ready` on
-load. They do not bundle wallet adapters, on-chain clients, Firebase scoring, or
+load. They do not bundle wallet adapters, Solana clients, Firebase scoring, or
 the full Sweetardio website shell.

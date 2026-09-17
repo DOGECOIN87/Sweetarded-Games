@@ -1,6 +1,6 @@
 /**
- * Adapter that maps the wallet-adapter-react interface to what the game components expect.
- * This eliminates the need for the game's standalone wallet service.
+ * Adapter that maps the @solana/wallet-adapter-react interface to what the game components expect.
+ * This eliminates the need for the game's standalone wallet/solana service.
  */
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';

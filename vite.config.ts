@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/three')) return 'chunk-three';
             if (id.includes('@dimforge/rapier3d-compat')) return 'chunk-physics';
             if (id.includes('node_modules/firebase')) return 'chunk-firebase';
-            if (id.includes('@coral-xyz/anchor') || id.includes('@solana/')) return 'chunk-wallet';
+            if (id.includes('@coral-xyz/anchor') || id.includes('@solana/')) return 'chunk-solana';
             if (
               id.includes('node_modules/react/') ||
               id.includes('node_modules/react-dom/') ||

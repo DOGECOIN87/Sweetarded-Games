@@ -38,7 +38,7 @@ service cloud.firestore {
       return d.keys().hasOnly(['wallet', 'xHandle', 'submittedAt'])
         && d.wallet is string
         && d.wallet == walletId                       // doc id must equal the wallet
-        && d.wallet.size() >= 32 && d.wallet.size() <= 44  // base58 wallet pubkey
+        && d.wallet.size() >= 32 && d.wallet.size() <= 44  // base58 Solana pubkey
         && (d.xHandle == null || (d.xHandle is string && d.xHandle.size() <= 40))
         && d.submittedAt == request.time;             // server timestamp only
     }

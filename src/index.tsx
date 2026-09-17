@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Buffer } from 'buffer';
 
-// Polyfill Buffer globally for browser compatibility with the wallet libraries
+// Polyfill Buffer globally for browser compatibility with Solana libraries
 if (typeof window !== 'undefined' && !(window as any).Buffer) {
   (window as any).Buffer = Buffer;
 }

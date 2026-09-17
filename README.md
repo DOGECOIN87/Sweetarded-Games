@@ -4,7 +4,7 @@ Standalone front-end workspace for the two **trashmarket.fun** arcade games — 
 **Slots** machine and the **Junk Pusher** (coin-pusher). This repo was extracted
 from the main marketplace so the games can be redesigned in isolation.
 
-> **Scope:** front-end only. The on-chain program and any backend services
+> **Scope:** front-end only. The Solana on-chain program and any backend services
 > are intentionally **not** included here — they will be reconfigured later. The
 > on-chain client code (wallet hooks, program IDs, RPC endpoints) is kept intact
 > so the app builds and runs, but treat those values as placeholders.
@@ -55,7 +55,7 @@ Pages workflow passes that value into the production build on each `main` push.
 
 ## Wallets, credits & leaderboards
 
-- **Wallet connect** (top nav + in-game) uses the wallet adapter with
+- **Wallet connect** (top nav + in-game) uses the Solana wallet adapter with
   Phantom, Solflare and Nightly registered explicitly, plus auto-detection of
   any Wallet Standard wallet the visitor has installed (Backpack, etc.).
   Connecting is optional and used **only as identity** — the games are
@@ -156,7 +156,7 @@ public/
 - React 19 + TypeScript + Vite 6
 - Tailwind CSS 4
 - `three` + `@dimforge/rapier3d-compat` (Junk Pusher physics)
-- Wallet adapter + `@coral-xyz/anchor` (on-chain client)
+- Solana wallet adapter + `@coral-xyz/anchor` (on-chain client)
 - Firebase (leaderboards / high scores)
 
 ## Notes for the redesign

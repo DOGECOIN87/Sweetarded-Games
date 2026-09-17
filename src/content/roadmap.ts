@@ -23,8 +23,8 @@ export interface RoadmapBeat {
   items: RoadmapItem[];
 }
 
-export const ROADMAP_NORTH_STAR = 'Build actually fun to play on-chain PVP games';
-export const ROADMAP_NORTH_STAR_LINES = ['Build actually fun to play', 'on-chain PVP games'] as const;
+export const ROADMAP_NORTH_STAR = 'Build actually fun to play PVP games on Solana';
+export const ROADMAP_NORTH_STAR_LINES = ['Build actually fun to play', 'PVP games on Solana'] as const;
 
 export const ROADMAP_SUB =
   'Arcade now. Mint Sunday. Holders walk in after that. Real PVP when the programs are live — not before.';
@@ -68,7 +68,7 @@ export const ROADMAP: readonly RoadmapBeat[] = [
       },
       {
         label: 'Secondaries',
-        detail: 'OpenSea at launch — only the official collection page.',
+        detail: 'Magic Eden and Tensor at launch — only the official pages.',
       },
     ],
   },
@@ -76,7 +76,7 @@ export const ROADMAP: readonly RoadmapBeat[] = [
     id: 'later',
     status: 'LATER',
     accent: 'violet',
-    title: 'On-chain PVP',
+    title: 'PVP on Solana',
     items: [
       {
         label: 'The real games',
