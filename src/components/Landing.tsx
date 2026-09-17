@@ -193,7 +193,7 @@ const Landing = () => {
               className="sw-shine inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-extrabold uppercase tracking-wide text-white transition-transform hover:-translate-y-0.5"
               style={{ background: '#F715AB', borderRadius: 16 }}
             >
-              Mint on OpenSea <span aria-hidden>↗</span>
+              Mint on LaunchMyNFT <span aria-hidden>↗</span>
             </a>
             <Link
               to="/arcade"
@@ -257,7 +257,7 @@ const Landing = () => {
 
     <NeonDivider aisle="05" label="The Mint" accent="cyan" />
 
-    {/* THE MINT — hand-off to the official OpenSea mint */}
+    {/* UPCOMING MINT — LaunchMyNFT embed */}
     <MintSection />
 
     {/* AGENTIC CHECKOUT — mint via PayBox in the user's own assistant */}

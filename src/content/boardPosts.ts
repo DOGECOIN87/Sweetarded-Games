@@ -23,10 +23,10 @@ export const FALLBACK_BOARD_POSTS: BoardPost[] = [
     id: 'mint',
     title: 'Sweetardio Collection mint',
     body:
-      'The Sweetardio Collection is minting now on OpenSea, on Robinhood Chain. 4,444 total. Use the official link on the mint page: opensea.io/collection/sweetardio',
+      'The Sweetardio Collection mint is scheduled for September 14, 2026 at 13:59 UTC. Join the whitelist, then mint here on Sweetardio.fun or use LaunchMyNFT directly.',
     tag: 'Mint',
     link: '#/mint',
-    linkLabel: 'Open the mint page',
+    linkLabel: 'Open on-site mint',
     paper: 'white',
   },
   {

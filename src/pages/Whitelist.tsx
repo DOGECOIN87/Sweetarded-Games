@@ -65,7 +65,7 @@ export default function WhitelistPage() {
                     className="sw-shine inline-flex items-center gap-2 px-6 py-3 text-sm font-extrabold uppercase tracking-wide text-sweetardios-oxford"
                     style={{ background: '#34EDF3' }}
                   >
-                    View on OpenSea <span aria-hidden>↗</span>
+                    View on LaunchMyNFT <span aria-hidden>↗</span>
                   </a>
                   <Link to="/" className="text-sm uppercase tracking-[0.2em] text-blue-100/60 transition-colors hover:text-white">
                     Back home

@@ -51,7 +51,7 @@ export const ROADMAP: readonly RoadmapBeat[] = [
       },
       {
         label: 'The mint',
-        detail: '4,444 Sweetardios. Minting now on OpenSea.',
+        detail: '4,444 Sweetardios. Sept 14, 13:59 UTC.',
         to: '/mint',
       },
     ],
