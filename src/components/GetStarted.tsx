@@ -27,13 +27,13 @@ interface LinkItem {
 }
 
 // Solana NFT marketplaces — the official mint leads; secondaries go live at
-// launch. After launch, point ME/Tensor at the collection pages, e.g.
+// launch. Tensor points at the Sweetardio collection page. Magic Eden still
+// lands on its homepage; point it at the collection once the slug is live:
 //   https://magiceden.io/marketplace/<collection-slug>
-//   https://www.tensor.trade/trade/<collection-slug>
 const MARKETPLACES: LinkItem[] = [
   { name: 'Mint on LaunchMyNFT', url: MINT_URL, logo: 'launchmynft', accent: 'cerise', note: 'Official mint' },
   { name: 'Magic Eden', url: 'https://magiceden.io/', logo: 'magiceden', accent: 'cyan', note: 'Secondary · live at launch' },
-  { name: 'Tensor', url: 'https://www.tensor.trade/', logo: 'tensor', accent: 'cerise', note: 'Secondary · live at launch' },
+  { name: 'Tensor', url: 'https://www.tensor.trade/trade/sweetardio', logo: 'tensor', accent: 'cerise', note: 'Secondary · live at launch' },
 ];
 
 const LinkButton = ({ item }: { item: LinkItem }) => {
