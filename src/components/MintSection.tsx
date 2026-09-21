@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MintEmbed, { MINT_URL } from './MintEmbed';
+import { LAUNCH_HEADLINE, LAUNCH_SUBLINE } from '../content/announcement';
 
 /**
  * LaunchMyNFT remains authoritative for mint availability. The site countdown
@@ -49,6 +50,14 @@ export const MINT_SHORT_LABEL = MINT_TARGET_MS === null
       timeZone: 'UTC',
     }).format(new Date(MINT_TARGET_MS))} UTC`;
 
+/**
+ * True once the configured mint instant is in the past: the pre-release window
+ * has closed and the live launch instant has not been scheduled yet. Surfaces
+ * that only show a date (rather than a ticking timer) use this to avoid
+ * advertising a day that has already gone by.
+ */
+export const isPreReleaseOver = () => MINT_TARGET_MS !== null && Date.now() >= MINT_TARGET_MS;
+
 interface Remaining { days: number; hours: number; minutes: number; seconds: number; done: boolean; }
 
 const getRemaining = (targetMs: number): Remaining => {
@@ -90,6 +99,8 @@ const CountdownCells = ({ remaining }: { remaining: Remaining | null }) => (
   </div>
 );
 
+/* Owns the date line as well as the cells, so the panel can never show a mint
+   date that has already gone by next to a finished timer. */
 const Countdown = ({ targetMs }: { targetMs: number }) => {
   const [remaining, setRemaining] = useState<Remaining>(() => getRemaining(targetMs));
 
@@ -103,14 +114,28 @@ const Countdown = ({ targetMs }: { targetMs: number }) => {
   }, [targetMs]);
 
   if (remaining.done) {
+    // Pre-release window closed. The live launch instant is set on the
+    // collection first, then mirrored here via VITE_MINT_START_AT.
     return (
-      <p role="status" className="sw-glow-cerise font-heading text-xl text-sweetardios-cerise sm:text-3xl">
-        Mint is live — grab a Sweetardio below 🍬
-      </p>
+      <div role="status" className="mx-auto mt-4 max-w-lg">
+        <p className="sw-glow-cerise font-heading text-2xl text-sweetardios-cerise sm:text-4xl">
+          {LAUNCH_HEADLINE}
+        </p>
+        <p className="sw-glow-cyan mt-4 text-sm font-extrabold uppercase tracking-[0.18em] text-sweetardios-cyan sm:text-base">
+          {LAUNCH_SUBLINE}
+        </p>
+      </div>
     );
   }
 
-  return <CountdownCells remaining={remaining} />;
+  return (
+    <>
+      <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">{MINT_DATE_LABEL}</p>
+      <div className="mt-8">
+        <CountdownCells remaining={remaining} />
+      </div>
+    </>
+  );
 };
 
 interface MintSectionProps {
@@ -157,12 +182,7 @@ const MintSection = ({ asPage = false }: MintSectionProps) => {
               </p>
             </>
           ) : (
-            <>
-              <p className="mt-4 font-heading text-2xl text-white sm:text-3xl">{MINT_DATE_LABEL}</p>
-              <div className="mt-8">
-                <Countdown targetMs={MINT_TARGET_MS} />
-              </div>
-            </>
+            <Countdown targetMs={MINT_TARGET_MS} />
           )}
 
           <div className="mt-10">

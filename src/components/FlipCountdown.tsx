@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { MINT_SHORT_LABEL, MINT_TARGET_MS } from './MintSection';
+import { LAUNCH_HEADLINE, LAUNCH_SUBLINE } from '../content/announcement';
 
 function parts(ms: number) {
   const clamped = Math.max(0, ms);
@@ -128,10 +129,16 @@ export default function FlipCountdown() {
 
   const left = MINT_TARGET_MS - now;
   if (left <= 0) {
+    // Countdown target passed: the pre-release window is closed and the live
+    // launch instant has not been set yet, so the board carries the status.
     return (
-      <div className="count-live" role="status">
-        <span className="count-live-dot" />
-        Mint is live
+      <div className="count-board" role="status">
+        <p className="count-kicker">
+          <span className="count-live-dot" />
+          Mint status
+        </p>
+        <p className="count-notice">{LAUNCH_HEADLINE}</p>
+        <p className="count-caption">{LAUNCH_SUBLINE}</p>
       </div>
     );
   }

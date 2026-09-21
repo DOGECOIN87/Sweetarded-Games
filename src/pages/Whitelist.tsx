@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { MINT_DATE_LABEL } from '../components/MintSection';
+import { MINT_DATE_LABEL, isPreReleaseOver } from '../components/MintSection';
+import { LAUNCH_HEADLINE, LAUNCH_SUBLINE } from '../content/announcement';
 import { MINT_URL } from '../components/MintEmbed';
 import { submitWhitelist, isValidSolanaAddress } from '../services/whitelistService';
 
@@ -48,8 +49,17 @@ export default function WhitelistPage() {
                 <span className="sw-glow-cyan text-sweetardios-cyan">your spot</span>
               </h1>
               <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-blue-100/70">
-                Drop your Solana wallet to join the Sweetardio whitelist. Mint day:{' '}
-                <span className="font-semibold text-white">{MINT_DATE_LABEL}</span>.
+                Drop your Solana wallet to join the Sweetardio whitelist.{' '}
+                {isPreReleaseOver() ? (
+                  <>
+                    <span className="font-semibold text-white">{LAUNCH_HEADLINE}</span>{' '}
+                    <span className="font-semibold text-sweetardios-cyan">{LAUNCH_SUBLINE}</span>
+                  </>
+                ) : (
+                  <>
+                    Mint day: <span className="font-semibold text-white">{MINT_DATE_LABEL}</span>.
+                  </>
+                )}
               </p>
             </header>
 

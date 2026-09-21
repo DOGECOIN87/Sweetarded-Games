@@ -8,6 +8,7 @@ import { NetworkProvider } from './contexts/NetworkContext';
 import { WalletProvider } from './contexts/WalletContext';
 import { DynamicConnectionProvider } from './contexts/DynamicConnectionProvider';
 import Landing from './components/Landing';
+import LaunchBanner from './components/LaunchBanner';
 import MascotGuide from './components/MascotGuide';
 import SiteMusic from './components/SiteMusic';
 import { MintEmbedProvider } from './components/MintEmbed';
@@ -188,6 +189,8 @@ const AppInner: React.FC = () => {
         )}
       </nav>
     </header>
+
+    <LaunchBanner />
 
     <main>
       <Suspense
