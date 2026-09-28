@@ -3,6 +3,7 @@
  *
  *   - a background loop, gapless (Web Audio): full on the street, half as
  *     loud once you're inside, gliding between the two as you come and go;
+ *   - on the street only, rain: a second gapless loop, faded out indoors;
  *   - on the street only, the supplied voice recordings over it, one at a
  *     time, shuffled so each plays once before any repeats, with a pause
  *     between.
@@ -19,6 +20,8 @@ export type Where = 'street' | 'inside';
 const BED = '/rx/audio/street-bed.mp3';
 /** Inside, the street is half as loud. */
 const BED_VOLUME: Record<Where, number> = { street: 0.35, inside: 0.35 * 0.5 };
+const RAIN = '/rx/audio/street-rain.mp3';
+const RAIN_VOLUME = 0.4;
 
 const CLIPS = [
   'dr-siebert',
@@ -28,7 +31,6 @@ const CLIPS = [
   'medication-alarm',
   'take-your-pills-lewber',
   'meds',
-  '1_5102687100612903363',
 ].map((name) => `/rx/audio/${name}.mp3`);
 const CLIP_VOLUME = 0.85;
 
@@ -55,7 +57,7 @@ export function usePharmacySound(where: Where | null): void {
   // One loop for the whole visit, so walking in and out never restarts it.
   useEffect(() => {
     if (!on) return undefined;
-    const b = startBed();
+    const b = startBed(BED);
     bed.current = b;
     return () => {
       b.stop();
@@ -67,23 +69,35 @@ export function usePharmacySound(where: Where | null): void {
     if (where) bed.current?.level(BED_VOLUME[where]);
   }, [where]);
 
+  useEffect(() => {
+    if (where !== 'street') return undefined;
+    const rain = startBed(RAIN);
+    rain.level(RAIN_VOLUME);
+    return rain.stop;
+  }, [where]);
+
   useEffect(() => (where === 'street' ? startClips() : undefined), [where]);
 }
 
-// ── the background loop ────────────────────────────────────────────────────
+// ── the background loops ───────────────────────────────────────────────────
 
-let bedBuffer: Promise<{ buffer: AudioBuffer; start: number; end: number } | null> | null = null;
+type Loop = { buffer: AudioBuffer; start: number; end: number } | null;
+const loops = new Map<string, Promise<Loop>>();
 
-function loadBed(ctx: AudioContext) {
-  bedBuffer ??= fetch(BED)
-    .then((res) => (res.ok ? res.arrayBuffer() : Promise.reject(new Error(`${res.status}`))))
-    .then((data) => ctx.decodeAudioData(data))
-    .then((buffer) => ({ buffer, ...audibleSpan(buffer) }))
-    .catch(() => {
-      bedBuffer = null;
-      return null;
-    });
-  return bedBuffer;
+function loadLoop(ctx: AudioContext, src: string): Promise<Loop> {
+  let loop = loops.get(src);
+  if (!loop) {
+    loop = fetch(src)
+      .then((res) => (res.ok ? res.arrayBuffer() : Promise.reject(new Error(`${res.status}`))))
+      .then((data) => ctx.decodeAudioData(data))
+      .then((buffer) => ({ buffer, ...audibleSpan(buffer) }))
+      .catch(() => {
+        loops.delete(src);
+        return null;
+      });
+    loops.set(src, loop);
+  }
+  return loop;
 }
 
 /** The loop was cut to be seamless; skip any decoder padding at either end so it stays so. */
@@ -102,7 +116,7 @@ interface Bed {
   stop(): void;
 }
 
-function startBed(): Bed {
+function startBed(src: string): Bed {
   const ctx = audioContext();
   if (!ctx) return { level() {}, stop() {} };
   let stopped = false;
@@ -123,7 +137,7 @@ function startBed(): Bed {
   const begin = async () => {
     if (stopped || source || starting || ctx.state !== 'running') return;
     starting = true;
-    const bed = await loadBed(ctx);
+    const bed = await loadLoop(ctx, src);
     starting = false;
     if (stopped || source || !bed) return;
     source = ctx.createBufferSource();
@@ -145,7 +159,7 @@ function startBed(): Bed {
 
   GESTURES.forEach((type) => window.addEventListener(type, unlock));
   document.addEventListener('visibilitychange', onVisibility);
-  void loadBed(ctx); // fetch and decode now; decoding works before sound is allowed
+  void loadLoop(ctx, src); // fetch and decode now; decoding works before sound is allowed
   if (!document.hidden) unlock(); // plays straight away if sound is already allowed
 
   return {

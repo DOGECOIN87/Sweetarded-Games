@@ -88,7 +88,21 @@ All in `public/rx/audio/`:
   -map "[out]" -c:a libmp3lame -b:a 128k -map_metadata -1 street-bed.mp3
   ```
 
-- On the street only, eight voice clips play over it one at a time, shuffled,
+- On the street only, `street-rain.mp3` loops over it (gapless, fades out as
+  you go inside), with rain drawn over the painting (`src/rx/Rain.tsx`; off
+  for reduced motion). Cut from the supplied rain recording (15.8 s) the same
+  way, its last 2 s cross-faded into its first 2 s:
+
+  ```bash
+  ffmpeg -i rain-soundbible.mp3 -vn -filter_complex "[0:a]asplit=3[a][b][c];\
+  [a]atrim=start=2:end=13.82,asetpts=PTS-STARTPTS[body];\
+  [b]atrim=start=13.82:end=15.82,asetpts=PTS-STARTPTS,afade=t=out:d=2:curve=qsin[tail];\
+  [c]atrim=end=2,asetpts=PTS-STARTPTS,afade=t=in:d=2:curve=qsin[head];\
+  [tail][head]amix=inputs=2:duration=shortest:normalize=0[xf];[body][xf]concat=n=2:v=0:a=1[out]" \
+  -map "[out]" -c:a libmp3lame -b:a 128k -map_metadata -1 street-rain.mp3
+  ```
+
+- On the street only, seven voice clips play over it one at a time, shuffled,
   6–15 s apart (`src/rx/usePharmacySound.ts` lists them).
 - `bell.mp3` is RING FOR SERVICE at the counter.
 
