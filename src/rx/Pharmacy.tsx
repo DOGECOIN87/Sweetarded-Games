@@ -26,7 +26,7 @@ import { PhoneGate, isPhoneish } from './rooms/PhoneGate';
 import { RxPad, type PadPlace } from './rooms/RxPad';
 import { Street } from './rooms/Street';
 import { ding, primeBell, thud } from './sfx';
-import { useStreetSounds } from './useStreetSounds';
+import { usePharmacySound } from './usePharmacySound';
 
 type Room = 'street' | 'counter' | 'pad' | 'catch' | 'took' | 'spit' | 'bag';
 
@@ -41,7 +41,7 @@ export default function Pharmacy() {
   const [dark, setDark] = useState(false);
   const [stamp, setStamp] = useState(false);
   const identity = useIdentity();
-  useStreetSounds(room === 'street' && !gated);
+  usePharmacySound(gated ? null : room === 'street' ? 'street' : 'inside');
 
   const timers = useRef<number[]>([]);
   const ringTimer = useRef(0);

@@ -9,8 +9,10 @@ script derives what the site actually serves, into public/rx/web/:
   * papers     -> the black matte they were delivered on is keyed out so the
                   paper can sit on top of a room (the phone notice included);
                   the painting is untouched
-  * seal       -> favicons / app icons in public/
   * street     -> 1200x630 link-preview card in public/
+
+The favicons and app icons in public/ are the Sweetardio Collection badge and
+are not generated here.
 
 Keying: every paper was delivered composited onto near-black. Pixels that are
 dark AND connected to the image border are background; their alpha ramps from
@@ -149,26 +151,13 @@ def main() -> None:
         keyed = key_black_matte(Image.open(SRC / f'{name}.webp'))
         save_webp(keyed, f'{name}.webp', 90)
 
-    # Seal -> icons. Transparent where the platform allows, black where it doesn't.
-    seal = trim(Image.open(SRC / 'seal-refused.webp').convert('RGBA'), pad=0)
-    side = max(seal.size)
-    square = Image.new('RGBA', (side, side), (0, 0, 0, 0))
-    square.paste(seal, ((side - seal.width) // 2, (side - seal.height) // 2), seal)
-    for size, name in ((16, 'favicon-16x16.png'), (32, 'favicon-32x32.png'), (192, 'icon-192.png'), (512, 'icon-512.png')):
-        square.resize((size, size), Image.LANCZOS).save(PUBLIC / name)
-    square.save(PUBLIC / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
-    touch = Image.new('RGBA', (180, 180), (0, 0, 0, 255))
-    inner = square.resize((164, 164), Image.LANCZOS)
-    touch.paste(inner, (8, 8), inner)
-    touch.convert('RGB').save(PUBLIC / 'apple-touch-icon.png')
-
     # Link preview: the street, cropped to 1.91:1 around the door.
     street = Image.open(SRC / 'room1-exterior.png').convert('RGB')
     target_h = round(street.width / 1.905)
     top = max(0, min(street.height - target_h, 150))
     street.crop((0, top, street.width, top + target_h)).resize((1200, 630), Image.LANCZOS) \
         .save(PUBLIC / 'og-after-hours-rx.jpg', quality=86, optimize=True, progressive=True)
-    print('icons + og card written')
+    print('og card written')
 
 
 if __name__ == '__main__':

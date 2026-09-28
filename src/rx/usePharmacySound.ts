@@ -1,20 +1,24 @@
 /**
- * The street's sound (ROOM 1), and nowhere else:
+ * The pharmacy's sound:
  *
- *   - a background loop, gapless (Web Audio), fading in on arrival and out
- *     on leaving;
- *   - the supplied voice recordings over it, one at a time, shuffled so each
- *     plays once before any repeats, with a pause between.
+ *   - a background loop, gapless (Web Audio): full on the street, half as
+ *     loud once you're inside, gliding between the two as you come and go;
+ *   - on the street only, the supplied voice recordings over it, one at a
+ *     time, shuffled so each plays once before any repeats, with a pause
+ *     between.
  *
  * Browsers block sound until a visitor has touched the page, so on a first
  * visit both wait for the first tap, click or key press. A hidden tab goes
  * quiet and picks up where it left off.
  */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { audioContext } from './sfx';
 
+export type Where = 'street' | 'inside';
+
 const BED = '/rx/audio/street-bed.mp3';
-const BED_VOLUME = 0.35;
+/** Inside, the street is half as loud. */
+const BED_VOLUME: Record<Where, number> = { street: 0.35, inside: 0.35 * 0.5 };
 
 const CLIPS = [
   'dr-siebert',
@@ -37,16 +41,27 @@ const UNLOCK_MS = 1200;
 
 const between = ([lo, hi]: [number, number]) => lo + Math.random() * (hi - lo);
 
-export function useStreetSounds(active: boolean): void {
+/** `where` is null while nothing should play (the phone notice). */
+export function usePharmacySound(where: Where | null): void {
+  const bed = useRef<Bed | null>(null);
+  const on = where !== null;
+
+  // One loop for the whole visit, so walking in and out never restarts it.
   useEffect(() => {
-    if (!active) return undefined;
-    const stopBed = startBed();
-    const stopClips = startClips();
+    if (!on) return undefined;
+    const b = startBed();
+    bed.current = b;
     return () => {
-      stopBed();
-      stopClips();
+      b.stop();
+      bed.current = null;
     };
-  }, [active]);
+  }, [on]);
+
+  useEffect(() => {
+    if (where) bed.current?.level(BED_VOLUME[where]);
+  }, [where]);
+
+  useEffect(() => (where === 'street' ? startClips() : undefined), [where]);
 }
 
 // ── the background loop ────────────────────────────────────────────────────
@@ -75,15 +90,29 @@ function audibleSpan(buffer: AudioBuffer) {
   return { start: a / buffer.sampleRate, end: (b + 1) / buffer.sampleRate };
 }
 
-function startBed(): () => void {
+interface Bed {
+  /** Glide to this volume; the first one is where the fade-in ends. */
+  level(volume: number): void;
+  stop(): void;
+}
+
+function startBed(): Bed {
   const ctx = audioContext();
-  if (!ctx) return () => {};
+  if (!ctx) return { level() {}, stop() {} };
   let stopped = false;
   let starting = false;
+  let volume = 0;
   let source: AudioBufferSourceNode | null = null;
   const gain = ctx.createGain();
   gain.gain.value = 0;
   gain.connect(ctx.destination);
+
+  const glide = (to: number, seconds: number) => {
+    const now = ctx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(to, now + seconds);
+  };
 
   const begin = async () => {
     if (stopped || source || starting || ctx.state !== 'running') return;
@@ -98,9 +127,7 @@ function startBed(): () => void {
     source.loopEnd = bed.end;
     source.connect(gain);
     source.start(0, bed.start);
-    const now = ctx.currentTime;
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(BED_VOLUME, now + 1.5);
+    glide(volume, 1.5);
   };
   const unlock = () => {
     ctx.resume().then(begin, () => {});
@@ -116,17 +143,21 @@ function startBed(): () => void {
   void loadBed(ctx); // fetch and decode now; decoding works before sound is allowed
   if (!document.hidden) unlock(); // plays straight away if sound is already allowed
 
-  return () => {
-    stopped = true;
-    window.removeEventListener('pointerdown', unlock);
-    window.removeEventListener('keydown', unlock);
-    document.removeEventListener('visibilitychange', onVisibility);
-    const now = ctx.currentTime;
-    gain.gain.cancelScheduledValues(now);
-    gain.gain.setValueAtTime(gain.gain.value, now);
-    gain.gain.linearRampToValueAtTime(0, now + 0.6);
-    source?.stop(now + 0.65);
-    window.setTimeout(() => gain.disconnect(), 1000);
+  return {
+    level(to) {
+      if (to === volume) return;
+      volume = to;
+      if (source) glide(to, 1);
+    },
+    stop() {
+      stopped = true;
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+      document.removeEventListener('visibilitychange', onVisibility);
+      glide(0, 0.6);
+      source?.stop(ctx.currentTime + 0.65);
+      window.setTimeout(() => gain.disconnect(), 1000);
+    },
   };
 }
 
