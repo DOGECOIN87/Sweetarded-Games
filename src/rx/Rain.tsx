@@ -1,8 +1,9 @@
 /**
- * Rain on the street (ROOM 1 only). Screen-space streaks in stained-paper
- * white with the odd one catching the cyan neon, a slight lean, and small
- * splashes on the wet pavement. Drawn on one canvas that never takes a tap;
- * off for anyone who asks for reduced motion.
+ * Rain on the street (ROOM 1, and behind the phone notice taped up outside).
+ * Screen-space streaks in stained-paper white with the odd one catching the
+ * cyan neon, a slight lean, and small splashes on the wet pavement. Drawn on
+ * one canvas that never takes a tap. Anyone who asks for reduced motion gets
+ * a lighter, slower rain.
  */
 import { useEffect, useRef, useState } from 'react';
 
@@ -28,12 +29,13 @@ const SPLASH_S = 0.28;
 
 export function Rain() {
   const ref = useRef<HTMLCanvasElement>(null);
-  const [still] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [gentle] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
     const canvas = ref.current;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx || still) return undefined;
+    if (!canvas || !ctx) return undefined;
+    const pace = gentle ? 0.4 : 1;
 
     let w = 0;
     let h = 0;
@@ -46,8 +48,8 @@ export function Rain() {
         x: Math.random() * (w + h * LEAN) - h * LEAN,
         y: anywhere ? Math.random() * h : -Math.random() * h * 0.3,
         depth,
-        len: (22 + Math.random() * 26) * depth,
-        speed: (620 + Math.random() * 480) * (0.55 + depth * 0.6),
+        len: (28 + Math.random() * 34) * depth,
+        speed: (640 + Math.random() * 520) * (0.55 + depth * 0.6) * pace,
         neon: Math.random() < 0.18,
       };
     };
@@ -59,7 +61,7 @@ export function Rain() {
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.round(Math.min(340, Math.max(90, (w * h) / 4200)));
+      const count = Math.round(Math.min(440, Math.max(170, (w * h) / 2600)) * (gentle ? 0.5 : 1));
       drops = Array.from({ length: count }, () => drop(true));
       splashes = [];
     };
@@ -86,9 +88,9 @@ export function Rain() {
             ctx.lineTo(d.x - d.len * LEAN, d.y - d.len);
           }
           ctx.strokeStyle = neon
-            ? `rgb(52 237 243 / ${near ? 0.55 : 0.32})`
-            : `rgb(239 233 223 / ${near ? 0.42 : 0.24})`;
-          ctx.lineWidth = near ? 1.5 : 1;
+            ? `rgb(52 237 243 / ${near ? 0.7 : 0.4})`
+            : `rgb(239 233 223 / ${near ? 0.55 : 0.3})`;
+          ctx.lineWidth = near ? 1.8 : 1.1;
           ctx.stroke();
         }
       }
@@ -106,7 +108,7 @@ export function Rain() {
         }
       }
 
-      ctx.strokeStyle = 'rgb(239 233 223 / 0.5)';
+      ctx.strokeStyle = 'rgb(239 233 223 / 0.65)';
       ctx.lineWidth = 1;
       splashes = splashes.filter((s) => (s.age += dt) < SPLASH_S);
       for (const s of splashes) {
@@ -126,8 +128,7 @@ export function Rain() {
       cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [still]);
+  }, [gentle]);
 
-  if (still) return null;
   return <canvas ref={ref} className="rx-rain" aria-hidden />;
 }

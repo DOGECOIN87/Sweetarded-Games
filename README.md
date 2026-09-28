@@ -89,8 +89,8 @@ All in `public/rx/audio/`:
   ```
 
 - On the street only, `street-rain.mp3` loops over it (gapless, fades out as
-  you go inside), with rain drawn over the painting (`src/rx/Rain.tsx`; off
-  for reduced motion). Cut from the supplied rain recording (15.8 s) the same
+  you go inside), with rain drawn over the painting and behind the phone
+  notice (`src/rx/Rain.tsx`; lighter and slower for reduced motion). Cut from the supplied rain recording (15.8 s) the same
   way, its last 2 s cross-faded into its first 2 s:
 
   ```bash
