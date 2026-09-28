@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { COPY } from '../copy';
 import { Hotspot } from '../Hotspot';
-import { ART, STREET } from '../scenes';
+import { ART, FOCUS, STREET } from '../scenes';
 import { Stage } from '../Stage';
 import { useLater } from '../useLater';
 
-export function Street({ pan, onEnter }: { pan: boolean; onEnter: () => void }) {
+export function Street({ onEnter }: { onEnter: () => void }) {
   const [entering, setEntering] = useState(false);
   const nudge = useLater(3800);
 
@@ -20,8 +20,7 @@ export function Street({ pan, onEnter }: { pan: boolean; onEnter: () => void }) 
     <Stage
       art={ART.street}
       alt="A night pharmacy on a wet street. Neon: AFTER HOURS RX, COUNTER 4444. The door reads AFTER HOURS WINDOW OPEN."
-      pan={pan}
-      focusX={STREET.door.x + STREET.door.w / 2}
+      focus={FOCUS.street}
       className={`rx-street ${entering ? 'is-entering' : ''}`}
     >
       <Hotspot r={STREET.door} label={COPY.street.door} hint={nudge && !entering} onActivate={enter} />

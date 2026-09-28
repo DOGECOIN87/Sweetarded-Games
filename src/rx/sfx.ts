@@ -1,10 +1,11 @@
 /**
- * The counter's two sounds, synthesised so there is no audio asset to load:
- * the service bell and the stamp. Only ever played from a click.
+ * The counter's two sounds: the service bell (a supplied recording) and the
+ * stamp (synthesised, no asset). Only ever played from a click.
  */
 let ctx: AudioContext | null = null;
 
-function audio(): AudioContext | null {
+/** The page's one Web Audio context (the stamp, and the street's background loop). */
+export function audioContext(): AudioContext | null {
   try {
     ctx ??= new AudioContext();
     if (ctx.state === 'suspended') void ctx.resume();
@@ -14,36 +15,26 @@ function audio(): AudioContext | null {
   }
 }
 
-/** Desk bell: a few inharmonic partials with a long bright decay. */
+let bell: HTMLAudioElement | null = null;
+
+/** Start loading the bell, so the first ring sounds straight away. */
+export function primeBell(): void {
+  if (bell) return;
+  bell = new Audio('/rx/audio/bell.mp3');
+  bell.preload = 'auto';
+}
+
+/** RING FOR SERVICE. Ringing again restarts it. */
 export function ding(): void {
-  const ac = audio();
-  if (!ac) return;
-  const now = ac.currentTime;
-  const out = ac.createGain();
-  out.gain.value = 0.22;
-  out.connect(ac.destination);
-  for (const [freq, level, decay] of [
-    [1864, 1, 1.9],
-    [2517, 0.5, 1.2],
-    [4190, 0.28, 0.7],
-    [5270, 0.16, 0.45],
-  ] as const) {
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(level, now + 0.004);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + decay);
-    osc.connect(gain).connect(out);
-    osc.start(now);
-    osc.stop(now + decay + 0.05);
-  }
+  primeBell();
+  if (!bell) return;
+  bell.currentTime = 0;
+  void bell.play().catch(() => {});
 }
 
 /** Rubber stamp on paper: a dull knock plus a short burst of paper noise. */
 export function thud(): void {
-  const ac = audio();
+  const ac = audioContext();
   if (!ac) return;
   const now = ac.currentTime;
 

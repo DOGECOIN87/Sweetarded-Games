@@ -4,20 +4,20 @@
  * A Canvas is any locked painting laid out at some size; everything inside
  * it is placed with <At> in the painting's own pixels, so hotspots and props
  * stay glued to the art at every screen size. The Stage is the room: a
- * Canvas that fills the window.
+ * Canvas that always covers the window.
  */
 import {
   createContext,
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
+  type RefObject,
 } from 'react';
-import type { Painting, Rect } from './scenes';
+import type { Painting, Point, Rect } from './scenes';
 
 const CanvasCtx = createContext<{ w: number; h: number }>({ w: 1, h: 1 });
 
@@ -71,74 +71,69 @@ export function Canvas({
   );
 }
 
-function useViewport() {
+/** The element's own box (what the room actually has to cover), kept current. */
+function useBox(ref: RefObject<HTMLElement | null>) {
   const [size, setSize] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
-  useEffect(() => {
-    const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const measure = () =>
+      setSize((s) => (s.w === el.clientWidth && s.h === el.clientHeight ? s : { w: el.clientWidth, h: el.clientHeight }));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
   return size;
 }
 
-/** How much of a painting may be cropped off by full-bleed before we letterbox instead. */
-const MAX_CROP = 0.16;
-
 /**
- * The room. Full-bleed (cover) on desktop; letterboxed (contain) if cover
- * would crop too much of the painting. On a phone that walked in anyway the
- * painting fills the height and the patient has to drag across the room.
+ * The room. The painting always covers the whole window, at every size and
+ * orientation. Whatever doesn't fit can be dragged (or scrolled) into view;
+ * `focus` is the painting point to keep centred, and moving it glides there.
  */
 export function Stage({
   art,
   alt,
-  pan = false,
-  focusX,
+  focus,
   className = '',
   children,
 }: {
   art: Painting;
   alt: string;
-  /** Phone mode: fill height, scroll sideways. */
-  pan?: boolean;
-  /** Painting x to centre on when panning. */
-  focusX?: number;
+  /** Painting point to centre in the window. Defaults to the middle. */
+  focus?: Point;
   className?: string;
   children?: ReactNode;
 }) {
-  const vp = useViewport();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const vp = useBox(scrollRef);
+  const lastFocus = useRef<string | null>(null);
 
-  const cover = Math.max(vp.w / art.w, vp.h / art.h);
-  const contain = Math.min(vp.w / art.w, vp.h / art.h);
-  const panning = pan && vp.h > vp.w;
-  let scale = cover;
-  if (panning) scale = vp.h / art.h;
-  else if (Math.min(vp.w / (art.w * cover), vp.h / (art.h * cover)) < 1 - MAX_CROP) scale = contain;
-
-  const width = art.w * scale;
-  const height = art.h * scale;
+  const scale = Math.max(vp.w / art.w, vp.h / art.h);
+  const width = Math.ceil(art.w * scale);
+  const height = Math.ceil(art.h * scale);
+  const fx = focus?.x ?? art.w / 2;
+  const fy = focus?.y ?? art.h / 2;
 
   useLayoutEffect(() => {
     const el = scrollRef.current;
-    if (!el || !panning) return;
-    const x = (focusX ?? art.w / 2) * scale - vp.w / 2;
-    el.scrollLeft = Math.max(0, Math.min(x, width - vp.w));
-  }, [panning, focusX, scale, width, vp.w, art.w]);
-
-  const canvasStyle: CSSProperties = panning
-    ? { width, height, left: 0, top: 0 }
-    : { width, height, left: (vp.w - width) / 2, top: (vp.h - height) / 2 };
+    if (!el) return;
+    const left = Math.max(0, Math.min(fx * scale - vp.w / 2, width - vp.w));
+    const top = Math.max(0, Math.min(fy * scale - vp.h / 2, height - vp.h));
+    const key = `${fx},${fy}`;
+    // Glide when the moment moves the focus; jump on first paint and resize.
+    const glide =
+      lastFocus.current !== null &&
+      lastFocus.current !== key &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    lastFocus.current = key;
+    el.scrollTo({ left, top, behavior: glide ? 'smooth' : 'auto' });
+  }, [fx, fy, scale, width, height, vp.w, vp.h]);
 
   return (
-    <div ref={scrollRef} className={`rx-stage ${panning ? 'rx-stage--pan' : ''} ${className}`}>
-      {panning && <div style={{ width, height: 1 }} aria-hidden />}
-      <Canvas
-        art={art}
-        alt={alt}
-        className="rx-stage__canvas"
-        style={{ ...canvasStyle, ['--s' as string]: String(scale) }}
-      >
+    <div ref={scrollRef} className={`rx-stage ${className}`}>
+      <Canvas art={art} alt={alt} className="rx-stage__canvas" style={{ width, height, ['--s' as string]: String(scale) }}>
         {children}
       </Canvas>
     </div>

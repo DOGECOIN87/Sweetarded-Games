@@ -10,7 +10,7 @@
  */
 import { COPY } from '../copy';
 import { Hotspot } from '../Hotspot';
-import { ART, COUNTER, PROPS } from '../scenes';
+import { ART, COUNTER, FOCUS, PROPS } from '../scenes';
 import { Speech } from '../Speech';
 import { At, Stage } from '../Stage';
 import { useLater } from '../useLater';
@@ -19,7 +19,6 @@ export type CounterMoment = 'idle' | 'papers' | 'catch' | 'took' | 'spit';
 
 interface CounterProps {
   moment: CounterMoment;
-  pan: boolean;
   /** The clerk's current line; `key` replays it. */
   line: { text: string; key: number } | null;
   /** Bumps each time the bell is rung, replaying the ring. */
@@ -30,19 +29,20 @@ interface CounterProps {
   onLeave: () => void;
 }
 
-export function Counter({ moment, pan, line, rings, onRing, onTake, onSpit, onLeave }: CounterProps) {
+export function Counter({ moment, line, rings, onRing, onTake, onSpit, onLeave }: CounterProps) {
   const bellNudge = useLater(4200, moment);
   const catchNudge = useLater(5200, moment);
   const exitReady = useLater(1900, moment);
 
   const cup = moment === 'catch' || moment === 'spit' ? PROPS.cupFull : moment === 'took' ? PROPS.cupEmpty : null;
+  const focus =
+    moment === 'catch' || moment === 'spit' ? FOCUS.catch : moment === 'took' ? FOCUS.took : FOCUS.counter;
 
   return (
     <Stage
       art={ART.counter}
       alt="Inside: a night window, COUNTER 4444. A pop-tart pharmacist watches through the glass. A bell on the tray, a vending machine of Sweetardios, a trash can full of pills."
-      pan={pan}
-      focusX={moment === 'catch' ? 1320 : 1100}
+      focus={focus}
       className={`rx-counter rx-counter--${moment}`}
     >
       {cup && (
@@ -61,29 +61,21 @@ export function Counter({ moment, pan, line, rings, onRing, onTake, onSpit, onLe
       )}
 
       {moment === 'idle' && (
-        <Hotspot
-          r={COUNTER.bell}
-          label={COPY.counter.bell}
-          prop={PROPS.bell}
-          placement="right"
-          hint={bellNudge && rings === 0}
-          onActivate={onRing}
-        />
+        <>
+          <Hotspot r={COUNTER.bell} label={COPY.counter.bell} hint={bellNudge && rings === 0} onActivate={onRing} />
+          <Hotspot r={COUNTER.vending} label={COPY.counter.vending} dead />
+        </>
       )}
-
-      {moment === 'idle' && <Hotspot r={COUNTER.vending} label={COPY.counter.vending} dead placement="right" />}
 
       {moment === 'catch' && (
         <>
           <Hotspot
             r={{ x: COUNTER.cup.x - 12, y: COUNTER.cup.y - 10, w: COUNTER.cup.w + 24, h: COUNTER.cup.h + 16 }}
             label={COPY.catch.cup}
-            prop={PROPS.cupFull}
-            placement="bottom"
             hint={catchNudge}
             onActivate={onTake}
           />
-          <Hotspot r={COUNTER.trash} label={COPY.catch.can} prop={PROPS.trash} placement="left" hint={catchNudge} onActivate={onSpit} />
+          <Hotspot r={COUNTER.trash} label={COPY.catch.can} hint={catchNudge} onActivate={onSpit} />
         </>
       )}
 

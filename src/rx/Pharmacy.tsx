@@ -25,15 +25,15 @@ import { Receipt, RefusedStamp } from './rooms/Papers';
 import { PhoneGate, isPhoneish } from './rooms/PhoneGate';
 import { RxPad, type PadPlace } from './rooms/RxPad';
 import { Street } from './rooms/Street';
-import { ding, thud } from './sfx';
+import { ding, primeBell, thud } from './sfx';
+import { useStreetSounds } from './useStreetSounds';
 
 type Room = 'street' | 'counter' | 'pad' | 'catch' | 'took' | 'spit' | 'bag';
 
 const GATE_KEY = 'rx:entered-anyway';
 
 export default function Pharmacy() {
-  const [phone] = useState(isPhoneish);
-  const [gated, setGated] = useState(() => phone && !safeSessionStorage.getItem(GATE_KEY));
+  const [gated, setGated] = useState(() => isPhoneish() && !safeSessionStorage.getItem(GATE_KEY));
   const [room, setRoom] = useState<Room>('street');
   const [peek, setPeek] = useState(false);
   const [line, setLine] = useState<{ text: string; key: number } | null>(null);
@@ -41,6 +41,7 @@ export default function Pharmacy() {
   const [dark, setDark] = useState(false);
   const [stamp, setStamp] = useState(false);
   const identity = useIdentity();
+  useStreetSounds(room === 'street' && !gated);
 
   const timers = useRef<number[]>([]);
   const ringTimer = useRef(0);
@@ -104,6 +105,7 @@ export default function Pharmacy() {
   }, [uid]);
 
   const enterFromStreet = () => {
+    primeBell();
     later(() => setDark(true), 360);
     later(() => {
       setPeek(false);
@@ -187,11 +189,10 @@ export default function Pharmacy() {
     <MintWindowProvider warm={room === 'catch' || room === 'spit' || room === 'bag'}>
       <main className="rx">
         {room === 'street' ? (
-          <Street key="street" pan={phone} onEnter={enterFromStreet} />
+          <Street key="street" onEnter={enterFromStreet} />
         ) : (
           <Counter
             moment={moment}
-            pan={phone}
             line={line}
             rings={rings}
             onRing={ring}

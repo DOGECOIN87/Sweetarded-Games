@@ -15,6 +15,11 @@ export interface Rect {
   rotate?: number;
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export interface Painting {
   src: string;
   w: number;
@@ -30,7 +35,7 @@ export const ART = {
   receipt: { src: web('paper-filled-receipt.webp'), w: 1024, h: 1536 },
   bag: { src: web('paper-refused-bag.webp'), w: 1024, h: 1536 },
   sticker: { src: web('sticker-window-closed.webp'), w: 1536, h: 1024 },
-  mobile: { src: '/rx/overlay-mobile.webp', w: 1024, h: 1536 },
+  mobile: { src: web('overlay-mobile.webp'), w: 1024, h: 1536 },
 } satisfies Record<string, Painting>;
 
 export const PROPS = {
@@ -40,6 +45,21 @@ export const PROPS = {
   trash: web('prop-trash.webp'),
   seal: web('seal-refused.webp'),
 } as const;
+
+/**
+ * What each view keeps centred when the window's shape can't show the whole
+ * painting (portrait tablets, phones, ultrawide). The rest can be dragged in.
+ */
+export const FOCUS = {
+  /** The neon sign and the door under it. */
+  street: { x: 837, y: 469 },
+  /** The clerk and the bell. */
+  counter: { x: 1080, y: 540 },
+  /** The cup on the tray and the can on the floor. */
+  catch: { x: 1405, y: 540 },
+  /** The empty cup, the clerk's line and the mat out, clear of the receipt on the left. */
+  took: { x: 900, y: 640 },
+} satisfies Record<string, Point>;
 
 /** Room 1 — the street (1672 × 941). */
 export const STREET = {

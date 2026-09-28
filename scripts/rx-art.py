@@ -7,7 +7,8 @@ script derives what the site actually serves, into public/rx/web/:
   * rooms      -> WebP at native size (the PNGs are 2+ MB each)
   * props      -> trimmed to their painted edge, WebP with alpha
   * papers     -> the black matte they were delivered on is keyed out so the
-                  paper can sit on top of a room; the painting is untouched
+                  paper can sit on top of a room (the phone notice included);
+                  the painting is untouched
   * seal       -> favicons / app icons in public/
   * street     -> 1200x630 link-preview card in public/
 
@@ -144,7 +145,7 @@ def main() -> None:
     # The full cup's outline is ~9-10 px on a 734 px cup; the empty cup is ~898 px.
     save_webp(fit(trim(key_inked_matte(Image.open(SRC / 'prop-cup-empty.png'), outline=11)), 420),
               'prop-cup-empty.webp', 90)
-    for name in ('paper-rx-pad', 'paper-filled-receipt', 'paper-refused-bag', 'sticker-window-closed'):
+    for name in ('paper-rx-pad', 'paper-filled-receipt', 'paper-refused-bag', 'sticker-window-closed', 'overlay-mobile'):
         keyed = key_black_matte(Image.open(SRC / f'{name}.webp'))
         save_webp(keyed, f'{name}.webp', 90)
 

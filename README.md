@@ -61,6 +61,31 @@ No catch painting (counter with the cup on the tray) was supplied, so Room 3B
 composites `prop-cup-full` onto the counter at `COUNTER.cup` in
 `src/rx/scenes.ts`. Drop a `room2-catch` painting in and it can replace that.
 
+## Sound
+
+All in `public/rx/audio/`, all on the street (Room 1) except the bell:
+
+- `street-bed.mp3` loops underneath, gapless (Web Audio), fading out when
+  you go inside. Cut from the supplied screen recording: the steady section
+  from 39.64 s to 86.93 s, with its last 2 s cross-faded into its first 2 s
+  so the loop point is seamless:
+
+  ```bash
+  ffmpeg -ss 39.65 -t 47.3 -i recording.mp4 -vn -filter_complex "[0:a]asplit=3[a][b][c];\
+  [a]atrim=start=2:end=45.27,asetpts=PTS-STARTPTS[body];\
+  [b]atrim=start=45.27:end=47.27,asetpts=PTS-STARTPTS,afade=t=out:d=2:curve=qsin[tail];\
+  [c]atrim=end=2,asetpts=PTS-STARTPTS,afade=t=in:d=2:curve=qsin[head];\
+  [tail][head]amix=inputs=2:duration=shortest:normalize=0[xf];[body][xf]concat=n=2:v=0:a=1[out]" \
+  -map "[out]" -c:a libmp3lame -b:a 128k -map_metadata -1 street-bed.mp3
+  ```
+
+- Eight voice clips play over it one at a time, shuffled, 6–15 s apart
+  (`src/rx/useStreetSounds.ts` lists them).
+- `bell.mp3` is RING FOR SERVICE at the counter.
+
+Browsers block sound until a visitor has touched the page, so on a first
+visit the street is silent until the first tap, click or key press.
+
 ## The mint (Room 4 only)
 
 The bag's printed PHASE 1 / 0.0420 SOL / PAY AT WINDOW sticker is the button.

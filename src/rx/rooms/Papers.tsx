@@ -1,11 +1,16 @@
 /** The papers that aren't the pad: PATH A's receipt and PATH B's stamp. */
 import { ART, PROPS } from '../scenes';
 import { Canvas } from '../Stage';
+import { useLater } from '../useLater';
 
-/** PATH A — took the meds. The receipt's own words say the rest. */
+/**
+ * PATH A — took the meds. The receipt's own words say the rest. On narrow
+ * screens it tucks into the corner once read, so the window shows again.
+ */
 export function Receipt({ shown }: { shown: boolean }) {
+  const read = useLater(4200, shown);
   return (
-    <div className={`rx-receipt ${shown ? 'is-shown' : ''}`} aria-hidden={!shown || undefined}>
+    <div className={`rx-receipt ${shown ? 'is-shown' : ''} ${shown && read ? 'is-read' : ''}`} aria-hidden={!shown || undefined}>
       <Canvas
         art={ART.receipt}
         alt="Receipt, COUNTER 4444, RX-4444: PRESCRIPTION FILLED. YOU ARE NOT A SWEETARDIO. Stamped FILLED. NO REFILL. WINDOW CLOSED."
