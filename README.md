@@ -1,166 +1,131 @@
-# Sweetarded Games
+# sweetardio.fun — AFTER HOURS RX / COUNTER 4444
 
-Standalone front-end workspace for the two **trashmarket.fun** arcade games — the
-**Slots** machine and the **Junk Pusher** (coin-pusher). This repo was extracted
-from the main marketplace so the games can be redesigned in isolation.
+The Sweetardio site is one closed night pharmacy, played point-and-click.
+Sweetardio: 4,444 on Solana, Phase 1 at 0.0420 SOL, X [@Sweetardio](https://x.com/Sweetardio).
 
-> **Scope:** front-end only. The Solana on-chain program and any backend services
-> are intentionally **not** included here — they will be reconfigured later. The
-> on-chain client code (wallet hooks, program IDs, RPC endpoints) is kept intact
-> so the app builds and runs, but treat those values as placeholders.
+There is no homepage, no navbar and no mint button until you have earned one.
 
-## Games
-
-| Route          | Game        | Entry component                                  |
-| -------------- | ----------- | ------------------------------------------------ |
-| `/slots`       | Slots       | `src/components/slots/SkillGame.tsx`             |
-| `/junk-pusher` | Junk Pusher | `src/components/junk-pusher/JunkPusherGame.tsx`  |
-
-## Site pages
-
-| Route          | Page                                                          |
-| -------------- | ------------------------------------------------------------- |
-| `/`            | Landing / navigation hub                                       |
-| `/arcade`      | Arcade walk-through scene                                      |
-| `/leaderboard` | **Leaderboards** — site-wide standings for both games          |
-| `/board`       | **The Board** — cork notice board with team announcements      |
-| `/mint`        | Dedicated on-site LaunchMyNFT mint controls                    |
-| `/whitelist`   | Whitelist signup                                               |
-
-## NFT mint embed and countdown
-
-The landing page and `/mint` route share one persistent LaunchMyNFT widget for
-the [Sweetardio collection](https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/8azF6Zkfb5ExKPty13RO)
-(owner `Hn1i…nELo`, collection `8azF6Zkfb5ExKPty13RO`). LaunchMyNFT remains
-authoritative for price, supply, eligibility, start/end state, and the
-transaction itself.
-
-The countdown defaults to the launch instant scheduled on that collection —
-`2026-09-14T13:59:00.000Z` (`DEFAULT_MINT_START_AT` in
-`src/components/MintSection.tsx`). Update that constant when LaunchMyNFT's
-launch date changes, or override it per deployment without a code change:
-
-```bash
-VITE_MINT_START_AT=2026-09-14T13:59:00Z
+```
+ROOM 1  street ──door──▶ ROOM 2  counter ──RING FOR SERVICE──▶ "the window is watching."
+                                         ──UNOPENED SCRIPT──▶ ROOM 3A  the Rx pad
+ROOM 3A  IDENTIFY YOURSELF (X) · 3 questions · notes · wallet · side effects ──SEND TO FILL──▶
+ROOM 3B  the catch: cup on the tray, can on the floor
+           TAKE THEM      ──▶ PATH A  empty cup, FILLED receipt, "you can go." ──mat──▶ ROOM 1
+           SPIT THEM OUT  ──▶ PATH B  REFUSED, "good." ──▶ ROOM 4  the bag (the only mint)
 ```
 
-Use ISO-8601 with `Z` or an explicit UTC offset. If the override is invalid, the
-widget stays available and the timer safely displays `TBA`.
+- Only the trash path can mint. People who take the meds can come back and spit.
+- Returning patients still walk in and ring; the window remembers them
+  (filed → straight to the catch; spat → straight to the bag).
+- Wording lock: *take the meds / take them / took the meds / spit them out /
+  spit them into the trash.* All copy lives in `src/rx/copy.ts`.
+- Phones get the `overlay-mobile` notice first. ENTER ANYWAY works — badly, on purpose.
+- `?ref=` is captured silently (first touch wins), stripped from the address
+  bar, and filed with the intake.
 
-For the GitHub Pages deployment, create an Actions repository variable named
-`VITE_MINT_START_AT` under **Settings → Secrets and variables → Actions**. The
-Pages workflow passes that value into the production build on each `main` push.
+## Where things are
 
-## Wallets, credits & leaderboards
+| Path | What |
+| --- | --- |
+| `src/rx/Pharmacy.tsx` | The rooms and the flow between them |
+| `src/rx/rooms/` | Street, Counter (Room 2 / 3B / Path A), RxPad (3A), Papers (receipt, stamp), Bag (Room 4), PhoneGate |
+| `src/rx/copy.ts` | Every word the pharmacy says |
+| `src/rx/scenes.ts` | Hotspot / overlay rectangles, in each painting's own pixels |
+| `src/rx/Stage.tsx`, `Hotspot.tsx` | Paintings, and things pinned to them |
+| `src/rx/identity.ts` | Sign in with X (Firebase Twitter provider from `src/firebase.config.ts`) |
+| `src/rx/patientFile.ts` | The team's copy of each intake in Firestore (`rx_files/{uid}`) |
+| `src/rx/mintWindow.tsx` | The LaunchMyNFT register behind PAY AT WINDOW |
+| `src/rx/progress.ts` | What this browser remembers (intake draft, path, minted) |
+| `src/rx/rx.css` | All styling. Palette is locked: the five colours below, black, stained paper |
+| `public/rx/` | The locked art, byte-for-byte as delivered. Never edited |
+| `public/rx/web/` | Web copies derived from it (`python3 scripts/rx-art.py`) |
 
-- **Wallet connect** (top nav + in-game) uses the Solana wallet adapter with
-  Phantom, Solflare and Nightly registered explicitly, plus auto-detection of
-  any Wallet Standard wallet the visitor has installed (Backpack, etc.).
-  Connecting is optional and used **only as identity** — the games are
-  off-chain and free.
-- **SWEET credits**: every player starts with `STARTING_CREDITS` (10,000, see
-  `src/lib/credits.ts`) — one shared stack across both games, persisted per
-  player (wallet address when connected, anonymous handle otherwise). Busted
-  stacks refill for free; refills never improve Net Profit, so the boards stay
-  fair.
-- **Leaderboards** (`/leaderboard`, plus in-game modals) are Firestore-backed:
-  `leaderboard_slots` / `leaderboard_coinpusher`, one doc per player. Slots
-  ranks Net Profit / Biggest Win / Credits; Coinpusher ranks Coins Pushed /
-  Net Profit / Credits. Standings keyed to a wallet are the basis for perks
-  when the NFT collection launches.
+Palette: `#070F34` Oxford Blue · `#0313A6` Zaffre · `#9201CB` Dark Violet ·
+`#F715AB` Hollywood Cerise · `#34EDF3` Fluorescent Cyan.
 
-### Anti-tamper posture (read before paying out rewards)
+## The art
 
-The games run entirely in the browser, so scores can never be fully
-tamper-proof without a server. The damage is bounded instead:
-
-- Balances/credits in localStorage are HMAC-wrapped (`localStorageIntegrity`);
-  editing them in DevTools invalidates the value.
-- `firestore.rules` enforce document shape, server-timestamp-only writes,
-  hard value caps (1e12), a 2-second minimum interval between writes,
-  per-write movement caps (±50 M) and monotonic scores. The file is the
-  complete ruleset for the project and is wired for deployment: run
-  `npm run deploy:rules` locally (after `npx firebase-tools login`), or add
-  the `FIREBASE_SERVICE_ACCOUNT` repo secret and the
-  `.github/workflows/firestore-rules.yml` workflow deploys automatically
-  whenever the rules change on `main`. (Pasting the file into the Firebase
-  console works too.)
-- The client throttles submissions (trailing flush) to stay inside the rules.
-
-**Always manually review top standings before granting NFT-launch rewards** —
-a determined cheater can still inch numbers up within the caps.
-
-### Posting to The Board
-
-The board renders notes from the `board_posts` Firestore collection
-(publicly readable, client writes denied). To pin a new note, add a
-document in the Firebase console (Firestore → Data → `board_posts`) with
-the fields described in `src/services/boardService.ts` — or edit the
-starter notes in `src/content/boardPosts.ts`, which show whenever the
-collection is empty or unreachable.
-
-The board also shows a **Whitelist** section of signups. It requires
-public reads on the `whitelist` collection (see `firestore.rules`); until
-those rules are applied in the Firebase console the section hides itself.
-
-## Getting started
+The paintings in `public/rx/` are locked. The site serves derived copies from
+`public/rx/web/`: rooms re-encoded to WebP, props trimmed, and the papers keyed
+off the black they were delivered on (colour un-premultiplied, so edges and
+shadows keep no black fringe). The same script writes the favicons and app
+icons from the REFUSED seal, and the 1200×630 link-preview card from the
+street. Re-run after replacing any original:
 
 ```bash
-# 1. Install dependencies
+pip install pillow numpy
+python3 scripts/rx-art.py
+```
+
+No catch painting (counter with the cup on the tray) was supplied, so Room 3B
+composites `prop-cup-full` onto the counter at `COUNTER.cup` in
+`src/rx/scenes.ts`. Drop a `room2-catch` painting in and it can replace that.
+
+## The mint (Room 4 only)
+
+The bag's printed PHASE 1 / 0.0420 SOL / PAY AT WINDOW sticker is the button.
+Behind it is the same LaunchMyNFT Solana embed the old site used
+(collection `8azF6Zkfb5ExKPty13RO`, owner `Hn1i…nELo`). LaunchMyNFT stays
+authoritative for price, eligibility, supply and the transaction; its UI is
+never shown except its wallet chooser. One press connects the wallet and then
+asks it to pay.
+
+- Live price comes from the collection's public config. If it ever differs
+  from the printed 0.0420, a price tag is pinned over the sticker.
+- Sold out, not eligible, or not on `sweetardio.fun` → WINDOW CLOSED sticker,
+  THE WINDOW IS SHUT. SIT DOWN.
+- A mint that clears → FILE CLOSED.
+
+The embed script is ~8 MB, so it starts loading (hidden) at the catch.
+
+## Sign in with X — required before launch
+
+IDENTIFY YOURSELF uses Firebase Auth's Twitter provider on the `sweetardio`
+project. Until it is configured nobody can SEND TO FILL, so nobody can reach
+the bag. In the Firebase console:
+
+1. **Authentication → Get started**, then **Sign-in method → Twitter**: enable it
+   with the API key and secret of an X developer app.
+2. In the X app, set the callback URL Firebase shows
+   (`https://sweetardio.firebaseapp.com/__/auth/handler`).
+3. **Authentication → Settings → Authorized domains**: add `sweetardio.fun`
+   (and `www.sweetardio.fun`).
+
+## Patient files
+
+`firestore.rules` gains `rx_files/{uid}`: written only by the signed-in X
+patient themself, private to them, shape-checked, and a spat file never goes
+back to took. The rules deploy on push to `main` via
+`.github/workflows/firestore-rules.yml` (or `npm run deploy:rules`).
+Browse them in Firestore → Data → `rx_files`. Each file holds X id and handle,
+the three answers, the note, the wallet, the `ref`, the path, and `minted`
+(the patient's own claim — check the chain before rewarding anyone).
+
+## Develop
+
+```bash
 npm install
-
-# 2. (optional) configure environment
-cp .env.local.example .env.local   # fill in values as needed
-
-# 3. Run the dev server
-npm run dev                        # http://localhost:3000
-
-# Production build / preview
+npm run dev        # http://localhost:3000
 npm run build
-npm run preview
 ```
 
-The app defaults to the **Gorbagana** network, so both games render immediately
-without a wallet connected. Leaderboards and on-chain actions need the env vars
-in `.env.local` (Firebase + RPC/program config).
+In `npm run dev` the window is open on localhost. To walk the flow without X
+configured, set a stand-in patient in the browser console (dev builds only):
 
-## Project structure
-
-```
-src/
-├── App.tsx                 # router + landing page (Slots / Junk Pusher)
-├── index.tsx               # entry point
-├── index.css               # Tailwind + brand styles + Pusia font-face
-├── components/
-│   ├── slots/              # Slots game UI (SkillGame, BonusRound, leaderboard)
-│   └── junk-pusher/        # Junk Pusher UI (game, overlays, wallet, audio)
-├── pages/                  # route wrappers (Slots.tsx, JunkPusher.tsx)
-├── contexts/               # Network / Wallet / connection providers
-├── lib/                    # game engine, on-chain client, sound, scoring
-├── services/               # Firebase-backed activity / game config / leaderboards
-├── utils/                  # helpers (errors, decimals, tx confirm, integrity)
-└── idl/                    # Anchor IDLs used by the wallet/anchor contexts
-
-public/
-├── symbols/                # slot reel symbols
-├── audio/                  # game sound effects & music
-├── assets/                 # backgrounds, logos, mascots
-├── images/                 # backgrounds
-└── fonts/                  # Pusia display font
+```js
+localStorage.setItem('rx:dev-patient', JSON.stringify({ handle: 'late_night_patient' }))
 ```
 
-## Tech stack
+Reset the file with `localStorage.clear()`.
 
-- React 19 + TypeScript + Vite 6
-- Tailwind CSS 4
-- `three` + `@dimforge/rapier3d-compat` (Junk Pusher physics)
-- Solana wallet adapter + `@coral-xyz/anchor` (on-chain client)
-- Firebase (leaderboards / high scores)
+## Radbro game builds
 
-## Notes for the redesign
+The arcade games (Slots, Coinpusher) are no longer part of the site, but their
+wallet-free Radbro builds still ship at `sweetardio.fun/radbro/slots/` and
+`/radbro/coinpusher/`. Their source stays under `src/components/slots`,
+`src/components/junk-pusher` and `src/lib`. See `RADBRO.md`.
 
-- New art/assets drop into `public/` (`symbols/`, `audio/`, `assets/`, `images/`).
-- The Slots reel symbols are defined in `src/lib/slots/symbols.ts`.
-- Each game owns its own wallet-connect UI; the top nav also exposes a wallet button.
-- Program IDs, treasury wallet, and RPC endpoints live in `.env.local` and
-  `src/lib/` config files and will be re-pointed once the new programs are deployed.
+## Deploy
+
+GitHub Pages, from `main`, via `.github/workflows/deploy.yml` (`public/CNAME`
+is `sweetardio.fun`).

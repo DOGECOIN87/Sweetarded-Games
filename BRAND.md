@@ -2,6 +2,10 @@
 
 The visual identity for the games is built on the **Sweetardios** NFT collection palette.
 
+The site (AFTER HOURS RX / COUNTER 4444) is locked to exactly these five
+colours plus black and stained near-white paper. Its tokens are the `--rx-*`
+custom properties at the top of `src/rx/rx.css`; nothing else is allowed there.
+
 ## Palette
 
 | Swatch | Hex | Name | Tailwind token | Intended role |

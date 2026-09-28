@@ -3,9 +3,9 @@ rules_version = '2';
 // ─────────────────────────────────────────────────────────────────────────
 // Firestore security rules — the COMPLETE ruleset for the Sweetardio project.
 //
-// This file covers every collection the site touches (whitelist, both
-// leaderboards, board posts, game config, marketplace listings) and is wired
-// up for deployment via firebase.json:
+// This file covers every collection the site touches (After Hours Rx
+// patient files, whitelist, both leaderboards, board posts, game config,
+// marketplace listings) and is wired up for deployment via firebase.json:
 //
 //     npm run deploy:rules          # local (needs `firebase login` once)
 //
@@ -41,6 +41,43 @@ service cloud.firestore {
         && d.wallet.size() >= 32 && d.wallet.size() <= 44  // base58 Solana pubkey
         && (d.xHandle == null || (d.xHandle is string && d.xHandle.size() <= 40))
         && d.submittedAt == request.time;             // server timestamp only
+    }
+
+    // ── After Hours Rx patient files (COUNTER 4444 HAS YOUR FILE) ──────
+    // One document per patient, keyed by their Firebase uid, written only by
+    // that patient and only when signed in with X. Holds the intake from the
+    // Rx pad (three answers, the note, the wallet the bag goes to), the
+    // silent ?ref= they arrived with, and which way they went at the catch.
+    // Private: patients read their own file back on another browser; the
+    // team reads the collection from the console. Taking the meds can be
+    // followed by spitting them out later; a spat file never goes back.
+    // `minted` is the patient's own claim for the UI (FILE CLOSED), not proof
+    // of anything — check the chain before rewarding a file.
+    match /rx_files/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if isValidRxFile(uid);
+      allow delete: if false;
+    }
+
+    function isValidRxFile(uid) {
+      let d = request.resource.data;
+      return request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider == 'twitter.com'
+        && d.keys().hasOnly(['uid', 'xId', 'xHandle', 'answers', 'notes', 'wallet', 'ref', 'path', 'minted', 'filedAt', 'updatedAt'])
+        && d.uid == uid
+        && (d.xId == null || (d.xId is string && d.xId.size() <= 32))
+        && (d.xHandle == null || (d.xHandle is string && d.xHandle.size() <= 40))
+        && d.answers is map
+        && d.answers.keys().hasOnly(['medication', 'filled', 'allergies'])
+        && d.notes is string && d.notes.size() >= 1 && d.notes.size() <= 250
+        && d.wallet is string && d.wallet.size() >= 32 && d.wallet.size() <= 44
+        && (d.ref == null || (d.ref is string && d.ref.size() <= 64))
+        && (d.path == null || d.path in ['took', 'spit'])
+        && (resource == null || resource.data.get('path', null) != 'spit' || d.path == 'spit')
+        && d.minted is bool
+        && d.filedAt is timestamp
+        && d.updatedAt == request.time;               // server timestamp only
     }
 
     // ── Arcade leaderboards ────────────────────────────────────────────
