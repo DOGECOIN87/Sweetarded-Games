@@ -5,8 +5,9 @@
  * taken or spat out. "take the meds / take them / took the meds / spit them
  * out / spit them into the trash". Never any other verb for it.
  *
- * The only lines not dictated by the brief are the four `trouble` lines at
- * the bottom (failure states the brief doesn't cover). Edit freely.
+ * Not dictated by the brief (edit freely): the `trouble` lines at the bottom
+ * (failure states the brief doesn't cover), and the Google / email sign-in
+ * words, added after the brief asked for X only.
  */
 
 export const COPY = {
@@ -26,8 +27,19 @@ export const COPY = {
 
   pad: {
     identify: {
-      button: 'SIGN IN WITH X',
+      lead: 'SIGN IN WITH',
+      x: 'X',
+      google: 'GOOGLE',
+      email: 'EMAIL',
       helper: 'THE WINDOW DOES NOT FILL WALK-INS WITHOUT A NAME.',
+    },
+    emailSlip: {
+      email: 'email',
+      password: 'password (6 or more)',
+      signIn: 'SIGN IN',
+      create: 'NEW PATIENT',
+      forgot: 'forgot it',
+      sent: 'check your email for the reset link.',
     },
     notes: {
       max: 250,
@@ -68,6 +80,12 @@ export const COPY = {
 
   trouble: {
     signIn: 'the window did not catch your name. try again.',
+    closed: 'the window is not taking that kind of name yet.',
+    emailWrong: 'that email and password do not open a file.',
+    emailTaken: 'that email already has a file. sign in.',
+    emailWeak: 'the password needs 6 characters or more.',
+    emailBad: 'that is not an email.',
+    tooMany: 'too many tries. wait a minute.',
     wallet: 'that is not a solana address.',
     payment: 'payment did not clear.',
     register: 'the register is jammed. try the window again later.',

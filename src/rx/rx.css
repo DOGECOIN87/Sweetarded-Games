@@ -359,17 +359,38 @@ textarea {
   min-width: 0;
 }
 
+.rx-id--out {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1cqw;
+}
+
+.rx-id__ways {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.3cqw;
+}
+
+.rx-id__lead {
+  margin-right: 0.4cqw;
+  font-family: var(--rx-label);
+  font-size: 2.4cqw;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
 .rx-xbtn {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   gap: 1.2cqw;
-  padding: 1.4cqw 2.6cqw;
+  padding: 1.1cqw 2.1cqw;
   border: 0;
   background: var(--rx-ink);
   color: var(--rx-paper);
   font-family: var(--rx-label);
-  font-size: 3cqw;
+  font-size: 2.6cqw;
   font-weight: 700;
   letter-spacing: 0.07em;
   cursor: pointer;
@@ -405,6 +426,99 @@ textarea {
 .rx-xbtn__mark {
   width: 2.5cqw;
   height: 2.5cqw;
+}
+
+.rx-xbtn--ghost {
+  background: transparent;
+  color: var(--rx-ink);
+  box-shadow: inset 0 0 0 0.3cqw var(--rx-ink), 0 0.55cqw 0 var(--rx-cerise);
+}
+
+.rx-helper--quiet {
+  color: rgb(7 15 52 / 0.62);
+}
+
+/* Email sign-in: a slip of the same paper, clipped over the top two boxes. */
+.rx-slip {
+  z-index: 8;
+  padding: 3.2cqw 4cqw 2.4cqw;
+  background: linear-gradient(180deg, #f3eee5 0%, var(--rx-paper) 60%, #e4dccd 100%);
+  color: var(--rx-ink);
+  box-shadow:
+    inset 0 0.5cqw 0 var(--rx-cerise),
+    0 1.8cqw 3.6cqw rgb(0 0 0 / 0.45);
+  animation: rx-slip-in 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.rx-slip__form {
+  display: grid;
+  gap: 1.6cqw;
+}
+
+.rx-slip__input {
+  width: 100%;
+  padding: 0.7cqw 0;
+  border: 0;
+  border-bottom: 0.3cqw solid var(--rx-ink);
+  outline: none;
+  background: transparent;
+  color: var(--rx-ink);
+  font-family: var(--rx-mono);
+  font-size: 2.5cqw;
+  font-weight: 600;
+}
+
+.rx-slip__input::placeholder {
+  color: rgb(7 15 52 / 0.42);
+}
+
+.rx-slip__input:focus {
+  border-bottom-color: var(--rx-zaffre);
+}
+
+.rx-slip__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.6cqw;
+  margin-top: 0.6cqw;
+}
+
+.rx-slip__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--rx-ink);
+  font-family: var(--rx-mono);
+  font-size: 1.9cqw;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.4cqw;
+  cursor: pointer;
+}
+
+.rx-slip__link:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.rx-slip__link:focus-visible,
+.rx-slip__close:focus-visible {
+  outline: 0.35cqw solid var(--rx-zaffre);
+  outline-offset: 0.35cqw;
+}
+
+.rx-slip__close {
+  position: absolute;
+  top: 1.2cqw;
+  right: 1.8cqw;
+}
+
+@keyframes rx-slip-in {
+  from {
+    opacity: 0;
+    translate: 0 -2cqw;
+  }
 }
 
 .rx-helper {

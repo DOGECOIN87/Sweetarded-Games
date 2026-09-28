@@ -1,16 +1,22 @@
 /**
- * IDENTIFY YOURSELF — Sign in with X, via the project's existing Firebase
- * Twitter provider (src/firebase.config.ts).
+ * IDENTIFY YOURSELF — Firebase Authentication on the sweetardio project:
+ * X, Google, or email and password. X uses the project's existing Twitter
+ * provider (src/firebase.config.ts).
  *
  * The X handle is only handed over at sign-in (getAdditionalUserInfo), so it
  * is remembered per uid for later visits.
  */
 import { useSyncExternalStore } from 'react';
 import {
+  createUserWithEmailAndPassword,
   getAdditionalUserInfo,
+  GoogleAuthProvider,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
+  type AuthProvider,
   type User,
 } from 'firebase/auth';
 import { auth, twitterProvider } from '../firebase.config';
@@ -18,11 +24,14 @@ import { safeLocalStorage } from '../utils/safeStorage';
 
 export interface Patient {
   uid: string;
-  /** Numeric X account id — what the patient file is bound to. */
+  /** How they signed in: twitter.com, google.com or password. */
+  provider: string;
+  /** Numeric X account id, for X sign-ins. */
   xId: string | null;
+  /** X handle, for X sign-ins. */
   handle: string | null;
-  /** X display name, shown only if the handle was never handed over. */
   name: string | null;
+  email: string | null;
   photo: string | null;
   token: () => Promise<string | null>;
 }
@@ -31,7 +40,7 @@ export interface IdentityState {
   status: 'checking' | 'out' | 'in';
   patient: Patient | null;
   busy: boolean;
-  /** Firebase error code of the last failed sign-in, for debugging (console is stripped in prod). */
+  /** Firebase error code of the last failed attempt; the pad turns it into a line. */
   errorCode: string | null;
 }
 
@@ -47,24 +56,32 @@ const set = (patch: Partial<IdentityState>) => {
 
 function toPatient(user: User, freshHandle?: string | null): Patient {
   if (freshHandle) safeLocalStorage.setItem(handleKey(user.uid), freshHandle);
+  const x = user.providerData.find((p) => p.providerId === 'twitter.com');
   const internal = (user as unknown as { reloadUserInfo?: { screenName?: string } }).reloadUserInfo;
   return {
     uid: user.uid,
-    xId: user.providerData.find((p) => p.providerId === 'twitter.com')?.uid ?? null,
-    handle: freshHandle ?? safeLocalStorage.getItem(handleKey(user.uid)) ?? internal?.screenName ?? null,
+    provider: user.providerData[0]?.providerId ?? 'password',
+    xId: x?.uid ?? null,
+    handle: x ? (freshHandle ?? safeLocalStorage.getItem(handleKey(user.uid)) ?? internal?.screenName ?? null) : null,
     name: user.displayName,
+    email: user.email,
     photo: user.photoURL,
     token: () => user.getIdToken(),
   };
 }
 
-/** Dev only: a stand-in patient so the flow can be walked without X configured. */
+/** What goes on the pad: @handle for X, otherwise the name or the email. */
+export function patientLabel(p: Patient): string {
+  return p.handle ? `@${p.handle}` : (p.name ?? p.email ?? '');
+}
+
+/** Dev only: a stand-in patient so the flow can be walked without sign-in configured. */
 function devPatient(): Patient | null {
   if (!import.meta.env.DEV) return null;
   const raw = safeLocalStorage.getItem('rx:dev-patient');
   if (!raw) return null;
   const { handle } = JSON.parse(raw) as { handle: string };
-  return { uid: 'dev', xId: null, handle, name: null, photo: null, token: async () => null };
+  return { uid: 'dev', provider: 'dev', xId: null, handle, name: null, email: null, photo: null, token: async () => null };
 }
 
 let started = false;
@@ -85,25 +102,56 @@ function start() {
   });
 }
 
-export async function signInWithX(): Promise<void> {
-  if (state.busy) return;
-  if (!auth || !twitterProvider) {
+async function attempt(run: () => Promise<Patient | null>): Promise<boolean> {
+  if (state.busy) return false;
+  if (!auth) {
     set({ errorCode: 'auth/unavailable' });
-    return;
+    return false;
   }
   set({ busy: true, errorCode: null });
   try {
-    const cred = await signInWithPopup(auth, twitterProvider);
-    set({ status: 'in', patient: toPatient(cred.user, getAdditionalUserInfo(cred)?.username ?? null) });
+    const patient = await run();
+    if (patient) set({ status: 'in', patient });
+    return true;
   } catch (err) {
     const code = (err as { code?: string })?.code ?? 'auth/unknown';
     set({ errorCode: QUIET.has(code) ? null : code });
+    return false;
   } finally {
     set({ busy: false });
   }
 }
 
-export async function signOutOfX(): Promise<void> {
+async function popup(provider: AuthProvider): Promise<Patient> {
+  const cred = await signInWithPopup(auth, provider);
+  const username = provider.providerId === 'twitter.com' ? getAdditionalUserInfo(cred)?.username : null;
+  return toPatient(cred.user, username ?? null);
+}
+
+const google = new GoogleAuthProvider();
+google.setCustomParameters({ prompt: 'select_account' });
+
+export const signInWithX = () => attempt(() => popup(twitterProvider));
+export const signInWithGoogle = () => attempt(() => popup(google));
+
+export const signInWithEmail = (email: string, password: string) =>
+  attempt(async () => toPatient((await signInWithEmailAndPassword(auth, email.trim(), password)).user));
+
+export const createEmailPatient = (email: string, password: string) =>
+  attempt(async () => toPatient((await createUserWithEmailAndPassword(auth, email.trim(), password)).user));
+
+/** Sends Firebase's reset email. True when it went out. */
+export const resetEmailPassword = (email: string) =>
+  attempt(async () => {
+    await sendPasswordResetEmail(auth, email.trim());
+    return null;
+  });
+
+export function clearIdentityError(): void {
+  if (state.errorCode) set({ errorCode: null });
+}
+
+export async function signOut(): Promise<void> {
   if (import.meta.env.DEV && state.patient?.uid === 'dev') {
     safeLocalStorage.removeItem('rx:dev-patient');
     set({ status: 'out', patient: null });

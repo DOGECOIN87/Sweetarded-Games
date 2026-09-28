@@ -2,8 +2,8 @@
  * COUNTER 4444 HAS YOUR FILE — the team's copy of each intake.
  *
  * One document per signed-in patient at rx_files/{firebase uid}, written with
- * the patient's own ID token so firestore.rules can bind it to their X
- * account. Plain REST (like the old whitelist) rather than the Firestore SDK:
+ * the patient's own ID token so firestore.rules can bind it to their X,
+ * Google or email sign-in. Plain REST (like the old whitelist) rather than the Firestore SDK:
  * one HTTPS call that fails fast instead of a WebChannel that can hang.
  *
  * Every write is best-effort. The fiction never waits on it and never breaks
@@ -61,12 +61,27 @@ async function commit(patient: Patient, fields: Record<string, Value>, mask?: st
   return Boolean(res?.ok);
 }
 
+/** How this session signed in, from the ID token itself (what the rules check). */
+async function signInProvider(patient: Patient): Promise<string | null> {
+  const token = await patient.token().catch(() => null);
+  try {
+    const payload = token?.split('.')[1];
+    if (!payload) return null;
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return (JSON.parse(json) as { firebase?: { sign_in_provider?: string } }).firebase?.sign_in_provider ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** SEND TO FILL: the whole intake. */
-export function fileIntake(patient: Patient, p: Progress): Promise<boolean> {
+export async function fileIntake(patient: Patient, p: Progress): Promise<boolean> {
   return commit(
     patient,
     {
       uid: { stringValue: patient.uid },
+      provider: str(await signInProvider(patient)),
+      email: str(patient.email),
       xId: str(patient.xId),
       xHandle: str(patient.handle),
       answers: {

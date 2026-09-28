@@ -103,18 +103,27 @@ asks it to pay.
 
 The embed script is ~8 MB, so it starts loading (hidden) at the catch.
 
-## Sign in with X — required before launch
+## Sign-in — required before launch
 
-IDENTIFY YOURSELF uses Firebase Auth's Twitter provider on the `sweetardio`
-project. Until it is configured nobody can SEND TO FILL, so nobody can reach
-the bag. In the Firebase console:
+IDENTIFY YOURSELF offers X, Google, and email/password, all Firebase
+Authentication on the `sweetardio` project (`src/rx/identity.ts`). Until the
+providers are enabled nobody can SEND TO FILL, so nobody can reach the bag.
+In the Firebase console (Authentication):
 
-1. **Authentication → Get started**, then **Sign-in method → Twitter**: enable it
-   with the API key and secret of an X developer app.
-2. In the X app, set the callback URL Firebase shows
-   (`https://sweetardio.firebaseapp.com/__/auth/handler`).
-3. **Authentication → Settings → Authorized domains**: add `sweetardio.fun`
-   (and `www.sweetardio.fun`).
+1. **Get started** (once), then **Sign-in method**:
+   - **Email/Password**: enable.
+   - **Google**: enable; pick the support email shown on Google's sign-in screen.
+   - **Twitter**: enable with the API key and secret (Consumer Key / Secret) of
+     an X developer app. In the X app's user authentication settings choose
+     **Web App, Automated App or Bot**, set the callback URL Firebase shows
+     (`https://sweetardio.firebaseapp.com/__/auth/handler`) and the website
+     `https://sweetardio.fun`.
+2. **Settings → Authorized domains**: add `sweetardio.fun` and
+   `www.sweetardio.fun`.
+
+Email/Password and Google can instead be enabled from the Firebase CLI with an
+`auth` block in `firebase.json` and `npx -y firebase-tools@latest deploy --only auth`
+(Twitter is console-only).
 
 ## Patient files
 

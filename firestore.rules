@@ -17,6 +17,30 @@ rules_version = '2';
 //     add matching blocks before deploying — anything unmatched is denied.
 // ─────────────────────────────────────────────────────────────────────────
 
+// ===============================================================
+// Assumed Data Model — rx_files (After Hours Rx patient files)
+// ===============================================================
+//
+// Collection: rx_files
+// Document ID: the patient's Firebase Auth uid
+// Fields:
+//   - uid: string (required, == document id, immutable)
+//   - provider: string (required, == token sign_in_provider:
+//       'twitter.com' | 'google.com' | 'password')
+//   - email: string | null (== token email; PII, owner-only)
+//   - xId: string | null (an X account id from the token's identities)
+//   - xHandle: string | null (<= 40)
+//   - answers: map (only medication / filled / allergies; each string <= 40 or null)
+//   - notes: string (required, 1..250)
+//   - wallet: string (required, 32..44, base58 Solana address)
+//   - ref: string | null (<= 64, the ?ref= they arrived with)
+//   - path: 'took' | 'spit' | null ('spit' is final)
+//   - minted: bool (required; the patient's own claim)
+//   - filedAt: timestamp (required, server time at SEND TO FILL)
+//   - updatedAt: timestamp (required, == request.time on every write)
+//
+// ===============================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -45,39 +69,57 @@ service cloud.firestore {
 
     // ── After Hours Rx patient files (COUNTER 4444 HAS YOUR FILE) ──────
     // One document per patient, keyed by their Firebase uid, written only by
-    // that patient and only when signed in with X. Holds the intake from the
-    // Rx pad (three answers, the note, the wallet the bag goes to), the
-    // silent ?ref= they arrived with, and which way they went at the catch.
-    // Private: patients read their own file back on another browser; the
-    // team reads the collection from the console. Taking the meds can be
-    // followed by spitting them out later; a spat file never goes back.
-    // `minted` is the patient's own claim for the UI (FILE CLOSED), not proof
-    // of anything — check the chain before rewarding a file.
+    // that patient while signed in (X, Google, or email and password). Holds
+    // the intake from the Rx pad, the silent ?ref= they arrived with, and
+    // which way they went at the catch. Holds PII (email), so it is private:
+    // only its owner can read it; the team reads the collection from the
+    // console. Identity fields must match the sign-in token (sign-in method,
+    // email, X account id), not whatever the client claims. Taking the meds
+    // can be followed by spitting them out later; a spat file never goes
+    // back. `minted` is the patient's own claim for the UI (FILE CLOSED), not
+    // proof of anything — check the chain before rewarding a file.
     match /rx_files/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if isValidRxFile(uid);
+      allow read: if isRxOwner(uid);
+      allow create, update: if isRxOwner(uid) && isValidRxFile(uid);
       allow delete: if false;
     }
 
+    function isRxOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isShortOptionalString(value, maxLen) {
+      return value == null || (value is string && value.size() <= maxLen);
+    }
+
+    // Validator for BOTH create and update: the whole document after the write.
     function isValidRxFile(uid) {
       let d = request.resource.data;
-      return request.auth != null
-        && request.auth.uid == uid
-        && request.auth.token.firebase.sign_in_provider == 'twitter.com'
-        && d.keys().hasOnly(['uid', 'xId', 'xHandle', 'answers', 'notes', 'wallet', 'ref', 'path', 'minted', 'filedAt', 'updatedAt'])
-        && d.uid == uid
-        && (d.xId == null || (d.xId is string && d.xId.size() <= 32))
-        && (d.xHandle == null || (d.xHandle is string && d.xHandle.size() <= 40))
+      let token = request.auth.token;
+      let method = token.firebase.sign_in_provider;
+      return method in ['twitter.com', 'google.com', 'password']
+        && d.keys().hasOnly(['uid', 'provider', 'email', 'xId', 'xHandle', 'answers', 'notes', 'wallet', 'ref', 'path', 'minted', 'filedAt', 'updatedAt'])
+        && d.keys().hasAll(['uid', 'provider', 'answers', 'notes', 'wallet', 'minted', 'filedAt', 'updatedAt'])
+        && d.uid == uid                                                   // ownership is the doc id; can't be moved
+        && d.provider == method                                           // from the token, not the client
+        && d.get('email', null) == token.get('email', null)               // from the token, not the client
+        && (d.get('xId', null) == null
+            || d.xId in token.firebase.identities.get('twitter.com', []))   // the X account they signed in with
+        && isShortOptionalString(d.get('xHandle', null), 40)
         && d.answers is map
         && d.answers.keys().hasOnly(['medication', 'filled', 'allergies'])
+        && isShortOptionalString(d.answers.get('medication', null), 40)
+        && isShortOptionalString(d.answers.get('filled', null), 40)
+        && isShortOptionalString(d.answers.get('allergies', null), 40)
         && d.notes is string && d.notes.size() >= 1 && d.notes.size() <= 250
         && d.wallet is string && d.wallet.size() >= 32 && d.wallet.size() <= 44
-        && (d.ref == null || (d.ref is string && d.ref.size() <= 64))
-        && (d.path == null || d.path in ['took', 'spit'])
-        && (resource == null || resource.data.get('path', null) != 'spit' || d.path == 'spit')
+        && isShortOptionalString(d.get('ref', null), 64)
+        && (d.get('path', null) == null || d.path in ['took', 'spit'])
+        && (resource == null || resource.data.get('path', null) != 'spit'
+            || d.get('path', null) == 'spit')                             // spat is final
         && d.minted is bool
         && d.filedAt is timestamp
-        && d.updatedAt == request.time;               // server timestamp only
+        && d.updatedAt == request.time;                                   // server timestamp only
     }
 
     // ── Arcade leaderboards ────────────────────────────────────────────

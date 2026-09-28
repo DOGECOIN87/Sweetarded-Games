@@ -93,6 +93,8 @@ export const PAD = {
   bagBox: { x: 97, y: 878, w: 896, h: 165 },
   sideLabel: { x: 100, y: 1068, w: 300, h: 50 },
   sideList: { x: 104, y: 1124, w: 400, h: 168 },
+  /** The email sign-in slip, laid over IDENTIFY YOURSELF and PHARMACIST NOTES while open. */
+  slip: { x: 84, y: 410, w: 922, h: 404, rotate: -1.2 },
   send: { x: 520, y: 1165, w: 480, h: 130, rotate: -9 },
 } satisfies Record<string, Rect>;
 
