@@ -10,7 +10,7 @@
  */
 import { COPY } from '../copy';
 import { Hotspot } from '../Hotspot';
-import { ART, COUNTER, FOCUS, PROPS } from '../scenes';
+import { ART, COUNTER, FOCUS, KEEP, PROPS } from '../scenes';
 import { Speech } from '../Speech';
 import { At, Stage } from '../Stage';
 import { useLater } from '../useLater';
@@ -43,6 +43,7 @@ export function Counter({ moment, line, rings, onRing, onTake, onSpit, onLeave }
       art={ART.counter}
       alt="Inside: a night window, COUNTER 4444. A pop-tart pharmacist watches through the glass. A bell on the tray, a vending machine of Sweetardios, a trash can full of pills."
       focus={focus}
+      keep={moment === 'catch' || moment === 'spit' ? KEEP.catch : undefined}
       className={`rx-counter rx-counter--${moment}`}
     >
       {cup && (

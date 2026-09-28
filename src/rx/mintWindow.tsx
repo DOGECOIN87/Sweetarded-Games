@@ -12,7 +12,9 @@
  * opens as normal — that part of the flow is the wallet's, not ours.
  */
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import app from '../firebase.config';
 import { isOfficialHost, LMNFT } from './config';
+import { needsPhantomBrowser } from './device';
 
 export type MintAction = 'connect' | 'mint' | 'busy' | 'shut';
 
@@ -39,6 +41,7 @@ const SHUT_AFTER_MS = 8000;
 /**
  * `warm`: start loading the register ahead of the bag (it is ~8 MB), so it is
  * ready by the time someone gets there. Nothing of it is ever shown until then.
+ * Phones without a wallet never load it: they pay from Phantom's browser.
  */
 export function MintWindowProvider({ warm = false, children }: { warm?: boolean; children: ReactNode }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -46,7 +49,7 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
   const [opened, setOpened] = useState(false);
 
   useEffect(() => {
-    if (warm && isOfficialHost()) setOpened(true);
+    if (warm && isOfficialHost() && !needsPhantomBrowser()) setOpened(true);
   }, [warm]);
   const paying = useRef(false);
   /** PAY AT WINDOW was pressed before a wallet was connected: mint once it is. */
@@ -187,22 +190,39 @@ export function useMintWindow(): MintWindow {
 export interface CollectionDoc {
   cost: string | null;
   soldOut: boolean;
+  /** The team shut the window (game_config/rx.windowShut in our Firestore). */
+  shut: boolean;
 }
 
-/** The collection's public LaunchMyNFT config — the live price and sold-out flag. */
-export async function fetchCollectionDoc(): Promise<CollectionDoc | null> {
+type Fields = Record<string, Record<string, unknown>>;
+
+async function fields(url: string): Promise<Fields | null> {
   try {
-    const res = await fetch(LMNFT.doc);
+    const res = await fetch(url);
     if (!res.ok) return null;
-    const doc = (await res.json()) as { fields?: Record<string, Record<string, unknown>> };
-    const f = doc.fields ?? {};
-    const minted = Number(f.totalMints?.stringValue ?? f.totalMints?.integerValue ?? NaN);
-    const supply = Number(f.maxSupply?.stringValue ?? f.maxSupply?.integerValue ?? NaN);
-    return {
-      cost: typeof f.cost?.stringValue === 'string' ? f.cost.stringValue : null,
-      soldOut: f.soldOut?.booleanValue === true || (supply > 0 && minted >= supply),
-    };
+    return ((await res.json()) as { fields?: Fields }).fields ?? {};
   } catch {
     return null;
   }
+}
+
+/**
+ * Our own switch for pausing the mint: Firestore game_config/rx, boolean
+ * `windowShut` (publicly readable, written from the Firebase console). No
+ * document means the window is open.
+ */
+const WINDOW_SWITCH = `https://firestore.googleapis.com/v1/projects/${app.options.projectId}/databases/(default)/documents/game_config/rx?key=${app.options.apiKey}`;
+
+/** The collection's public LaunchMyNFT config (live price, sold out) and our own switch. */
+export async function fetchCollectionDoc(): Promise<CollectionDoc | null> {
+  const [f, ours] = await Promise.all([fields(LMNFT.doc), fields(WINDOW_SWITCH)]);
+  const shut = ours?.windowShut?.booleanValue === true;
+  if (!f) return shut ? { cost: null, soldOut: false, shut } : null;
+  const minted = Number(f.totalMints?.stringValue ?? f.totalMints?.integerValue ?? NaN);
+  const supply = Number(f.maxSupply?.stringValue ?? f.maxSupply?.integerValue ?? NaN);
+  return {
+    cost: typeof f.cost?.stringValue === 'string' ? f.cost.stringValue : null,
+    soldOut: f.soldOut?.booleanValue === true || (supply > 0 && minted >= supply),
+    shut,
+  };
 }

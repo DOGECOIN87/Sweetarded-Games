@@ -88,14 +88,18 @@ function useBox(ref: RefObject<HTMLElement | null>) {
 }
 
 /**
- * The room. The painting always covers the whole window, at every size and
+ * The room. The painting covers the whole window, at every size and
  * orientation. Whatever doesn't fit can be dragged (or scrolled) into view;
  * `focus` is the painting point to keep centred, and moving it glides there.
+ * `keep` is a part of the painting that must be on screen all at once (a
+ * choice between two things): when covering would cut it, the painting
+ * shrinks until it fits and the rest of the window is black.
  */
 export function Stage({
   art,
   alt,
   focus,
+  keep,
   className = '',
   children,
 }: {
@@ -103,6 +107,8 @@ export function Stage({
   alt: string;
   /** Painting point to centre in the window. Defaults to the middle. */
   focus?: Point;
+  /** Painting area that must be fully visible. */
+  keep?: Rect;
   className?: string;
   children?: ReactNode;
 }) {
@@ -110,7 +116,11 @@ export function Stage({
   const vp = useBox(scrollRef);
   const lastFocus = useRef<string | null>(null);
 
-  const scale = Math.max(vp.w / art.w, vp.h / art.h);
+  const cover = Math.max(vp.w / art.w, vp.h / art.h);
+  const contain = Math.min(vp.w / art.w, vp.h / art.h);
+  // Only give up covering when it would cut `keep` by more than its margins (5%).
+  const fit = keep ? Math.min(vp.w / keep.w, vp.h / keep.h) : Infinity;
+  const scale = fit < cover * 0.95 ? Math.max(contain, fit) : cover;
   const width = Math.ceil(art.w * scale);
   const height = Math.ceil(art.h * scale);
   const fx = focus?.x ?? art.w / 2;

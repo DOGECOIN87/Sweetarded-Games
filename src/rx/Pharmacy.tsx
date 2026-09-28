@@ -18,7 +18,7 @@ import { COPY } from './copy';
 import { getIdentity, useIdentity } from './identity';
 import { MintWindowProvider } from './mintWindow';
 import { fileIntake, notePath, readFile } from './patientFile';
-import { getProgress, isIntakeComplete, updateProgress } from './progress';
+import { getProgress, isIntakeComplete, updateProgress, useProgress } from './progress';
 import { Bag } from './rooms/Bag';
 import { Counter, type CounterMoment } from './rooms/Counter';
 import { Receipt, RefusedStamp } from './rooms/Papers';
@@ -41,6 +41,7 @@ export default function Pharmacy() {
   const [dark, setDark] = useState(false);
   const [stamp, setStamp] = useState(false);
   const identity = useIdentity();
+  const spat = useProgress().path === 'spit';
   usePharmacySound(gated ? null : room === 'street' ? 'street' : 'inside');
 
   const timers = useRef<number[]>([]);
@@ -185,8 +186,9 @@ export default function Pharmacy() {
   const padPlace: PadPlace =
     room === 'pad' ? 'open' : room === 'catch' ? 'catch' : room === 'counter' && peek ? 'peek' : 'away';
 
+  // The register is ~8 MB: start it at the catch, or as soon as a patient who already spat walks in.
   return (
-    <MintWindowProvider warm={room === 'catch' || room === 'spit' || room === 'bag'}>
+    <MintWindowProvider warm={room === 'catch' || room === 'spit' || room === 'bag' || (spat && room !== 'street')}>
       <main className="rx">
         {room === 'street' ? (
           <Street key="street" onEnter={enterFromStreet} />

@@ -39,6 +39,12 @@ const GAP_MS: [number, number] = [6000, 15000];
 /** After the first touch unlocks sound (long enough that a tap on the door leaves first). */
 const UNLOCK_MS = 1200;
 
+/**
+ * What counts as a touch that allows sound. iOS doesn't accept pointerdown
+ * from a finger; touchend and click it does.
+ */
+const GESTURES = ['pointerdown', 'touchend', 'click', 'keydown'] as const;
+
 const between = ([lo, hi]: [number, number]) => lo + Math.random() * (hi - lo);
 
 /** `where` is null while nothing should play (the phone notice). */
@@ -137,8 +143,7 @@ function startBed(): Bed {
     else unlock();
   };
 
-  window.addEventListener('pointerdown', unlock);
-  window.addEventListener('keydown', unlock);
+  GESTURES.forEach((type) => window.addEventListener(type, unlock));
   document.addEventListener('visibilitychange', onVisibility);
   void loadBed(ctx); // fetch and decode now; decoding works before sound is allowed
   if (!document.hidden) unlock(); // plays straight away if sound is already allowed
@@ -151,8 +156,7 @@ function startBed(): Bed {
     },
     stop() {
       stopped = true;
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('keydown', unlock);
+      GESTURES.forEach((type) => window.removeEventListener(type, unlock));
       document.removeEventListener('visibilitychange', onVisibility);
       glide(0, 0.6);
       source?.stop(ctx.currentTime + 0.65);
@@ -179,10 +183,39 @@ function nextClip(): string {
   return last;
 }
 
-function fadeOut(el: HTMLAudioElement): void {
+/**
+ * Every clip plays through one element: iOS lets an element make sound only
+ * after it has been started from a touch, and a new element each time would
+ * never be. (iOS also ignores volume, so there the clips play at full level.)
+ */
+let voice: HTMLAudioElement | null = null;
+let take = 0;
+const voiceElement = () => (voice ??= new Audio());
+
+/** Inside a touch: start and stop the voice element so later clips may sound. */
+function primeVoice(): void {
+  const el = voiceElement();
+  if (el.dataset.primed || !el.paused) return;
+  el.dataset.primed = '1';
+  if (!el.src) el.src = CLIPS[0];
+  el.muted = true;
+  el.play().then(
+    () => {
+      el.pause();
+      el.muted = false;
+    },
+    () => {
+      el.muted = false;
+      delete el.dataset.primed;
+    },
+  );
+}
+
+function fadeOut(el: HTMLAudioElement, which: number): void {
   const from = el.volume;
   const start = performance.now();
   const step = () => {
+    if (take !== which) return; // a new clip has taken over the element
     const k = Math.min(1, (performance.now() - start) / 400);
     el.volume = from * (1 - k);
     if (k < 1) requestAnimationFrame(step);
@@ -194,7 +227,7 @@ function fadeOut(el: HTMLAudioElement): void {
 function startClips(): () => void {
   let stopped = false;
   let timer = 0;
-  let playing: HTMLAudioElement | null = null;
+  let playing: number | null = null;
   let waitFor: Array<[EventTarget, string]> = [];
 
   const schedule = (ms: number) => {
@@ -207,6 +240,7 @@ function startClips(): () => void {
   };
   function resume() {
     stopWaiting();
+    primeVoice();
     if (!stopped) schedule(document.hidden ? between(FIRST_MS) : UNLOCK_MS);
   }
   const waitUntil = (...events: Array<[EventTarget, string]>) => {
@@ -222,22 +256,25 @@ function startClips(): () => void {
       return;
     }
     const src = nextClip();
-    const el = new Audio(src);
+    const el = voiceElement();
+    const mine = ++take;
+    el.src = src;
+    el.muted = false;
     el.volume = CLIP_VOLUME;
-    playing = el;
+    playing = mine;
     const done = () => {
-      if (playing !== el) return;
+      if (playing !== mine) return;
       playing = null;
       if (!stopped) schedule(between(GAP_MS));
     };
-    el.addEventListener('ended', done, { once: true });
-    el.addEventListener('error', done, { once: true });
+    el.onended = done;
+    el.onerror = done;
     el.play().catch(() => {
       // Not allowed to make sound yet: keep this clip for the first touch.
-      if (playing !== el) return;
+      if (playing !== mine) return;
       playing = null;
       bag.unshift(src);
-      if (!stopped) waitUntil([window, 'pointerdown'], [window, 'keydown']);
+      if (!stopped) waitUntil(...GESTURES.map((type): [EventTarget, string] => [window, type]));
     });
   }
 
@@ -246,7 +283,7 @@ function startClips(): () => void {
     stopped = true;
     window.clearTimeout(timer);
     stopWaiting();
-    if (playing) fadeOut(playing);
+    if (playing !== null && voice) fadeOut(voice, playing);
     playing = null;
   };
 }

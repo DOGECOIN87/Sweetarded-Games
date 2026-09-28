@@ -6,8 +6,12 @@
  * out / spit them into the trash". Never any other verb for it.
  *
  * Not dictated by the brief (edit freely): the `trouble` lines at the bottom
- * (failure states the brief doesn't cover), and the Google / email sign-in
- * words, added after the brief asked for X only.
+ * (failure states the brief doesn't cover), the Google / email sign-in
+ * words, added after the brief asked for X only, and the phone sheet's box
+ * titles (printed on the pad) and DONE.
+ *
+ * Mint locked (dictated): whoever cannot pay gets FILLED, FILE CLOSED or
+ * THE WINDOW IS SHUT, never a wallet or contract error.
  */
 
 export const COPY = {
@@ -55,6 +59,14 @@ export const COPY = {
       later: 'return to the bag later',
     },
     send: 'SEND TO FILL',
+    /** The printed box titles, as the phone sheet's headings. */
+    boxes: {
+      identify: 'IDENTIFY YOURSELF',
+      notes: 'PHARMACIST NOTES',
+      bag: 'WHERE WE SEND THE BAG',
+      side: 'SIDE EFFECTS',
+    },
+    done: 'DONE',
   },
 
   catch: {
@@ -70,8 +82,12 @@ export const COPY = {
     status: ['CASE STATUS: REFUSED', 'COUNTER 4444 HAS YOUR FILE.', 'DO NOT RING AGAIN.'],
     pay: 'PAY AT WINDOW',
     minted: ['FILE CLOSED.', 'THE PHARMACY HAS NOTHING FURTHER TO DISPENSE.'],
-    shut: 'THE WINDOW IS SHUT. SIT DOWN.',
+    /** Phase closed, sold out, paused by us, or not this domain. */
+    shut: ['THE WINDOW IS SHUT. SIT DOWN.', 'DO NOT CALL THE PHARMACY.'],
   },
+
+  /** No wallet can reach this browser (X and other in-app browsers). */
+  inApp: ['THE WINDOW DOES NOT LIKE IN-APP BROWSERS.', 'OPEN IN PHANTOM OR SAFARI.'],
 
   mobile: {
     alt: 'THIS COUNTER BARELY WORKS ON PHONES. USE A DESKTOP.',
@@ -86,9 +102,9 @@ export const COPY = {
     emailWeak: 'the password needs 6 characters or more.',
     emailBad: 'that is not an email.',
     tooMany: 'too many tries. wait a minute.',
+    popup: 'that window will not open here. use EMAIL.',
     wallet: 'that is not a solana address.',
     payment: 'payment did not clear.',
-    register: 'the register is jammed. try the window again later.',
   },
 } as const;
 

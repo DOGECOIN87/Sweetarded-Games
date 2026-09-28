@@ -2,13 +2,23 @@
  * ROOM 4 — the bag. The only place the mint exists.
  *
  * The printed price sticker (PHASE 1 / 0.0420 SOL / PAY AT WINDOW) is the
- * button. Closed file (already minted) and shut window (sold out, not open
- * to this wallet, or not the official domain) both slap WINDOW CLOSED over
- * it. The scam line is printed on the bag itself.
+ * button. Whoever cannot pay gets one of the locked states, never a wallet or
+ * contract error:
+ *
+ *   FILE CLOSED        already minted from this file
+ *   THE WINDOW IS SHUT phase closed, not open to this wallet, sold out, the
+ *                      register won't load, our own switch, or not the
+ *                      official domain
+ *
+ * Both slap WINDOW CLOSED over the sticker. The scam line is printed on the
+ * bag itself. On a phone with no wallet, PAY AT WINDOW opens this file in
+ * Phantom's browser; in an in-app browser the bag says to leave it.
  */
 import { useEffect, useState } from 'react';
+import { fileLink } from '../carry';
 import { COPY } from '../copy';
 import { isOfficialHost, PRINTED_COST } from '../config';
+import { isWalletBlocked, needsPhantomBrowser, phantomBrowseLink } from '../device';
 import { Hotspot } from '../Hotspot';
 import { getIdentity } from '../identity';
 import { fetchCollectionDoc, useMintWindow, type CollectionDoc } from '../mintWindow';
@@ -23,18 +33,20 @@ export function Bag() {
   const progress = useProgress();
   const { state, open, pay } = useMintWindow();
   const official = isOfficialHost();
+  const [viaPhantom] = useState(needsPhantomBrowser);
+  const [inApp] = useState(isWalletBlocked);
   const [doc, setDoc] = useState<CollectionDoc | null>(null);
   const [trouble, setTrouble] = useState<string | null>(null);
   const payNudge = useLater(2600);
 
   useEffect(() => {
-    if (official) open();
+    if (official && !viaPhantom) open();
     let live = true;
     void fetchCollectionDoc().then((d) => live && setDoc(d));
     return () => {
       live = false;
     };
-  }, [official, open]);
+  }, [official, viaPhantom, open]);
 
   // The embed reports how the payment went (a new object per result).
   useEffect(() => {
@@ -50,16 +62,29 @@ export function Bag() {
   }, [state.result]);
 
   const closed = progress.minted;
-  const shut = !closed && (!official || state.soldOut || doc?.soldOut === true || state.action === 'shut');
-  const jammed = !closed && !shut && state.status === 'error';
+  const shut =
+    !closed &&
+    (!official ||
+      doc?.shut === true ||
+      doc?.soldOut === true ||
+      state.soldOut ||
+      state.action === 'shut' ||
+      (!viaPhantom && state.status === 'error'));
   const slapped = closed || shut;
 
   useEffect(() => {
     if (slapped) thud();
   }, [slapped]);
 
-  const lines = closed ? COPY.bag.minted : shut ? [COPY.bag.shut] : COPY.bag.status;
+  const lines = closed ? COPY.bag.minted : shut ? COPY.bag.shut : COPY.bag.status;
   const liveCost = doc?.cost && doc.cost !== PRINTED_COST ? doc.cost : null;
+  const ready = viaPhantom || state.status === 'ready';
+  const warning = slapped ? null : (trouble ?? (inApp ? COPY.inApp.join(' ') : null));
+
+  const payAtWindow = () => {
+    if (viaPhantom) window.location.href = phantomBrowseLink(fileLink());
+    else pay();
+  };
 
   return (
     <div className="rx-bagroom">
@@ -70,9 +95,9 @@ export function Bag() {
             {line}
           </p>
         ))}
-        {(trouble || jammed) && (
+        {warning && (
           <p className="rx-trouble rx-case__trouble" role="alert">
-            {jammed ? COPY.trouble.register : trouble}
+            {warning}
           </p>
         )}
       </section>
@@ -91,10 +116,10 @@ export function Bag() {
             <Hotspot
               r={BAG.pay}
               label={COPY.bag.pay}
-              hint={payNudge && state.status === 'ready'}
-              refusing={state.status !== 'ready' || state.action === 'busy'}
-              onActivate={pay}
-              className={`rx-pay ${state.status === 'loading' ? 'is-loading' : ''} ${state.action === 'busy' ? 'is-busy' : ''}`}
+              hint={payNudge && ready}
+              refusing={!viaPhantom && (state.status !== 'ready' || state.action === 'busy')}
+              onActivate={payAtWindow}
+              className={`rx-pay ${!ready ? 'is-loading' : ''} ${state.action === 'busy' ? 'is-busy' : ''}`}
             />
           )}
           {slapped && (

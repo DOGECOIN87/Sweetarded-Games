@@ -61,6 +61,15 @@ export const FOCUS = {
   took: { x: 900, y: 640 },
 } satisfies Record<string, Point>;
 
+/**
+ * What a moment must show all at once, even on a phone: the catch is a choice
+ * between the cup on the tray and the can on the floor (cup and can hotspots
+ * plus a margin).
+ */
+export const KEEP = {
+  catch: { x: 1022, y: 412, w: 765, h: 558 },
+} satisfies Record<string, Rect>;
+
 /** Room 1 — the street (1672 × 941). */
 export const STREET = {
   door: { x: 748, y: 405, w: 178, h: 313 },

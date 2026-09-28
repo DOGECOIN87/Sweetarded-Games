@@ -19,7 +19,11 @@ ROOM 3B  the catch: cup on the tray, can on the floor
   (filed → straight to the catch; spat → straight to the bag).
 - Wording lock: *take the meds / take them / took the meds / spit them out /
   spit them into the trash.* All copy lives in `src/rx/copy.ts`.
-- Phones get the `overlay-mobile` notice first. ENTER ANYWAY works — badly, on purpose.
+- Phones get the `overlay-mobile` notice first (once per browser session).
+  ENTER ANYWAY works, and the same four rooms are completable on a phone:
+  every hotspot is at least 44 × 44 px, the catch shrinks the room until the
+  cup and the can are both on screen, and the pad's boxes open a sheet of the
+  same paper with thumb-sized controls (16 px inputs, so iOS doesn't zoom).
 - `?ref=` is captured silently (first touch wins), stripped from the address
   bar, and filed with the intake.
 
@@ -35,7 +39,8 @@ ROOM 3B  the catch: cup on the tray, can on the floor
 | `src/rx/identity.ts` | Sign-in: X, Google, or email and password (Firebase Authentication, `src/firebase.config.ts`) |
 | `src/rx/usePharmacySound.ts`, `sfx.ts` | The background loop, the street voices, the bell |
 | `src/rx/patientFile.ts` | The team's copy of each intake in Firestore (`rx_files/{uid}`) |
-| `src/rx/mintWindow.tsx` | The LaunchMyNFT register behind PAY AT WINDOW |
+| `src/rx/mintWindow.tsx` | The LaunchMyNFT register behind PAY AT WINDOW, and the window switch |
+| `src/rx/device.ts`, `carry.ts` | Phones and in-app browsers; the patient's file carried into Phantom's browser |
 | `src/rx/progress.ts` | What this browser remembers (intake draft, path, minted) |
 | `src/rx/rx.css` | All styling. Palette is locked: the five colours below, black, stained paper |
 | `public/rx/` | The locked art, byte-for-byte as delivered. Never edited |
@@ -88,7 +93,8 @@ All in `public/rx/audio/`:
 - `bell.mp3` is RING FOR SERVICE at the counter.
 
 Browsers block sound until a visitor has touched the page, so on a first
-visit the street is silent until the first tap, click or key press.
+visit the street is silent until the first tap, click or key press. (iOS
+also ignores volume, so on iPhones the voices play at full level.)
 
 ## The mint (Room 4 only)
 
@@ -101,11 +107,34 @@ asks it to pay.
 
 - Live price comes from the collection's public config. If it ever differs
   from the printed 0.0420, a price tag is pinned over the sticker.
-- Sold out, not eligible, or not on `sweetardio.fun` → WINDOW CLOSED sticker,
-  THE WINDOW IS SHUT. SIT DOWN.
 - A mint that clears → FILE CLOSED.
 
-The embed script is ~8 MB, so it starts loading (hidden) at the catch.
+**Mint locked.** Whoever can't pay gets FILLED (took the meds), FILE CLOSED
+(already minted) or THE WINDOW IS SHUT. SIT DOWN. / DO NOT CALL THE
+PHARMACY. with the WINDOW CLOSED sticker — never a wallet or contract error,
+and never any mint UI before the trash. The window is shut when:
+
+- **we shut it**: in the Firebase console, Firestore → `game_config` → add a
+  document `rx` with a boolean field `windowShut` = `true` (set it to `false`
+  or delete the document to reopen; no deploy needed);
+- LaunchMyNFT says sold out (its public config, or the counter);
+- the connected wallet's Mint button stays disabled for 8 s (phase not
+  started or ended, not eligible, mint limit, balance);
+- the register won't load;
+- the page isn't on `sweetardio.fun`.
+
+**Phones.** Phones have no wallet extension. On a phone without a wallet,
+PAY AT WINDOW opens `sweetardio.fun` in Phantom's own browser (its universal
+link), with the patient's file carried in the address (`#file=…`, see
+`src/rx/carry.ts`; `minted` never travels). There they tap ENTER ANYWAY,
+walk in and ring, and the window sends them straight to the bag, where
+Phantom is connected and pays. In X's (and other) in-app browsers, the pad
+and the bag say THE WINDOW DOES NOT LIKE IN-APP BROWSERS. OPEN IN PHANTOM OR
+SAFARI.
+
+The embed script is ~8 MB, so it starts loading (hidden) at the catch, or as
+soon as a patient who already spat walks in. Phones without a wallet never
+load it.
 
 ## Sign-in
 
