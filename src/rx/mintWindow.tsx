@@ -37,6 +37,33 @@ const Ctx = createContext<MintWindow | null>(null);
 
 const INITIAL: MintState = { status: 'idle', action: null, soldOut: false, result: null };
 const SHUT_AFTER_MS = 8000;
+const SCRIPT_ID = 'sweetardio-lmnft-solana-embed';
+let embedLoad: Promise<void> | null = null;
+
+/** Load the vendor module once per page, including under React StrictMode. */
+function loadEmbedScript(): Promise<void> {
+  if (embedLoad) return embedLoad;
+  embedLoad = new Promise<void>((resolve, reject) => {
+    const existing = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
+    if (existing?.dataset.loaded === 'true') {
+      resolve();
+      return;
+    }
+    const script = existing ?? document.createElement('script');
+    script.id = SCRIPT_ID;
+    script.type = 'module';
+    script.src = LMNFT.script;
+    const onLoad = () => {
+      script.dataset.loaded = 'true';
+      resolve();
+    };
+    const onError = () => reject(new Error('LaunchMyNFT embed failed to load'));
+    script.addEventListener('load', onLoad, { once: true });
+    script.addEventListener('error', onError, { once: true });
+    if (!existing) document.body.appendChild(script);
+  });
+  return embedLoad;
+}
 
 /**
  * `warm`: start loading the register ahead of the bag (it is ~8 MB), so it is
@@ -151,11 +178,7 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
       style.dataset.lmnftStyle = '1';
       document.head.appendChild(style);
     }
-    const script = document.createElement('script');
-    script.type = 'module';
-    script.src = LMNFT.script;
-    script.addEventListener('error', () => setState((s) => ({ ...s, status: 'error' })), { once: true });
-    document.body.appendChild(script);
+    void loadEmbedScript().catch(() => setState((s) => ({ ...s, status: 'error' })));
 
     // The script (~8 MB) loads, then fetches the collection before it renders
     // anything. If it gets there late, read() flips the status back to ready.

@@ -80,8 +80,23 @@ function devPatient(): Patient | null {
   if (!import.meta.env.DEV) return null;
   const raw = safeLocalStorage.getItem('rx:dev-patient');
   if (!raw) return null;
-  const { handle } = JSON.parse(raw) as { handle: string };
-  return { uid: 'dev', provider: 'dev', xId: null, handle, name: null, email: null, photo: null, token: async () => null };
+  try {
+    const parsed = JSON.parse(raw) as { handle?: unknown };
+    if (typeof parsed.handle !== 'string' || !parsed.handle.trim()) return null;
+    return {
+      uid: 'dev',
+      provider: 'dev',
+      xId: null,
+      handle: parsed.handle.trim(),
+      name: null,
+      email: null,
+      photo: null,
+      token: async () => null,
+    };
+  } catch {
+    safeLocalStorage.removeItem('rx:dev-patient');
+    return null;
+  }
 }
 
 let started = false;
@@ -97,9 +112,16 @@ function start() {
     set({ status: 'out' });
     return;
   }
-  onAuthStateChanged(auth, (user) => {
-    set(user ? { status: 'in', patient: toPatient(user) } : { status: 'out', patient: null });
-  });
+  onAuthStateChanged(
+    auth,
+    (user) => {
+      set(user ? { status: 'in', patient: toPatient(user), errorCode: null } : { status: 'out', patient: null });
+    },
+    (err) => {
+      const code = (err as { code?: string })?.code ?? 'auth/unknown';
+      set({ status: 'out', patient: null, errorCode: code });
+    },
+  );
 }
 
 async function attempt(run: () => Promise<Patient | null>): Promise<boolean> {
@@ -122,7 +144,8 @@ async function attempt(run: () => Promise<Patient | null>): Promise<boolean> {
   }
 }
 
-async function popup(provider: AuthProvider): Promise<Patient> {
+async function popup(provider: AuthProvider | null): Promise<Patient> {
+  if (!auth || !provider) throw Object.assign(new Error('Firebase Authentication is unavailable'), { code: 'auth/unavailable' });
   const cred = await signInWithPopup(auth, provider);
   const username = provider.providerId === 'twitter.com' ? getAdditionalUserInfo(cred)?.username : null;
   return toPatient(cred.user, username ?? null);

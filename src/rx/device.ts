@@ -1,7 +1,4 @@
-/**
- * What the patient is holding. Phones have no wallet extension: the way to
- * pay from one is Phantom's own browser, reached by its universal link.
- */
+/** Wallet and browser capability checks used by the mint handoff. */
 
 const ua = () => navigator.userAgent;
 
@@ -23,15 +20,35 @@ export function isInAppBrowser(): boolean {
   return /Android/.test(u) && /; wv\)/.test(u);
 }
 
-/** A Solana wallet injected into this page (an extension, or a wallet's own browser). */
+/**
+ * A Solana wallet injected into this page (an extension or a wallet's own
+ * browser). Wallet-standard wallets are discovered by the LaunchMyNFT embed;
+ * these globals cover wallets that still expose their legacy providers.
+ */
 export function hasSolanaProvider(): boolean {
   const w = window as unknown as Record<string, { solana?: unknown } | undefined>;
-  return Boolean(w.phantom?.solana || w.solana || w.solflare || w.backpack || w.okxwallet?.solana || w.coinbaseSolana);
+  return Boolean(
+    w.phantom?.solana ||
+      w.solana ||
+      w.solflare ||
+      w.backpack ||
+      w.nightly ||
+      w.trustwallet ||
+      w.trustWallet ||
+      w.trust ||
+      w.okxwallet?.solana ||
+      w.coinbaseSolana,
+  );
 }
 
-/** On a phone with nothing to pay with here: pay happens in Phantom's browser. */
+/**
+ * Keep wallet selection inside the LaunchMyNFT wallet chooser. It supports
+ * injected wallets plus wallet-standard adapters (including Solflare and
+ * other compatible wallets), so a mobile visitor must not be silently sent
+ * to Phantom before they can choose a wallet.
+ */
 export function needsPhantomBrowser(): boolean {
-  return isMobileDevice() && !hasSolanaProvider();
+  return false;
 }
 
 /** Where connect is blocked outright: an in-app browser with no wallet in it. */
@@ -39,7 +56,7 @@ export function isWalletBlocked(): boolean {
   return isInAppBrowser() && !hasSolanaProvider();
 }
 
-/** Phantom's universal link: opens `url` inside Phantom's browser (or its install page). */
+/** Phantom's universal link, retained for an explicit Phantom handoff. */
 export function phantomBrowseLink(url: string): string {
   return `https://phantom.app/ul/browse/${encodeURIComponent(url)}?ref=${encodeURIComponent(new URL(url).origin)}`;
 }
