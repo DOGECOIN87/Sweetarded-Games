@@ -14,7 +14,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import app from '../firebase.config';
 import { isOfficialHost, LMNFT } from './config';
-import { getInjectedStandardWallets, hasSolanaProvider, needsPhantomBrowser } from './device';
+import { getInjectedStandardWallets, hasSolanaProvider } from './device';
 
 export type MintAction = 'connect' | 'mint' | 'busy' | 'shut';
 
@@ -100,7 +100,8 @@ function loadEmbedScript(): Promise<void> {
 /**
  * `warm`: start loading the register ahead of the bag (it is ~8 MB), so it is
  * ready by the time someone gets there. Nothing of it is ever shown until then.
- * Phones without a wallet never load it: they pay from Phantom's browser.
+ * All wallet browsers use the same vendor adapter; it chooses the correct
+ * injected wallet or its mobile handoff when the user connects.
  */
 export function MintWindowProvider({ warm = false, children }: { warm?: boolean; children: ReactNode }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -108,7 +109,7 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
   const [opened, setOpened] = useState(false);
 
   useEffect(() => {
-    if (warm && isOfficialHost() && !needsPhantomBrowser()) setOpened(true);
+    if (warm && isOfficialHost()) setOpened(true);
   }, [warm]);
   const paying = useRef(false);
   /** PAY AT WINDOW was pressed before a wallet was connected: mint once it is. */

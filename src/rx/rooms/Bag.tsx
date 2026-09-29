@@ -15,10 +15,9 @@
  * Phantom's browser; in an in-app browser the bag says to leave it.
  */
 import { useEffect, useState } from 'react';
-import { fileLink } from '../carry';
 import { COPY } from '../copy';
 import { isOfficialHost, PRINTED_COST } from '../config';
-import { isWalletBlocked, needsPhantomBrowser, phantomBrowseLink } from '../device';
+import { isWalletBlocked } from '../device';
 import { Hotspot } from '../Hotspot';
 import { getIdentity } from '../identity';
 import { fetchCollectionDoc, useMintWindow, type CollectionDoc } from '../mintWindow';
@@ -33,20 +32,19 @@ export function Bag() {
   const progress = useProgress();
   const { state, open, pay } = useMintWindow();
   const official = isOfficialHost();
-  const [viaPhantom] = useState(needsPhantomBrowser);
   const [inApp] = useState(isWalletBlocked);
   const [doc, setDoc] = useState<CollectionDoc | null>(null);
   const [trouble, setTrouble] = useState<string | null>(null);
   const payNudge = useLater(2600);
 
   useEffect(() => {
-    if (official && !viaPhantom) open();
+    if (official) open();
     let live = true;
     void fetchCollectionDoc().then((d) => live && setDoc(d));
     return () => {
       live = false;
     };
-  }, [official, viaPhantom, open]);
+  }, [official, open]);
 
   // The embed reports how the payment went (a new object per result).
   useEffect(() => {
@@ -69,7 +67,7 @@ export function Bag() {
       doc?.soldOut === true ||
       state.soldOut ||
       state.action === 'shut' ||
-      (!viaPhantom && state.status === 'error'));
+      state.status === 'error');
   const slapped = closed || shut;
 
   useEffect(() => {
@@ -78,12 +76,14 @@ export function Bag() {
 
   const lines = closed ? COPY.bag.minted : shut ? COPY.bag.shut : COPY.bag.status;
   const liveCost = doc?.cost && doc.cost !== PRINTED_COST ? doc.cost : null;
-  const ready = viaPhantom || state.status === 'ready';
+  const ready = state.status === 'ready';
   const warning = slapped ? null : (trouble ?? (inApp ? COPY.inApp.join(' ') : null));
 
   const payAtWindow = () => {
-    if (viaPhantom) window.location.href = phantomBrowseLink(fileLink());
-    else pay();
+    // LaunchMyNFT owns the adapter list and knows how to hand off Phantom,
+    // Backpack, Solflare, Nightly and other mobile wallets. Do not guess the
+    // wallet from the user agent before its provider has registered.
+    pay();
   };
 
   return (
@@ -117,7 +117,7 @@ export function Bag() {
               r={BAG.pay}
               label={COPY.bag.pay}
               hint={payNudge && ready}
-              refusing={!viaPhantom && (state.status !== 'ready' || state.action === 'busy')}
+              refusing={state.status !== 'ready' || state.action === 'busy'}
               onActivate={payAtWindow}
               className={`rx-pay ${!ready ? 'is-loading' : ''} ${state.action === 'busy' ? 'is-busy' : ''}`}
             />
