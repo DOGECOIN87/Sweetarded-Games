@@ -31,6 +31,9 @@ const CLIPS = [
   'medication-alarm',
   'take-your-pills-lewber',
   'meds',
+  'box-of-twinkies',
+  'american-pie',
+  'dude-sweet',
 ].map((name) => `/rx/audio/${name}.mp3`);
 const CLIP_VOLUME = 0.85;
 
