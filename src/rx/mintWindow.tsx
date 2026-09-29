@@ -51,12 +51,16 @@ function prepareInjectedWallets(): void {
   const wallets = getInjectedStandardWallets();
   if (!wallets.length) return;
   try {
-    const nav = navigator as Navigator & { wallets?: object[] };
-    if (Array.isArray(nav.wallets)) {
+    const nav = navigator as Navigator & { wallets?: unknown };
+    const registered = nav.wallets;
+    if (Array.isArray(registered)) {
       wallets.forEach((wallet) => {
-        if (!nav.wallets?.includes(wallet)) nav.wallets?.push(wallet);
+        if (!registered.includes(wallet)) registered.push(wallet);
       });
-    } else {
+    } else if (nav.wallets == null) {
+      // Some wallet browsers expose the Wallet Standard registry as an object
+      // with its own registration API. Never replace that object: Backpack in
+      // particular uses it to register its built-in wallet asynchronously.
       Object.defineProperty(nav, 'wallets', { value: wallets, configurable: true });
     }
   } catch {
