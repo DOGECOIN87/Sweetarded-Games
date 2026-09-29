@@ -1266,6 +1266,31 @@ textarea {
   z-index: 0;
 }
 
+/* ── the lights ────────────────────────────────────────────────────────── */
+
+/* A tired tube overhead: a faint hum always, stutters driven from Flicker.tsx.
+   Over every room and paper, under the curtain and the phone notice. */
+.rx-lights {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.rx-lights::before,
+.rx-lights__dip {
+  position: absolute;
+  inset: 0;
+  background: var(--rx-black);
+  opacity: 0;
+}
+
+.rx-lights::before {
+  content: '';
+  opacity: 0.02;
+  animation: rx-hum 9s linear infinite;
+}
+
 /* ── curtains ──────────────────────────────────────────────────────────── */
 
 .rx-fade {
@@ -1359,6 +1384,31 @@ textarea {
 @keyframes rx-blink {
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes rx-hum {
+  0%,
+  100% {
+    opacity: 0.02;
+  }
+  23% {
+    opacity: 0.045;
+  }
+  24% {
+    opacity: 0.015;
+  }
+  51% {
+    opacity: 0.035;
+  }
+  52% {
+    opacity: 0.06;
+  }
+  53% {
+    opacity: 0.025;
+  }
+  78% {
+    opacity: 0.04;
   }
 }
 

@@ -15,6 +15,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { safeSessionStorage } from '../utils/safeStorage';
 import { COPY } from './copy';
+import { Flicker } from './Flicker';
 import { getIdentity, useIdentity } from './identity';
 import { MintWindowProvider } from './mintWindow';
 import { fileIntake, notePath, readFile } from './patientFile';
@@ -219,6 +220,8 @@ export default function Pharmacy() {
             <Bag />
           </>
         )}
+
+        <Flicker sound={!gated} />
 
         <div className={`rx-fade ${dark ? 'is-on' : ''}`} aria-hidden />
 
