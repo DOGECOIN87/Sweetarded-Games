@@ -1287,7 +1287,7 @@ textarea {
 
 .rx-lights::before {
   content: '';
-  opacity: 0.02;
+  opacity: 0.04;
   animation: rx-hum 9s linear infinite;
 }
 
@@ -1390,25 +1390,25 @@ textarea {
 @keyframes rx-hum {
   0%,
   100% {
-    opacity: 0.02;
+    opacity: 0.04;
   }
   23% {
-    opacity: 0.045;
+    opacity: 0.08;
   }
   24% {
-    opacity: 0.015;
+    opacity: 0.03;
   }
   51% {
-    opacity: 0.035;
-  }
-  52% {
     opacity: 0.06;
   }
+  52% {
+    opacity: 0.11;
+  }
   53% {
-    opacity: 0.025;
+    opacity: 0.045;
   }
   78% {
-    opacity: 0.04;
+    opacity: 0.07;
   }
 }
 
