@@ -14,7 +14,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import app from '../firebase.config';
 import { isOfficialHost, LMNFT } from './config';
-import { needsPhantomBrowser } from './device';
+import { getInjectedStandardWallets, hasSolanaProvider, needsPhantomBrowser } from './device';
 
 export type MintAction = 'connect' | 'mint' | 'busy' | 'shut';
 
@@ -39,6 +39,38 @@ const INITIAL: MintState = { status: 'idle', action: null, soldOut: false, resul
 const SHUT_AFTER_MS = 8000;
 const SCRIPT_ID = 'sweetardio-lmnft-solana-embed';
 let embedLoad: Promise<void> | null = null;
+
+/**
+ * Nightly exposes a Wallet Standard object but some Nightly browser builds do
+ * not register it on the page before third-party modules execute. The vendor
+ * embed snapshots `navigator.wallets` while booting, so seed that registry and
+ * remove only a stale Phantom selection that would otherwise auto-connect and
+ * launch Phantom's universal link.
+ */
+function prepareInjectedWallets(): void {
+  const wallets = getInjectedStandardWallets();
+  if (!wallets.length) return;
+  try {
+    const nav = navigator as Navigator & { wallets?: object[] };
+    if (Array.isArray(nav.wallets)) {
+      wallets.forEach((wallet) => {
+        if (!nav.wallets?.includes(wallet)) nav.wallets?.push(wallet);
+      });
+    } else {
+      Object.defineProperty(nav, 'wallets', { value: wallets, configurable: true });
+    }
+  } catch {
+    // The wallet or browser may expose a read-only navigator; the embed can
+    // still use any standard registration that the wallet provided itself.
+  }
+  try {
+    if (window.localStorage.getItem('walletName')?.toLowerCase() === 'phantom') {
+      window.localStorage.removeItem('walletName');
+    }
+  } catch {
+    // Storage can be blocked in a wallet webview; never prevent the embed.
+  }
+}
 
 /** Load the vendor module once per page, including under React StrictMode. */
 function loadEmbedScript(): Promise<void> {
@@ -106,6 +138,7 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
     const w = window as unknown as { ownerId: string; collectionId: string };
     w.ownerId = LMNFT.ownerId;
     w.collectionId = LMNFT.collectionId;
+    prepareInjectedWallets();
     setState((s) => ({ ...s, status: 'loading' }));
     let recheck = 0;
 
@@ -139,7 +172,11 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
           // wallet's eligibility. Only a button that stays disabled means shut.
           disabledSince.current ||= Date.now();
           const settled = Date.now() - disabledSince.current >= SHUT_AFTER_MS;
-          action = settled ? 'shut' : 'busy';
+          // A connected non-Phantom wallet can keep Mint disabled while the
+          // vendor checks eligibility. Never turn that active wallet into a
+          // false WINDOW CLOSED state; only the vendor's sold-out signal can
+          // close it in that case.
+          action = settled && !hasSolanaProvider() ? 'shut' : 'busy';
           if (!settled) {
             window.clearTimeout(recheck);
             recheck = window.setTimeout(read, SHUT_AFTER_MS + 50);

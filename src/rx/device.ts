@@ -42,6 +42,20 @@ export function hasSolanaProvider(): boolean {
 }
 
 /**
+ * Return standard-wallet objects exposed by wallet browsers/extensions. The
+ * exact property differs between Nightly and Backpack releases.
+ */
+export function getInjectedStandardWallets(): object[] {
+  const w = window as unknown as {
+    nightly?: { solana?: { standardWallet?: object } };
+    backpack?: { standardWallet?: object; solana?: { standardWallet?: object } };
+  };
+  return [w.nightly?.solana?.standardWallet, w.backpack?.standardWallet, w.backpack?.solana?.standardWallet].filter(
+    (wallet): wallet is object => Boolean(wallet),
+  );
+}
+
+/**
  * Keep wallet selection inside the LaunchMyNFT wallet chooser. It supports
  * injected wallets plus wallet-standard adapters (including Solflare and
  * other compatible wallets), so a mobile visitor must not be silently sent
