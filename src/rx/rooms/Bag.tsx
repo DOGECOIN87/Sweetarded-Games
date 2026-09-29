@@ -11,18 +11,16 @@
  *                      official domain
  *
  * Both slap WINDOW CLOSED over the sticker. The scam line is printed on the
- * bag itself. On a phone with no wallet, PAY AT WINDOW opens this file in
- * Phantom's browser; in an in-app browser the bag says to leave it.
+ * bag itself. PAY AT WINDOW opens the LaunchMyNFT mint page directly, where
+ * the wallet's own browser and adapter can handle connection and minting.
  */
 import { useEffect, useState } from 'react';
 import { COPY } from '../copy';
 import { isOfficialHost, PRINTED_COST } from '../config';
 import { isWalletBlocked } from '../device';
 import { Hotspot } from '../Hotspot';
-import { getIdentity } from '../identity';
-import { fetchCollectionDoc, useMintWindow, type CollectionDoc } from '../mintWindow';
-import { noteMinted } from '../patientFile';
-import { updateProgress, useProgress } from '../progress';
+import { fetchCollectionDoc, type CollectionDoc } from '../mintWindow';
+import { useProgress } from '../progress';
 import { ART, BAG, PROPS } from '../scenes';
 import { thud } from '../sfx';
 import { At, Canvas } from '../Stage';
@@ -30,44 +28,25 @@ import { useLater } from '../useLater';
 
 export function Bag() {
   const progress = useProgress();
-  const { state, open, pay } = useMintWindow();
   const official = isOfficialHost();
   const [inApp] = useState(isWalletBlocked);
   const [doc, setDoc] = useState<CollectionDoc | null>(null);
-  const [trouble, setTrouble] = useState<string | null>(null);
   const payNudge = useLater(2600);
 
   useEffect(() => {
-    if (official) open();
     let live = true;
     void fetchCollectionDoc().then((d) => live && setDoc(d));
     return () => {
       live = false;
     };
-  }, [official, open]);
-
-  // The embed reports how the payment went (a new object per result).
-  useEffect(() => {
-    if (!state.result) return;
-    if (state.result.kind === 'success') {
-      setTrouble(null);
-      updateProgress({ minted: true });
-      const patient = getIdentity().patient;
-      if (patient) void noteMinted(patient);
-    } else {
-      setTrouble(COPY.trouble.payment);
-    }
-  }, [state.result]);
+  }, []);
 
   const closed = progress.minted;
   const shut =
     !closed &&
     (!official ||
       doc?.shut === true ||
-      doc?.soldOut === true ||
-      state.soldOut ||
-      state.action === 'shut' ||
-      state.status === 'error');
+      doc?.soldOut === true);
   const slapped = closed || shut;
 
   useEffect(() => {
@@ -76,14 +55,10 @@ export function Bag() {
 
   const lines = closed ? COPY.bag.minted : shut ? COPY.bag.shut : COPY.bag.status;
   const liveCost = doc?.cost && doc.cost !== PRINTED_COST ? doc.cost : null;
-  const ready = state.status === 'ready';
-  const warning = slapped ? null : (trouble ?? (inApp ? COPY.inApp.join(' ') : null));
+  const warning = slapped ? null : (inApp ? COPY.inApp.join(' ') : null);
 
   const payAtWindow = () => {
-    // LaunchMyNFT owns the adapter list and knows how to hand off Phantom,
-    // Backpack, Solflare, Nightly and other mobile wallets. Do not guess the
-    // wallet from the user agent before its provider has registered.
-    pay();
+    window.location.assign('https://www.launchmynft.io/mint/sweetard');
   };
 
   return (
@@ -116,10 +91,9 @@ export function Bag() {
             <Hotspot
               r={BAG.pay}
               label={COPY.bag.pay}
-              hint={payNudge && ready}
-              refusing={state.status !== 'ready' || state.action === 'busy'}
+              hint={Boolean(payNudge)}
               onActivate={payAtWindow}
-              className={`rx-pay ${!ready ? 'is-loading' : ''} ${state.action === 'busy' ? 'is-busy' : ''}`}
+              className="rx-pay"
             />
           )}
           {slapped && (
