@@ -127,7 +127,13 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
 
   const pay = useCallback(() => {
     const button = hostRef.current?.querySelector<HTMLButtonElement>('#mint-button-container button');
-    if (!button) return;
+    // The vendor bundle is large and can still be rendering when the user
+    // taps the sticker. Preserve the tap and replay it from read() once the
+    // vendor has mounted its wallet button.
+    if (!button) {
+      payAfterConnect.current = Date.now();
+      return;
+    }
     // The vendor briefly disables Connect/Mint while its wallet adapter and
     // eligibility query settle. Do not drop the user's PAY AT WINDOW click;
     // read() will replay it as soon as the button becomes actionable.
@@ -197,15 +203,22 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
       } else if (text.includes('connecting')) action = 'busy';
       else action = 'connect';
 
-      // One press of PAY AT WINDOW covers both steps: connect, then the wallet asks to pay.
-      if (action === 'mint' && button && payAfterConnect.current) {
-        const fresh = Date.now() - payAfterConnect.current < 120_000;
-        payAfterConnect.current = 0;
-        if (fresh) {
+      // One press of PAY AT WINDOW covers both steps: connect, then mint. If
+      // the initial tap happened before the vendor button mounted, start the
+      // sequence here; leave the timestamp intact until the wallet is ready
+      // for the actual Mint click.
+      if (button && payAfterConnect.current && Date.now() - payAfterConnect.current < 120_000) {
+        if (action === 'connect' && !button.disabled) {
+          action = 'busy';
+          window.setTimeout(() => button.click(), 0);
+        } else if (action === 'mint' && !button.disabled) {
+          payAfterConnect.current = 0;
           paying.current = true;
           action = 'busy';
           window.setTimeout(() => button.click(), 0);
         }
+      } else if (payAfterConnect.current && Date.now() - payAfterConnect.current >= 120_000) {
+        payAfterConnect.current = 0;
       }
 
       setState((s) => {
