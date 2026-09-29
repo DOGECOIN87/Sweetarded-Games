@@ -17,7 +17,16 @@ export function isInAppBrowser(): boolean {
   const u = ua();
   if (/Twitter|FBAN|FBAV|FB_IAB|Instagram|Line\/|Snapchat|musical_ly|Bytedance|LinkedInApp/i.test(u)) return true;
   if (/iPhone|iPad|iPod/.test(u)) return !/Safari\//.test(u);
-  return /Android/.test(u) && /; wv\)/.test(u);
+  // Android WebView UAs normally contain `; wv)`, but older/custom embedded
+  // browsers identify themselves as Version/4.0 instead. Treat both as an
+  // in-app browser so the user is not left with a wallet chooser that cannot
+  // launch an external wallet.
+  return /Android/.test(u) && (/(; wv\))/.test(u) || /Version\/4\.0.*Chrome\//.test(u));
+}
+
+/** Wallet apps often inject their provider after the first render. */
+export function isWalletBrowser(): boolean {
+  return /Phantom|Backpack|Solflare|Nightly|OKX|Trust Wallet|Coinbase Wallet|Glow/i.test(ua());
 }
 
 /**
@@ -27,6 +36,7 @@ export function isInAppBrowser(): boolean {
  */
 export function hasSolanaProvider(): boolean {
   const w = window as unknown as Record<string, { solana?: unknown } | undefined>;
+  const standardWallets = (navigator as Navigator & { wallets?: unknown }).wallets;
   return Boolean(
     w.phantom?.solana ||
       w.solana ||
@@ -37,7 +47,8 @@ export function hasSolanaProvider(): boolean {
       w.trustWallet ||
       w.trust ||
       w.okxwallet?.solana ||
-      w.coinbaseSolana,
+      w.coinbaseSolana ||
+      (Array.isArray(standardWallets) && standardWallets.length > 0),
   );
 }
 
@@ -56,18 +67,19 @@ export function getInjectedStandardWallets(): object[] {
 }
 
 /**
- * Keep wallet selection inside the LaunchMyNFT wallet chooser. It supports
- * injected wallets plus wallet-standard adapters (including Solflare and
- * other compatible wallets), so a mobile visitor must not be silently sent
- * to Phantom before they can choose a wallet.
+ * A normal mobile browser has no provider for the LaunchMyNFT adapter to use.
+ * Send that case to Phantom's browser, preserving the patient's file in the
+ * URL. Wallet browsers and injected extensions stay on the page. This is
+ * deliberately based on the provider check, not merely the user agent, so a
+ * Backpack/Nightly/Phantom browser is never redirected away unnecessarily.
  */
 export function needsPhantomBrowser(): boolean {
-  return false;
+  return isMobileDevice() && !hasSolanaProvider() && !isWalletBrowser();
 }
 
 /** Where connect is blocked outright: an in-app browser with no wallet in it. */
 export function isWalletBlocked(): boolean {
-  return isInAppBrowser() && !hasSolanaProvider();
+  return isInAppBrowser() && !hasSolanaProvider() && !isWalletBrowser();
 }
 
 /** Phantom's universal link, retained for an explicit Phantom handoff. */
