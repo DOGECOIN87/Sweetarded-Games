@@ -122,7 +122,14 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
 
   const pay = useCallback(() => {
     const button = hostRef.current?.querySelector<HTMLButtonElement>('#mint-button-container button');
-    if (!button || button.disabled) return;
+    if (!button) return;
+    // The vendor briefly disables Connect/Mint while its wallet adapter and
+    // eligibility query settle. Do not drop the user's PAY AT WINDOW click;
+    // read() will replay it as soon as the button becomes actionable.
+    if (button.disabled) {
+      payAfterConnect.current = Date.now();
+      return;
+    }
     if (/^mint$/i.test(button.textContent?.trim() ?? '')) paying.current = true;
     else payAfterConnect.current = Date.now();
     button.click();
