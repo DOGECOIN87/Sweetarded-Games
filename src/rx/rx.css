@@ -365,6 +365,117 @@ textarea {
   border-radius: 30%;
 }
 
+/* The Discord logo on REFUSED WELCOME, as a neon tube: it strikes on with a
+   stutter, lights the purple plate behind it, and hums with the odd flicker. */
+.rx-neon {
+  z-index: 1;
+  pointer-events: none;
+  animation: rx-neon-strike 1.6s 0.7s linear both;
+}
+
+.rx-neon::before {
+  content: '';
+  position: absolute;
+  inset: -45% -35%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(52 237 243 / 0.28), rgb(52 237 243 / 0));
+  mix-blend-mode: screen;
+}
+
+.rx-neon__logo {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: var(--rx-cyan);
+  filter: drop-shadow(0 0 calc(2px * var(--s, 1)) currentColor) drop-shadow(0 0 calc(7px * var(--s, 1)) currentColor);
+  animation: rx-neon-hum 7s 2.3s steps(1) infinite;
+  transition: color 0.25s ease;
+}
+
+.rx-neon__tube {
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.rx-neon__core {
+  stroke: #fff;
+  stroke-width: 0.45;
+  opacity: 0.9;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rx-counter:has(.rx-hotspot--discord:hover) .rx-neon__logo {
+    color: var(--rx-cerise);
+    animation: rx-neon-buzz 0.18s steps(1) infinite;
+  }
+
+  .rx-counter:has(.rx-hotspot--discord:hover) .rx-neon::before {
+    background: radial-gradient(closest-side, rgb(247 21 171 / 0.4), rgb(247 21 171 / 0));
+  }
+}
+
+.rx-counter:has(.rx-hotspot--discord > :focus-visible) .rx-neon__logo {
+  color: var(--rx-cerise);
+}
+
+@keyframes rx-neon-strike {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.8;
+  }
+  12% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0;
+  }
+  34% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0.15;
+  }
+  52% {
+    opacity: 0.9;
+  }
+  56% {
+    opacity: 0.3;
+  }
+  64%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes rx-neon-hum {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  84% {
+    opacity: 0.35;
+  }
+  85% {
+    opacity: 1;
+  }
+  86.5% {
+    opacity: 0.5;
+  }
+  87.5% {
+    opacity: 1;
+  }
+}
+
+@keyframes rx-neon-buzz {
+  50% {
+    opacity: 0.82;
+  }
+}
+
 /* What the keypad types onto the screen. */
 .rx-lcd__digits {
   position: relative;

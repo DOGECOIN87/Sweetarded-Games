@@ -92,6 +92,8 @@ export const COUNTER = {
   key: { x: 439.5, y: 448.8, w: 13.5, h: 13.8 },
   /** REFUSED WELCOME, on the wall right of the window. */
   refusedSign: { x: 1522, y: 184, w: 180, h: 280 },
+  /** The blank top of that sign, above REFUSED: where the Discord neon hangs. */
+  discordNeon: { x: 1575, y: 194, w: 72, h: 58 },
   trash: { x: 1545, y: 608, w: 218, h: 338 },
   /** Where the clerk's lines appear: above the pop-tart, inside the glass. */
   speech: { x: 760, y: 118, w: 440, h: 80 },

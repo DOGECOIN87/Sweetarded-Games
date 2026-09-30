@@ -8,12 +8,13 @@
  *
  * Once a patient has spat them out, the idle window hides two back rooms in
  * the painting: the vending machine's screen and keypad (Telegram, see Vending)
- * and REFUSED WELCOME (Discord).
+ * and REFUSED WELCOME (a neon Discord logo).
  *
  * The pad, the receipt and the bag are papers laid over this scene.
  */
 import { REFUSED_LINKS } from '../config';
 import { COPY } from '../copy';
+import { DiscordMark } from '../DiscordMark';
 import { Hotspot } from '../Hotspot';
 import { ART, COUNTER, FOCUS, KEEP, PROPS } from '../scenes';
 import { Speech } from '../Speech';
@@ -73,16 +74,19 @@ export function Counter({ moment, line, rings, refused, onRing, onTake, onSpit, 
         <>
           <Hotspot r={COUNTER.bell} label={COPY.counter.bell} hint={bellNudge && rings === 0} onActivate={onRing} />
           <Hotspot r={COUNTER.vending} label={COPY.counter.vending} dead />
-          {refused && REFUSED_LINKS.telegram && (
-            <Vending href={REFUSED_LINKS.telegram} />
-          )}
+          {refused && REFUSED_LINKS.telegram && <Vending href={REFUSED_LINKS.telegram} />}
           {refused && REFUSED_LINKS.discord && (
-            <Hotspot
-              r={COUNTER.refusedSign}
-              label={COPY.counter.refused.sign}
-              href={REFUSED_LINKS.discord}
-              className="rx-hotspot--backroom"
-            />
+            <>
+              <At r={COUNTER.discordNeon} className="rx-neon" aria-hidden>
+                <DiscordMark className="rx-neon__logo" />
+              </At>
+              <Hotspot
+                r={COUNTER.refusedSign}
+                label={COPY.counter.refused.sign}
+                href={REFUSED_LINKS.discord}
+                className="rx-hotspot--backroom rx-hotspot--discord"
+              />
+            </>
           )}
         </>
       )}

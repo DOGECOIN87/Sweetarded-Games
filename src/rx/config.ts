@@ -27,7 +27,7 @@ export const SIDE_EFFECT_LINKS = {
 /**
  * The back rooms, only for patients who spat them out. Hidden in the counter
  * painting: Telegram lights up the vending machine's little screen (the
- * screen and keypad are the link), Discord hides behind the REFUSED WELCOME sign. While a link is null its spot stays plain wall.
+ * screen and keypad are the link), Discord is a neon logo lit on the REFUSED WELCOME sign. While a link is null its spot stays plain wall.
  */
 export const REFUSED_LINKS: { telegram: string | null; discord: string | null } = {
   telegram: 'https://t.me/Sweetardios',
