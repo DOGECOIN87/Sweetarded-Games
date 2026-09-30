@@ -1,6 +1,6 @@
 /**
- * The counter's two sounds: the service bell (a supplied recording) and the
- * stamp (synthesised, no asset). Only ever played from a click.
+ * The counter's sounds: the service bell (a supplied recording), the stamp
+ * and the vending keypad (synthesised, no asset). Only ever played from a click.
  */
 let ctx: AudioContext | null = null;
 
@@ -62,4 +62,21 @@ export function thud(): void {
   noiseGain.gain.value = 0.35;
   noise.connect(filter).connect(noiseGain).connect(ac.destination);
   noise.start(now);
+}
+
+/** A vending-machine key: a short square chirp, pitched by key. `low` is the buzz for a wrong code. */
+export function beep(step = 0, low = false): void {
+  const ac = audioContext();
+  if (!ac) return;
+  const now = ac.currentTime;
+  const osc = ac.createOscillator();
+  const gain = ac.createGain();
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(low ? 110 : 880 + step * 45, now);
+  const len = low ? 0.32 : 0.07;
+  gain.gain.setValueAtTime(0.06, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + len);
+  osc.connect(gain).connect(ac.destination);
+  osc.start(now);
+  osc.stop(now + len + 0.02);
 }

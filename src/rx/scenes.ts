@@ -84,8 +84,10 @@ export const COUNTER = {
   vending: { x: 42, y: 106, w: 368, h: 588 },
   /** The vending machine's little cyan screen, right of the glass. */
   lcd: { x: 444, y: 327, w: 38, h: 22 },
-  /** The screen down to the pink keypad: the Telegram link once refused. */
-  telegram: { x: 430, y: 314, w: 66, h: 208 },
+  /** The screen and the panel under it: the Telegram link once refused. */
+  telegram: { x: 432, y: 314, w: 62, h: 122 },
+  /** The top-left pink key; the other eleven repeat it (3 across, 4 down). */
+  key: { x: 439.5, y: 448.8, w: 13.5, h: 13.8 },
   /** REFUSED WELCOME, on the wall right of the window. */
   refusedSign: { x: 1522, y: 184, w: 180, h: 280 },
   trash: { x: 1545, y: 608, w: 218, h: 338 },
@@ -100,6 +102,9 @@ export const COUNTER = {
   /** The ring pops above the painted bell when rung. */
   bellPop: { x: 1168, y: 350, w: 120, h: 108 },
 } satisfies Record<string, Rect>;
+
+/** Spacing of the vending keypad's keys, from one key's corner to the next. */
+export const KEY_PITCH = { x: 15.5, y: 16.6 } satisfies Point;
 
 /** Room 3A — the Rx pad (1086 × 1448). Boxes are the printed boxes. */
 export const PAD = {

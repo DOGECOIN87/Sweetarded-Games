@@ -7,8 +7,8 @@
  *   spit   PATH B  — the cup goes in the can
  *
  * Once a patient has spat them out, the idle window hides two back rooms in
- * the painting: the vending machine's screen (the Telegram logo) and REFUSED
- * WELCOME (Discord).
+ * the painting: the vending machine's screen and keypad (Telegram, see Vending)
+ * and REFUSED WELCOME (Discord).
  *
  * The pad, the receipt and the bag are papers laid over this scene.
  */
@@ -17,9 +17,9 @@ import { COPY } from '../copy';
 import { Hotspot } from '../Hotspot';
 import { ART, COUNTER, FOCUS, KEEP, PROPS } from '../scenes';
 import { Speech } from '../Speech';
-import { TelegramMark } from '../TelegramMark';
 import { At, Stage } from '../Stage';
 import { useLater } from '../useLater';
+import { Vending } from './Vending';
 
 export type CounterMoment = 'idle' | 'papers' | 'catch' | 'took' | 'spit';
 
@@ -74,17 +74,7 @@ export function Counter({ moment, line, rings, refused, onRing, onTake, onSpit, 
           <Hotspot r={COUNTER.bell} label={COPY.counter.bell} hint={bellNudge && rings === 0} onActivate={onRing} />
           <Hotspot r={COUNTER.vending} label={COPY.counter.vending} dead />
           {refused && REFUSED_LINKS.telegram && (
-            <>
-              <At r={COUNTER.lcd} className="rx-lcd" aria-hidden>
-                <TelegramMark className="rx-lcd__plane" />
-              </At>
-              <Hotspot
-                r={COUNTER.telegram}
-                label={COPY.counter.refused.telegram}
-                href={REFUSED_LINKS.telegram}
-                className="rx-hotspot--backroom rx-hotspot--telegram"
-              />
-            </>
+            <Vending href={REFUSED_LINKS.telegram} />
           )}
           {refused && REFUSED_LINKS.discord && (
             <Hotspot

@@ -31,6 +31,7 @@ export const COPY = {
     /** Only there once the pills are in the trash. */
     refused: {
       telegram: 'B4 — FOR THE REFUSED. TELEGRAM.',
+      keypad: 'VENDING KEYPAD',
       sign: 'REFUSED WELCOME. THE BACK ROOM IS ON DISCORD.',
     },
   },
