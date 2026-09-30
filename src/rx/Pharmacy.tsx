@@ -198,6 +198,7 @@ export default function Pharmacy() {
             moment={moment}
             line={line}
             rings={rings}
+            refused={spat}
             onRing={ring}
             onTake={takeThem}
             onSpit={spitThemOut}

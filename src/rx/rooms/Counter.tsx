@@ -6,8 +6,12 @@
  *   took   PATH A  — the cup comes back empty; the mat is the way out
  *   spit   PATH B  — the cup goes in the can
  *
+ * Once a patient has spat them out, the idle window hides two back rooms in
+ * the painting: the vending keypad (Telegram) and REFUSED WELCOME (Discord).
+ *
  * The pad, the receipt and the bag are papers laid over this scene.
  */
+import { REFUSED_LINKS } from '../config';
 import { COPY } from '../copy';
 import { Hotspot } from '../Hotspot';
 import { ART, COUNTER, FOCUS, KEEP, PROPS } from '../scenes';
@@ -23,13 +27,15 @@ interface CounterProps {
   line: { text: string; key: number } | null;
   /** Bumps each time the bell is rung, replaying the ring. */
   rings: number;
+  /** This patient spat them out: the back rooms are open. */
+  refused: boolean;
   onRing: () => void;
   onTake: () => void;
   onSpit: () => void;
   onLeave: () => void;
 }
 
-export function Counter({ moment, line, rings, onRing, onTake, onSpit, onLeave }: CounterProps) {
+export function Counter({ moment, line, rings, refused, onRing, onTake, onSpit, onLeave }: CounterProps) {
   const bellNudge = useLater(4200, moment);
   const catchNudge = useLater(5200, moment);
   const exitReady = useLater(1900, moment);
@@ -65,6 +71,12 @@ export function Counter({ moment, line, rings, onRing, onTake, onSpit, onLeave }
         <>
           <Hotspot r={COUNTER.bell} label={COPY.counter.bell} hint={bellNudge && rings === 0} onActivate={onRing} />
           <Hotspot r={COUNTER.vending} label={COPY.counter.vending} dead />
+          {refused && REFUSED_LINKS.telegram && (
+            <Hotspot r={COUNTER.keypad} label={COPY.counter.refused.keypad} href={REFUSED_LINKS.telegram} className="rx-hotspot--backroom" />
+          )}
+          {refused && REFUSED_LINKS.discord && (
+            <Hotspot r={COUNTER.refusedSign} label={COPY.counter.refused.sign} href={REFUSED_LINKS.discord} className="rx-hotspot--backroom" />
+          )}
         </>
       )}
 

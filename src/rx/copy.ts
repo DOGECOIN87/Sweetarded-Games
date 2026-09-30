@@ -8,7 +8,8 @@
  * Not dictated by the brief (edit freely): the `trouble` lines at the bottom
  * (failure states the brief doesn't cover), the Google / email sign-in
  * words, added after the brief asked for X only, and the phone sheet's box
- * titles (printed on the pad) and DONE.
+ * titles (printed on the pad) and DONE, and the counter's `refused` lines
+ * (the hidden back-room links).
  *
  * Mint locked (dictated): whoever cannot pay gets FILLED, FILE CLOSED or
  * THE WINDOW IS SHUT, never a wallet or contract error.
@@ -27,6 +28,11 @@ export const COPY = {
     afterBell: 'the window is watching.',
     unopened: 'UNOPENED SCRIPT',
     vending: 'FOR THE MEDICATED. NOT YOU.',
+    /** Only there once the pills are in the trash. */
+    refused: {
+      keypad: 'B4 — FOR THE REFUSED. TELEGRAM.',
+      sign: 'REFUSED WELCOME. THE BACK ROOM IS ON DISCORD.',
+    },
   },
 
   pad: {

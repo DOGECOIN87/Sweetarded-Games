@@ -285,6 +285,11 @@ textarea {
   animation: rx-shake 0.32s 0.76s linear both;
 }
 
+/* The back rooms: no glow until pointed at, and then only a faint cerise. */
+.rx-hotspot--backroom::before {
+  background: radial-gradient(closest-side, rgb(247 21 171 / 0.22), rgb(247 21 171 / 0));
+}
+
 .rx-hotspot--exit::before {
   border-radius: 40%;
 }

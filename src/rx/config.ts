@@ -24,6 +24,16 @@ export const SIDE_EFFECT_LINKS = {
     : `https://x.com/${X_HANDLE}`,
 } as const;
 
+/**
+ * The back rooms, only for patients who spat them out. Hidden in the counter
+ * painting: Telegram behind the vending machine's keypad, Discord behind the
+ * REFUSED WELCOME sign. While a link is null its spot stays plain wall.
+ */
+export const REFUSED_LINKS: { telegram: string | null; discord: string | null } = {
+  telegram: null,
+  discord: null,
+};
+
 /** Phase 1 price as printed on the bag. The live collection doc overrides it. */
 export const PRINTED_COST = '0.0420';
 

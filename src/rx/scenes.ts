@@ -82,6 +82,10 @@ export const STREET = {
 export const COUNTER = {
   bell: { x: 1178, y: 468, w: 100, h: 80 },
   vending: { x: 42, y: 106, w: 368, h: 588 },
+  /** The vending machine's pink keypad, right of the glass. */
+  keypad: { x: 430, y: 438, w: 66, h: 84 },
+  /** REFUSED WELCOME, on the wall right of the window. */
+  refusedSign: { x: 1522, y: 184, w: 180, h: 280 },
   trash: { x: 1545, y: 608, w: 218, h: 338 },
   /** Where the clerk's lines appear: above the pop-tart, inside the glass. */
   speech: { x: 760, y: 118, w: 440, h: 80 },

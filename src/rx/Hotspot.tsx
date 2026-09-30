@@ -20,6 +20,8 @@ interface HotspotProps {
   /** Present but not yet accepting (e.g. SEND TO FILL on an incomplete pad). */
   refusing?: boolean;
   onActivate?: () => void;
+  /** A way out of the site: rendered as a link that opens in a new tab. */
+  href?: string;
   className?: string;
   children?: ReactNode;
 }
@@ -31,6 +33,7 @@ export function Hotspot({
   hint = false,
   refusing = false,
   onActivate,
+  href,
   className = '',
   children,
 }: HotspotProps) {
@@ -53,16 +56,22 @@ export function Hotspot({
         flicker ? `is-flicker-${flicker % 2}` : ''
       } ${className}`}
     >
-      <button
-        type="button"
-        className="rx-hotspot__hit"
-        aria-label={words}
-        title={words}
-        aria-disabled={refusing || undefined}
-        onClick={activate}
-      >
-        {children}
-      </button>
+      {href ? (
+        <a className="rx-hotspot__hit" href={href} target="_blank" rel="noopener noreferrer" aria-label={words} title={words}>
+          {children}
+        </a>
+      ) : (
+        <button
+          type="button"
+          className="rx-hotspot__hit"
+          aria-label={words}
+          title={words}
+          aria-disabled={refusing || undefined}
+          onClick={activate}
+        >
+          {children}
+        </button>
+      )}
     </At>
   );
 }
