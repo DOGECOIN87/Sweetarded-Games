@@ -30,7 +30,7 @@ export const COPY = {
     vending: 'FOR THE MEDICATED. NOT YOU.',
     /** Only there once the pills are in the trash. */
     refused: {
-      keypad: 'B4 — FOR THE REFUSED. TELEGRAM.',
+      telegram: 'B4 — FOR THE REFUSED. TELEGRAM.',
       sign: 'REFUSED WELCOME. THE BACK ROOM IS ON DISCORD.',
     },
   },
