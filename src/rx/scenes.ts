@@ -86,6 +86,8 @@ export const COUNTER = {
   lcd: { x: 444, y: 327, w: 38, h: 22 },
   /** The screen and the panel under it: the Telegram link once refused. */
   telegram: { x: 432, y: 314, w: 62, h: 122 },
+  /** All twelve keys: on touch screens, one tap here opens the close-up keypad. */
+  keypad: { x: 436, y: 445, w: 51, h: 71 },
   /** The top-left pink key; the other eleven repeat it (3 across, 4 down). */
   key: { x: 439.5, y: 448.8, w: 13.5, h: 13.8 },
   /** REFUSED WELCOME, on the wall right of the window. */

@@ -13,6 +13,7 @@
  * Both slap WINDOW CLOSED over the sticker. The scam line is printed on the
  * bag itself. PAY AT WINDOW opens the LaunchMyNFT mint page directly, where
  * the wallet's own browser and adapter can handle connection and minting.
+ * BACK TO THE COUNTER walks out of the bag to the idle window.
  */
 import { useEffect, useState } from 'react';
 import { COPY } from '../copy';
@@ -26,7 +27,7 @@ import { thud } from '../sfx';
 import { At, Canvas } from '../Stage';
 import { useLater } from '../useLater';
 
-export function Bag() {
+export function Bag({ onBack }: { onBack: () => void }) {
   const progress = useProgress();
   const official = isOfficialHost();
   const [inApp] = useState(isWalletBlocked);
@@ -75,6 +76,11 @@ export function Bag() {
             {warning}
           </p>
         )}
+        <button type="button" className="rx-case__back" aria-label={COPY.bag.back} onClick={onBack}>
+          <span aria-hidden>← </span>
+          <span className="rx-case__back-long">{COPY.bag.back}</span>
+          <span className="rx-case__back-short">{COPY.bag.backShort}</span>
+        </button>
       </section>
 
       <div className="rx-bag">

@@ -328,19 +328,37 @@ textarea {
   transition: color 0.2s ease;
 }
 
-.rx-counter:has(.rx-hotspot--telegram:hover, .rx-hotspot--telegram > :focus-visible) .rx-lcd__plane {
+.rx-counter:has(.rx-hotspot--telegram > :focus-visible) .rx-lcd__plane {
   color: var(--rx-cerise);
   filter: drop-shadow(0 0 calc(2px * var(--s, 1)) #fff) drop-shadow(0 0 calc(7px * var(--s, 1)) var(--rx-cerise));
   animation: rx-lcd-launch 0.9s cubic-bezier(0.5, 0, 0.75, 0) infinite;
 }
 
-.rx-counter:has(.rx-hotspot--telegram:hover, .rx-hotspot--telegram > :focus-visible) .rx-lcd {
+.rx-counter:has(.rx-hotspot--telegram > :focus-visible) .rx-lcd {
   animation: none;
   box-shadow:
     0 0 calc(6px * var(--s, 1)) rgb(247 21 171 / 0.95),
     0 0 calc(22px * var(--s, 1)) rgb(247 21 171 / 0.7),
     0 0 calc(48px * var(--s, 1)) rgb(247 21 171 / 0.4),
     inset 0 0 calc(6px * var(--s, 1)) rgb(247 21 171 / 0.8);
+}
+
+/* Only with a real pointer: a hover that changes the screen costs iOS its first tap. */
+@media (hover: hover) and (pointer: fine) {
+  .rx-counter:has(.rx-hotspot--telegram:hover) .rx-lcd__plane {
+    color: var(--rx-cerise);
+    filter: drop-shadow(0 0 calc(2px * var(--s, 1)) #fff) drop-shadow(0 0 calc(7px * var(--s, 1)) var(--rx-cerise));
+    animation: rx-lcd-launch 0.9s cubic-bezier(0.5, 0, 0.75, 0) infinite;
+  }
+
+  .rx-counter:has(.rx-hotspot--telegram:hover) .rx-lcd {
+    animation: none;
+    box-shadow:
+      0 0 calc(6px * var(--s, 1)) rgb(247 21 171 / 0.95),
+      0 0 calc(22px * var(--s, 1)) rgb(247 21 171 / 0.7),
+      0 0 calc(48px * var(--s, 1)) rgb(247 21 171 / 0.4),
+      inset 0 0 calc(6px * var(--s, 1)) rgb(247 21 171 / 0.8);
+  }
 }
 
 .rx-hotspot--telegram::before {
@@ -376,9 +394,30 @@ textarea {
   animation: rx-lcd-launch 0.9s cubic-bezier(0.5, 0, 0.75, 0) both;
 }
 
-/* The twelve pink keys: they sink and flash when pressed. */
+/* The twelve pink keys: they sink and flash when pressed. A mouse presses
+   the painted keys; a finger presses the keypad and gets the close-up. */
 .rx-key {
   z-index: 3;
+}
+
+.rx-key__hit,
+.rx-closeup__key,
+.rx-closeup__close {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rx-keyzone {
+    display: none;
+  }
+}
+
+@media not all and (hover: hover) and (pointer: fine) {
+  .rx-keys {
+    display: none;
+  }
 }
 
 .rx-key__hit {
@@ -413,6 +452,109 @@ textarea {
   animation: rx-key-press 0.35s ease-out;
 }
 
+/* The keypad up close, for fingers. Same screen, same keys, a thumb wide. */
+.rx-closeup {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: rgb(0 0 0 / 0.72);
+  animation: rx-fade-in 0.25s ease both;
+}
+
+.rx-closeup__panel {
+  --s: 4;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: min(300px, 100%);
+  max-height: 100%;
+  padding: 22px 22px 16px;
+  overflow: auto;
+  border: 2px solid rgb(247 21 171 / 0.8);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #0a0f3a, #040620);
+  box-shadow:
+    0 0 24px rgb(247 21 171 / 0.45),
+    inset 0 0 18px rgb(146 1 203 / 0.45);
+  animation: rx-rise 0.4s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+
+.rx-closeup__lcd {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 38 / 22;
+  max-height: 34vh;
+  animation: rx-lcd-halo 2.4s ease-in-out infinite;
+}
+
+.rx-closeup__keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.rx-closeup__key {
+  --s: 2;
+  min-height: 56px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ff5fcf, var(--rx-cerise));
+  box-shadow:
+    inset 0 -4px 0 rgb(0 0 0 / 0.25),
+    0 0 10px rgb(247 21 171 / 0.55);
+  color: var(--rx-oxford);
+  font-family: var(--rx-mono);
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rx-closeup__key.is-lit {
+  animation: rx-closeup-press 0.35s ease-out;
+}
+
+.rx-closeup__close {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  background: none;
+  color: var(--rx-paper);
+  font-family: var(--rx-label);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+@media (max-height: 520px) {
+  .rx-closeup__panel {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    width: min(560px, 100%);
+    gap: 12px 20px;
+    padding: 14px 18px 10px;
+  }
+
+  .rx-closeup__lcd {
+    max-height: none;
+  }
+
+  .rx-closeup__keys {
+    grid-row: span 2;
+    gap: 8px;
+  }
+
+  .rx-closeup__key {
+    min-height: 44px;
+  }
+}
+
 @keyframes rx-key-press {
   0% {
     transform: translateY(calc(1px * var(--s, 1))) scale(0.9);
@@ -425,6 +567,16 @@ textarea {
     transform: none;
     background: rgb(247 21 171 / 0);
     box-shadow: 0 0 0 rgb(247 21 171 / 0);
+  }
+}
+
+@keyframes rx-closeup-press {
+  0% {
+    transform: translateY(3px) scale(0.94);
+    filter: brightness(1.6);
+    box-shadow:
+      0 0 6px #fff,
+      0 0 22px var(--rx-cerise);
   }
 }
 
@@ -1399,6 +1551,42 @@ textarea {
   font-size: clamp(12px, 0.95vw, 15px);
 }
 
+.rx-case__back {
+  min-height: 44px;
+  margin-top: 0.8em;
+  padding: 0 0.2em;
+  border: 0;
+  border-bottom: 2px solid rgb(52 237 243 / 0.5);
+  background: none;
+  color: var(--rx-cyan);
+  font-family: var(--rx-label);
+  font-size: clamp(15px, 1.2vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 8px rgb(52 237 243 / 0.6);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.rx-case__back-short {
+  display: none;
+}
+
+.rx-case__back:focus-visible {
+  outline: 2px dashed var(--rx-cyan);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rx-case__back:hover {
+    color: var(--rx-paper);
+    border-color: var(--rx-paper);
+  }
+}
+
 .rx-pay::before {
   inset: -8% -4%;
   border-radius: 12%;
@@ -1466,6 +1654,29 @@ textarea {
   .rx-case__seal {
     width: 64px;
     margin-bottom: 0.2em;
+  }
+
+  /* Narrow screens stack the case over the bag: the way back goes in the corner. */
+  .rx-case__back {
+    position: fixed;
+    top: max(6px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    z-index: 1;
+    min-width: 44px;
+    margin: 0;
+    padding: 0 12px;
+    border: 1px solid rgb(52 237 243 / 0.55);
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.55);
+    font-size: 15px;
+  }
+
+  .rx-case__back-long {
+    display: none;
+  }
+
+  .rx-case__back-short {
+    display: inline;
   }
 }
 
@@ -1807,6 +2018,13 @@ textarea {
   }
   100% {
     box-shadow: inset 0 0 0 0.5cqw rgb(247 21 171 / 0);
+  }
+}
+
+/* Reduced motion: the plane stays put (a launch run once would leave it gone). */
+@media (prefers-reduced-motion: reduce) {
+  .rx-lcd .rx-lcd__plane {
+    animation: none !important;
   }
 }
 

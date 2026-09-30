@@ -6,7 +6,7 @@
  *
  *   street ──door──▶ counter ──bell──▶ (UNOPENED SCRIPT) ──▶ pad
  *   pad ──SEND TO FILL──▶ catch ──TAKE THEM──▶ took ──mat──▶ street
- *                               └─SPIT THEM OUT─▶ spit ──▶ bag (mint)
+ *                               └─SPIT THEM OUT─▶ spit ──▶ bag (mint) ──back──▶ counter
  *
  * Returning patients still walk in and ring; the window remembers them:
  * filed → straight to the catch, spat → straight to the bag.
@@ -182,6 +182,18 @@ export default function Pharmacy() {
     }, 460);
   };
 
+  /** Out of the bag, back to the idle window. Ringing again brings the bag back. */
+  const backToCounter = () => {
+    clearLater();
+    setLine(null);
+    setRings(0);
+    setDark(true);
+    later(() => {
+      go('counter');
+      setDark(false);
+    }, 460);
+  };
+
   const moment: CounterMoment =
     room === 'counter' ? 'idle' : room === 'catch' ? 'catch' : room === 'took' ? 'took' : room === 'spit' ? 'spit' : 'papers';
   const padPlace: PadPlace =
@@ -218,7 +230,7 @@ export default function Pharmacy() {
         {room === 'bag' && (
           <>
             <div className="rx-dim is-on is-deep" aria-hidden />
-            <Bag />
+            <Bag onBack={backToCounter} />
           </>
         )}
 

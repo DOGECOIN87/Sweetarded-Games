@@ -9,7 +9,7 @@
  * (failure states the brief doesn't cover), the Google / email sign-in
  * words, added after the brief asked for X only, and the phone sheet's box
  * titles (printed on the pad) and DONE, and the counter's `refused` lines
- * (the hidden back-room links).
+ * (the hidden back-room links), and the bag's `back` button.
  *
  * Mint locked (dictated): whoever cannot pay gets FILLED, FILE CLOSED or
  * THE WINDOW IS SHUT, never a wallet or contract error.
@@ -32,6 +32,7 @@ export const COPY = {
     refused: {
       telegram: 'B4 — FOR THE REFUSED. TELEGRAM.',
       keypad: 'VENDING KEYPAD',
+      close: 'STEP BACK',
       sign: 'REFUSED WELCOME. THE BACK ROOM IS ON DISCORD.',
     },
   },
@@ -88,6 +89,9 @@ export const COPY = {
   bag: {
     status: ['CASE STATUS: REFUSED', 'COUNTER 4444 HAS YOUR FILE.', 'DO NOT RING AGAIN.'],
     pay: 'PAY AT WINDOW',
+    back: 'BACK TO THE COUNTER',
+    /** The same button on a phone, where it sits in the corner. */
+    backShort: 'BACK',
     minted: ['FILE CLOSED.', 'THE PHARMACY HAS NOTHING FURTHER TO DISPENSE.'],
     /** Phase closed, sold out, paused by us, or not this domain. */
     shut: ['THE WINDOW IS SHUT. SIT DOWN.', 'DO NOT CALL THE PHARMACY.'],
