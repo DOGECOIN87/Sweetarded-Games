@@ -31,7 +31,7 @@ export const SIDE_EFFECT_LINKS = {
  */
 export const REFUSED_LINKS: { telegram: string | null; discord: string | null } = {
   telegram: 'https://t.me/Sweetardios',
-  discord: null,
+  discord: 'https://discord.gg/ahnKencrU',
 };
 
 /** Phase 1 price as printed on the bag. The live collection doc overrides it. */
