@@ -133,8 +133,8 @@ export function AudiusRadio({ r }: { r: Rect }) {
         const scene = face?.closest<HTMLElement>('.rx-stage');
         if (scene && !reduced) {
           // Lights sit dimmed, swell with the track's loudness and flash up on each kick.
-          // Never a strobe or blackout: brightness stays between 0.5 and 1.05.
-          const light = 0.5 + Math.min(0.2, dynamics.energy * 0.5) + pulse * 0.35;
+          // Never a strobe or blackout: brightness stays between 0.68 and 1.05.
+          const light = 0.68 + Math.min(0.12, dynamics.energy * 0.3) + pulse * 0.3;
           scene.style.setProperty('--radio-light', Math.min(1.05, light).toFixed(3));
           // Stomp on the kick, plus a low rumble that follows the bassline between kicks.
           const rumble = Math.max(0, bass - 0.35) * 2.2;
@@ -237,7 +237,7 @@ export function AudiusRadio({ r }: { r: Rect }) {
 
 
   const label = status === 'error' ? 'Retry Audius radio' : playing ? 'Pause Audius radio' : `Play ${title} by ${artist}`;
-  const notes = ['♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫'];
+  const notes = ['♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫', '♬'];
 
   return (
     <At r={r} className={`rx-radio ${playing ? 'is-playing' : ''} ${bassHit ? 'is-bass' : ''}`}>
