@@ -108,7 +108,7 @@ export const COUNTER = {
   /** The ring pops above the painted bell when rung. */
   bellPop: { x: 1168, y: 350, w: 120, h: 108 },
   /** A compact radio resting on the counter just right of the printer. */
-  radio: { x: 596, y: 386, w: 178, h: 102 },
+  radio: { x: 670, y: 418, w: 166, h: 122 },
 } satisfies Record<string, Rect>;
 
 /** Spacing of the vending keypad's keys, from one key's corner to the next. */
