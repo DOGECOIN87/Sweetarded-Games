@@ -1,27 +1,21 @@
 /**
  * ROOM 4 — the bag. The only place the mint exists.
  *
- * The printed price sticker (PHASE 1 / 0.0420 SOL / PAY AT WINDOW) is the
- * button. Whoever cannot pay gets one of the locked states, never a wallet or
- * contract error:
- *
- *   FILE CLOSED        already minted from this file
- *   THE WINDOW IS SHUT phase closed, not open to this wallet, sold out, the
- *                      register won't load, our own switch, or not the
- *                      official domain
- *
- * Both slap WINDOW CLOSED over the sticker. The scam line is printed on the
- * bag itself. PAY AT WINDOW opens the LaunchMyNFT mint page directly, where
- * the wallet's own browser and adapter can handle connection and minting.
- * BACK TO THE COUNTER walks out of the bag to the idle window.
+ * The printed price sticker is the purchase button. LaunchMyNFT remains
+ * authoritative for price, eligibility, supply and the on-chain transaction;
+ * its Solana embed sits behind the sticker so wallet connection and approval
+ * happen without sending the patient to a separate page.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { COPY } from '../copy';
 import { isOfficialHost, PRINTED_COST } from '../config';
-import { isWalletBlocked } from '../device';
+import { fileLink } from '../carry';
+import { isWalletBlocked, needsPhantomBrowser, phantomBrowseLink } from '../device';
 import { Hotspot } from '../Hotspot';
-import { fetchCollectionDoc, type CollectionDoc } from '../mintWindow';
-import { useProgress } from '../progress';
+import { fetchCollectionDoc, useMintWindow, type CollectionDoc } from '../mintWindow';
+import { useIdentity } from '../identity';
+import { noteMinted } from '../patientFile';
+import { updateProgress, useProgress } from '../progress';
 import { ART, BAG, PROPS } from '../scenes';
 import { thud } from '../sfx';
 import { At, Canvas } from '../Stage';
@@ -29,10 +23,13 @@ import { useLater } from '../useLater';
 
 export function Bag({ onBack }: { onBack: () => void }) {
   const progress = useProgress();
+  const identity = useIdentity();
+  const { state: mint, pay } = useMintWindow();
   const official = isOfficialHost();
   const [inApp] = useState(isWalletBlocked);
   const [doc, setDoc] = useState<CollectionDoc | null>(null);
   const payNudge = useLater(2600);
+  const recordedMint = useRef(0);
 
   useEffect(() => {
     let live = true;
@@ -42,12 +39,24 @@ export function Bag({ onBack }: { onBack: () => void }) {
     };
   }, []);
 
+  // Close the file only after the embed reports a successful transaction.
+  // Save locally immediately; the signed-in patient-file write is best-effort.
+  useEffect(() => {
+    const result = mint.result;
+    if (!result || result.kind !== 'success' || result.seq === recordedMint.current) return;
+    recordedMint.current = result.seq;
+    updateProgress({ minted: true });
+    if (identity.patient) void noteMinted(identity.patient);
+  }, [identity.patient, mint.result]);
+
   const closed = progress.minted;
   const shut =
     !closed &&
     (!official ||
       doc?.shut === true ||
-      doc?.soldOut === true);
+      doc?.soldOut === true ||
+      mint.status === 'error' ||
+      mint.action === 'shut');
   const slapped = closed || shut;
 
   useEffect(() => {
@@ -56,11 +65,34 @@ export function Bag({ onBack }: { onBack: () => void }) {
 
   const lines = closed ? COPY.bag.minted : shut ? COPY.bag.shut : COPY.bag.status;
   const liveCost = doc?.cost && doc.cost !== PRINTED_COST ? doc.cost : null;
-  const warning = slapped ? null : (inApp ? COPY.inApp.join(' ') : null);
+  const paymentFailed = mint.result?.kind === 'failed';
+  const warning = slapped
+    ? null
+    : inApp
+      ? COPY.inApp.join(' ')
+      : paymentFailed
+        ? COPY.trouble.payment
+        : mint.action === 'busy'
+          ? 'CHECK YOUR WALLET TO CONTINUE.'
+          : null;
 
   const payAtWindow = () => {
-    window.location.assign('https://www.launchmynft.io/mint/sweetard');
+    if (closed || shut || inApp || mint.action === 'busy') return;
+    // A standard mobile browser cannot approve Solana transactions. Carry the
+    // intake to the official site inside Phantom, where the wallet is injected.
+    if (needsPhantomBrowser()) {
+      window.location.assign(phantomBrowseLink(fileLink()));
+      return;
+    }
+    pay();
   };
+
+  const payLabel =
+    mint.action === 'connect'
+      ? 'CONNECT WALLET AND MINT'
+      : mint.action === 'busy'
+        ? 'MINT IN PROGRESS — CHECK YOUR WALLET'
+        : COPY.bag.pay;
 
   return (
     <div className="rx-bagroom">
@@ -72,7 +104,7 @@ export function Bag({ onBack }: { onBack: () => void }) {
           </p>
         ))}
         {warning && (
-          <p className="rx-trouble rx-case__trouble" role="alert">
+          <p className="rx-trouble rx-case__trouble" role="status">
             {warning}
           </p>
         )}
@@ -96,10 +128,11 @@ export function Bag({ onBack }: { onBack: () => void }) {
           {!slapped && (
             <Hotspot
               r={BAG.pay}
-              label={COPY.bag.pay}
+              label={payLabel}
               hint={Boolean(payNudge)}
               onActivate={payAtWindow}
-              className="rx-pay"
+              refusing={inApp}
+              className={`rx-pay${mint.status === 'loading' ? ' is-loading' : ''}${mint.action === 'busy' ? ' is-busy' : ''}`}
             />
           )}
           {slapped && (
