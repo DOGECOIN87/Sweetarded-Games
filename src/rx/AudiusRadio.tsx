@@ -129,9 +129,9 @@ export function AudiusRadio({ r }: { r: Rect }) {
           const end = Math.max(start + 1, Math.round(2 ** ((index + 1) * 1.25)));
           bar.style.transform = `scaleY(${Math.max(0.12, band(start, Math.min(end, bins.length)))})`;
         });
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Deliberately runs even with reduced motion on: the radio's show is the point.
         const scene = face?.closest<HTMLElement>('.rx-stage');
-        if (scene && !reduced) {
+        if (scene) {
           // Lights sit dimmed, swell with the track's loudness and flash up on each kick.
           // Never a strobe or blackout: brightness stays between 0.68 and 1.05.
           const light = 0.68 + Math.min(0.12, dynamics.energy * 0.3) + pulse * 0.3;
@@ -142,13 +142,8 @@ export function AudiusRadio({ r }: { r: Rect }) {
           scene.style.setProperty('--radio-shake-x', `${(Math.sin(now * 0.09) * (stomp * 0.6 + rumble)).toFixed(2)}px`);
           scene.style.setProperty('--radio-shake-y', `${(stomp + Math.cos(now * 0.13) * rumble).toFixed(2)}px`);
           scene.style.setProperty('--radio-stomp', (1 + pulse * 0.012).toFixed(4));
-        } else if (scene) {
-          scene.style.removeProperty('--radio-light');
-          scene.style.removeProperty('--radio-shake-x');
-          scene.style.removeProperty('--radio-shake-y');
-          scene.style.removeProperty('--radio-stomp');
         }
-        if (beat && !reduced) {
+        if (beat) {
           setBassHit(true);
           if (bassTimerRef.current !== null) window.clearTimeout(bassTimerRef.current);
           bassTimerRef.current = window.setTimeout(() => setBassHit(false), 160);

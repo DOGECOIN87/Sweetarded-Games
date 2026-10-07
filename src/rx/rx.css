@@ -336,7 +336,24 @@ textarea {
 .rx-counter .rx-canvas__art { filter: brightness(var(--radio-light, 1)); }
 .rx-radio.is-playing { filter: drop-shadow(0 0 calc((4px + 10px * var(--radio-beat, 0)) * var(--s, 1)) var(--rx-cyan)); }
 .rx-radio.is-playing .rx-radio__face { transform: scale(calc(1 + 0.04 * var(--radio-beat, 0))); }
-@media (prefers-reduced-motion: reduce) { .rx-radio__notes { display: none; } .rx-counter .rx-stage__canvas { transform: none; } .rx-counter .rx-canvas__art { filter: none; } }
+/* The radio keeps its notes flying with reduced motion on, overriding the
+   site-wide freeze at the end of this file (higher specificity wins). */
+@media (prefers-reduced-motion: reduce) {
+  .rx-radio__notes span { animation-duration: 2.8s !important; animation-iteration-count: infinite !important; }
+  .rx-radio__notes b { animation-duration: 1.4s !important; animation-iteration-count: infinite !important; }
+  .rx-radio__notes { transition-duration: 0.4s !important; }
+  .rx-radio__notes span:nth-child(2) { animation-delay: -0.23s !important; }
+  .rx-radio__notes span:nth-child(3) { animation-delay: -0.47s !important; }
+  .rx-radio__notes span:nth-child(4) { animation-delay: -0.70s !important; }
+  .rx-radio__notes span:nth-child(5) { animation-delay: -0.93s !important; }
+  .rx-radio__notes span:nth-child(6) { animation-delay: -1.17s !important; }
+  .rx-radio__notes span:nth-child(7) { animation-delay: -1.40s !important; }
+  .rx-radio__notes span:nth-child(8) { animation-delay: -1.63s !important; }
+  .rx-radio__notes span:nth-child(9) { animation-delay: -1.87s !important; }
+  .rx-radio__notes span:nth-child(10) { animation-delay: -2.10s !important; }
+  .rx-radio__notes span:nth-child(11) { animation-delay: -2.33s !important; }
+  .rx-radio__notes span:nth-child(12) { animation-delay: -2.57s !important; }
+}
 
 /* The back rooms: no glow until pointed at, and then only a faint cerise. */
 .rx-hotspot--backroom::before {
