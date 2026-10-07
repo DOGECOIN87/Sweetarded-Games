@@ -107,7 +107,7 @@ export const COUNTER = {
   mat: { x: 800, y: 948, w: 680, h: 132 },
   /** The ring pops above the painted bell when rung. */
   bellPop: { x: 1168, y: 350, w: 120, h: 108 },
-  /** Expanded touchscreen bounds; the compact transform rests it on the left countertop. */
+  /** Expanded touchscreen bounds; the compact transform rests it farther right on the countertop. */
   radio: { x: 548, y: 432, w: 500, h: 242 },
 } satisfies Record<string, Rect>;
 
