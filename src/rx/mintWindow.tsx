@@ -126,6 +126,9 @@ export function MintWindowProvider({ warm = false, children }: { warm?: boolean;
   const open = useCallback(() => setOpened(true), []);
 
   const pay = useCallback(() => {
+    // The mint button is a physical-looking hotspot rather than the vendor's
+    // disabled button, so guard here as well against duplicate submissions.
+    if (paying.current) return;
     const button = hostRef.current?.querySelector<HTMLButtonElement>('#mint-button-container button');
     // The vendor bundle is large and can still be rendering when the user
     // taps the sticker. Preserve the tap and replay it from read() once the

@@ -117,7 +117,8 @@ Behind it is the same LaunchMyNFT Solana embed the old site used
 (collection `8azF6Zkfb5ExKPty13RO`, owner `Hn1i…nELo`). LaunchMyNFT stays
 authoritative for price, eligibility, supply and the transaction; its UI is
 never shown except its wallet chooser. One press connects the wallet and then
-asks it to pay.
+asks it to approve the mint transaction. After the embed reports success, the
+patient's file is marked minted locally and, when signed in, in Firestore.
 
 - Live price comes from the collection's public config. If it ever differs
   from the printed 0.0420, a price tag is pinned over the sticker.
@@ -137,9 +138,9 @@ and never any mint UI before the trash. The window is shut when:
 - the register won't load;
 - the page isn't on `sweetardio.fun`.
 
-**Phones.** Phones have no wallet extension. On a phone without a wallet,
-PAY AT WINDOW opens `sweetardio.fun` in Phantom's own browser (its universal
-link), with the patient's file carried in the address (`#file=…`, see
+**Phones.** On a phone without an injected wallet, PAY AT WINDOW opens
+`sweetardio.fun` in Phantom's own browser (its universal link), with the
+patient's file carried in the address (`#file=…`, see
 `src/rx/carry.ts`; `minted` never travels). There they tap ENTER ANYWAY,
 walk in and ring, and the window sends them straight to the bag, where
 Phantom is connected and pays. In X's (and other) in-app browsers, the pad
