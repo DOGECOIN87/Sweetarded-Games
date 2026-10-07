@@ -12,6 +12,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
  */
 const env = import.meta.env as Record<string, string | undefined>;
 const APP_NAME = env.VITE_AUDIUS_APP_NAME || 'Sweetardio.fun';
+const API_KEY = env.VITE_AUDIUS_API_KEY;
 const ARTIST_HANDLE = env.VITE_AUDIUS_HANDLE || 'MATTRICKBEATS';
 export const ARTIST_URL = `https://audius.co/${ARTIST_HANDLE}`;
 
@@ -34,7 +35,7 @@ interface AudiusTrack {
 }
 
 const qs = (host: string, path: string) =>
-  `${host}/v1${path}${path.includes('?') ? '&' : '?'}app_name=${encodeURIComponent(APP_NAME)}`;
+  `${host}/v1${path}${path.includes('?') ? '&' : '?'}app_name=${encodeURIComponent(APP_NAME)}${API_KEY ? `&api_key=${encodeURIComponent(API_KEY)}` : ''}`;
 
 const pickRandom = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 

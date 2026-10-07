@@ -12,9 +12,11 @@
  *
  * The pad, the receipt and the bag are papers laid over this scene.
  */
+import { useEffect, useState } from 'react';
 import { REFUSED_LINKS } from '../config';
 import { COPY } from '../copy';
 import { DiscordMark } from '../DiscordMark';
+import { AudiusRadio } from '../AudiusRadio';
 import { Hotspot } from '../Hotspot';
 import { ART, COUNTER, FOCUS, KEEP, PROPS } from '../scenes';
 import { Speech } from '../Speech';
@@ -39,6 +41,7 @@ interface CounterProps {
 }
 
 export function Counter({ moment, line, rings, refused, onRing, onTake, onSpit, onLeave }: CounterProps) {
+  const [isNarrow, setIsNarrow] = useState(false);
   const bellNudge = useLater(4200, moment);
   const catchNudge = useLater(5200, moment);
   const exitReady = useLater(1900, moment);
@@ -47,11 +50,19 @@ export function Counter({ moment, line, rings, refused, onRing, onTake, onSpit, 
   const focus =
     moment === 'catch' || moment === 'spit' ? FOCUS.catch : moment === 'took' ? FOCUS.took : FOCUS.counter;
 
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 700px)');
+    const update = () => setIsNarrow(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
   return (
     <Stage
       art={ART.counter}
       alt="Inside: a night window, COUNTER 4444. A pop-tart pharmacist watches through the glass. A bell on the tray, a vending machine of Sweetardios, a trash can full of pills."
-      focus={focus}
+      focus={isNarrow && moment !== 'catch' && moment !== 'spit' ? FOCUS.counterMobile : focus}
       keep={moment === 'catch' || moment === 'spit' ? KEEP.catch : undefined}
       className={`rx-counter rx-counter--${moment}`}
     >
@@ -69,6 +80,8 @@ export function Counter({ moment, line, rings, refused, onRing, onTake, onSpit, 
           <img src={PROPS.bell} alt="" draggable={false} />
         </At>
       )}
+
+      <AudiusRadio r={COUNTER.radio} />
 
       {moment === 'idle' && (
         <>
