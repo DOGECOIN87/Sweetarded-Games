@@ -107,8 +107,8 @@ export const COUNTER = {
   mat: { x: 800, y: 948, w: 680, h: 132 },
   /** The ring pops above the painted bell when rung. */
   bellPop: { x: 1168, y: 350, w: 120, h: 108 },
-  /** A compact radio resting on the counter just right of the printer. */
-  radio: { x: 670, y: 418, w: 166, h: 122 },
+  /** Expanded touchscreen bounds; the compact transform rests it farther right on the countertop. */
+  radio: { x: 548, y: 432, w: 500, h: 242 },
 } satisfies Record<string, Rect>;
 
 /** Spacing of the vending keypad's keys, from one key's corner to the next. */
