@@ -217,6 +217,9 @@ The arcade site this pharmacy replaced is rebuilt on every deploy from its last
 commit (`4bcc24d`) and served at `sweetardio.fun/original/`, marked `noindex`.
 Typing 6969 on the vending keypad opens it. `npm run build:original` (after
 `npm run build`) adds it to `dist/original/`; see `scripts/build-original.mjs`.
+Changes to the old site live in `scripts/original-site.patch`, applied on each
+build (currently: it announces "Mint is live!" and its banner links to the
+mint page).
 It loads its images, audio and fonts from the root, where the current
 `public/` still ships them unchanged, so don't remove those files while
 `/original/` is live.

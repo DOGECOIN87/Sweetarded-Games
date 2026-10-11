@@ -1,0 +1,43 @@
+--- a/src/components/LaunchBanner.tsx
++++ b/src/components/LaunchBanner.tsx
+@@ -18,7 +18,7 @@
+         {LAUNCH_HEADLINE}
+       </span>
+       <Link
+-        to="/whitelist"
++        to="/mint"
+         className="sw-glow-cyan text-[11px] font-extrabold uppercase tracking-[0.16em] text-sweetardios-cyan transition-colors hover:text-white sm:text-xs sm:tracking-[0.2em]"
+       >
+         {LAUNCH_SUBLINE} <span aria-hidden>→</span>
+--- a/src/content/announcement.ts
++++ b/src/content/announcement.ts
+@@ -3,14 +3,12 @@
+  *
+  * Every surface that talks about where the mint stands — the banner under the
+  * nav, the hero split-flap board, the mint panel and the whitelist form —
+- * reads these strings, so the status can never drift between them. When the
+- * live launch is scheduled, set VITE_MINT_START_AT to the new instant and
+- * update the headline here in the same pass.
++ * reads these strings, so the status can never drift between them.
+  */
+-export const LAUNCH_HEADLINE = 'Pre-release is over, live launch coming soon!';
++export const LAUNCH_HEADLINE = 'Mint is live!';
+ 
+-/** Call to action that follows the headline. Points at /whitelist. */
+-export const LAUNCH_SUBLINE = 'Look for more whitelistings!';
++/** Call to action that follows the headline. Points at /mint. */
++export const LAUNCH_SUBLINE = 'Mint now';
+ 
+ /** Both halves in one line, for compact spots (alt text, aria labels). */
+ export const LAUNCH_NOTICE = `${LAUNCH_HEADLINE} ${LAUNCH_SUBLINE}`;
+--- a/src/pages/Whitelist.tsx
++++ b/src/pages/Whitelist.tsx
+@@ -53,7 +53,7 @@
+                 {isPreReleaseOver() ? (
+                   <>
+                     <span className="font-semibold text-white">{LAUNCH_HEADLINE}</span>{' '}
+-                    <span className="font-semibold text-sweetardios-cyan">{LAUNCH_SUBLINE}</span>
++                    <Link to="/mint" className="font-semibold text-sweetardios-cyan transition-colors hover:text-white">{LAUNCH_SUBLINE} <span aria-hidden>→</span></Link>
+                   </>
+                 ) : (
+                   <>
