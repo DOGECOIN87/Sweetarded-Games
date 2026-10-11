@@ -4,6 +4,9 @@ import type { Rect } from './scenes';
 
 import { fetchStation, withApp, FALLBACK_HOSTS, type AudiusTrack } from './audiusStation';
 
+/** The beat tracker at rest: no kick heard, nothing shaking. */
+const QUIET = { prev: 0, avg: 0, peak: 0.02, env: 0, energy: 0, strength: 0, lastBeat: -Infinity, hitAt: -Infinity };
+
 function PlayIcon({ pause = false }: { pause?: boolean }) {
   return pause ? (
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" /></svg>
@@ -27,13 +30,17 @@ export function AudiusRadio({ r }: { r: Rect }) {
   const [attempt, setAttempt] = useState(0);
   const [message, setMessage] = useState('');
   const [buffering, setBuffering] = useState(false);
-  const dynamicsRef = useRef({ bass: 0, prev: 0, energy: 0, lastBeat: 0 });
-  const bassTimerRef = useRef<number | null>(null);
+  const dynamicsRef = useRef({ ...QUIET });
+  const kickRef = useRef<{ analyser: AnalyserNode; samples: Float32Array<ArrayBuffer>; latency: number } | null>(null);
   const track = queue[index] ?? null;
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [playing, setPlaying] = useState(false);
 
-  const [bassHit, setBassHit] = useState(false);
+  const [clock, setClock] = useState(() => new Date());
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(new Date()), 15000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -56,11 +63,11 @@ export function AudiusRadio({ r }: { r: Rect }) {
 
   useEffect(() => () => {
     if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-    if (bassTimerRef.current !== null) window.clearTimeout(bassTimerRef.current);
     void audioContextRef.current?.close().catch(() => undefined);
     audioContextRef.current = null;
     analyserRef.current = null;
     sourceRef.current = null;
+    kickRef.current = null;
   }, []);
 
   const stopReactiveMeter = () => {
@@ -68,15 +75,13 @@ export function AudiusRadio({ r }: { r: Rect }) {
     frameRef.current = null;
     radioRef.current?.closest<HTMLElement>('.rx-radio')?.style.setProperty('--radio-energy', '0');
     radioRef.current?.querySelectorAll<HTMLElement>('.rx-radio__visualizer i').forEach(bar => { bar.style.transform = 'scaleY(0.12)'; });
-    if (bassTimerRef.current !== null) window.clearTimeout(bassTimerRef.current);
     const scene = radioRef.current?.closest<HTMLElement>('.rx-stage');
     scene?.style.removeProperty('--radio-light');
     scene?.style.removeProperty('--radio-shake-x');
     scene?.style.removeProperty('--radio-shake-y');
     scene?.style.removeProperty('--radio-stomp');
-    dynamicsRef.current = { bass: 0, prev: 0, energy: 0, lastBeat: 0 };
+    dynamicsRef.current = { ...QUIET };
     radioRef.current?.closest<HTMLElement>('.rx-radio')?.style.setProperty('--radio-beat', '0');
-    setBassHit(false);
   };
 
   const startReactiveMeter = () => {
@@ -93,8 +98,28 @@ export function AudiusRadio({ r }: { r: Rect }) {
         sourceRef.current.connect(analyserRef.current);
         analyserRef.current.connect(context.destination);
       }
+      if (!kickRef.current && sourceRef.current) {
+        // A low-passed copy of the signal just for the kick drum. Its raw waveform
+        // reacts within ~10 ms, far sooner than the smoothed spectrum above.
+        const lowpass = context.createBiquadFilter();
+        lowpass.type = 'lowpass';
+        lowpass.frequency.value = 140;
+        lowpass.Q.value = 0.7;
+        const kick = context.createAnalyser();
+        kick.fftSize = 512;
+        const silent = context.createGain();
+        silent.gain.value = 0;
+        sourceRef.current.connect(lowpass);
+        lowpass.connect(kick);
+        kick.connect(silent);
+        silent.connect(context.destination);
+        kickRef.current = { analyser: kick, samples: new Float32Array(kick.fftSize), latency: 0 };
+      }
       void context.resume();
       const analyser = analyserRef.current;
+      const kick = kickRef.current;
+      // What the analysers see reaches the speakers this much later; hits wait for it.
+      if (kick) kick.latency = Math.min(150, Math.max(0, ((context.outputLatency || 0) + (context.baseLatency || 0)) * 1000));
       const bins = new Uint8Array(analyser.frequencyBinCount);
       const read = () => {
         analyser.getByteFrequencyData(bins);
@@ -108,16 +133,30 @@ export function AudiusRadio({ r }: { r: Rect }) {
         const overall = band(1, Math.min(bins.length, 186));
         const now = performance.now();
         const dynamics = dynamicsRef.current;
-        // A kick is a sharp rise above the recent bass level, not just loud bass.
-        const rise = bass - dynamics.prev;
-        const beat = bass > 0.32 && bass > dynamics.bass * 1.15 && rise > 0.04 && now - dynamics.lastBeat > 200;
-        dynamics.prev = bass;
-        dynamics.bass += (bass - dynamics.bass) * 0.06;
+        // Loudness of the low end right now, scaled against the track's own recent
+        // peaks so quiet and loud masters both hit.
+        let level = bass * 0.5;
+        if (kick) {
+          kick.analyser.getFloatTimeDomainData(kick.samples);
+          let sum = 0;
+          for (const sample of kick.samples) sum += sample * sample;
+          level = Math.sqrt(sum / kick.samples.length);
+        }
+        dynamics.peak = Math.max(level, dynamics.peak * 0.9995, 0.02);
+        const low = Math.min(1, level / dynamics.peak);
+        // A kick is a sharp jump in the low end above its recent average.
+        const beat = low > 0.45 && low > dynamics.avg * 1.35 && low - dynamics.prev > 0.08 && now - dynamics.lastBeat > 180;
+        dynamics.prev = low;
+        dynamics.avg += (low - dynamics.avg) * 0.08;
         dynamics.energy += (overall - dynamics.energy) * 0.05;
-        if (beat) dynamics.lastBeat = now;
-        // The hit lands at full strength and eases out before the next kick.
-        const since = now - dynamics.lastBeat;
-        const pulse = since < 220 ? (1 - since / 220) ** 2 : 0;
+        if (beat) {
+          dynamics.lastBeat = now;
+          dynamics.hitAt = now + (kick?.latency ?? 0);
+          dynamics.strength = Math.min(1, 0.6 + (low - dynamics.avg));
+        }
+        // Everything below is timed from the moment the kick is heard, not detected.
+        const since = now - dynamics.hitAt;
+        const pulse = since >= 0 && since < 220 ? (1 - since / 220) ** 2 : 0;
         const face = radioRef.current;
         // Set on the whole radio so the glow and the flying notes feel the beat too.
         const root = face?.closest<HTMLElement>('.rx-radio');
@@ -132,21 +171,20 @@ export function AudiusRadio({ r }: { r: Rect }) {
         // Deliberately runs even with reduced motion on: the radio's show is the point.
         const scene = face?.closest<HTMLElement>('.rx-stage');
         if (scene) {
-          // Lights sit dimmed, swell with the track's loudness and flash up on each kick.
-          // Never a strobe or blackout: brightness stays between 0.68 and 1.05.
-          const light = 0.68 + Math.min(0.12, dynamics.energy * 0.3) + pulse * 0.3;
-          scene.style.setProperty('--radio-light', Math.min(1.05, light).toFixed(3));
-          // Stomp on the kick, plus a low rumble that follows the bassline between kicks.
-          const rumble = Math.max(0, bass - 0.35) * 2.2;
-          const stomp = pulse * (2.5 + bass * 2.5);
-          scene.style.setProperty('--radio-shake-x', `${(Math.sin(now * 0.09) * (stomp * 0.6 + rumble)).toFixed(2)}px`);
-          scene.style.setProperty('--radio-shake-y', `${(stomp + Math.cos(now * 0.13) * rumble).toFixed(2)}px`);
-          scene.style.setProperty('--radio-stomp', (1 + pulse * 0.012).toFixed(4));
-        }
-        if (beat) {
-          setBassHit(true);
-          if (bassTimerRef.current !== null) window.clearTimeout(bassTimerRef.current);
-          bassTimerRef.current = window.setTimeout(() => setBassHit(false), 160);
+          // The room sits dark and its lights pump with the bass: they swell with the
+          // low end and flash on each kick. Never a full blackout (0.28 to 1).
+          dynamics.env = Math.max(low, dynamics.env * 0.88);
+          const light = 0.28 + dynamics.env * 0.4 + pulse * 0.32;
+          scene.style.setProperty('--radio-light', Math.min(1, light).toFixed(3));
+          // The ground shakes on each kick: a hard jolt that rings out in a quarter
+          // second, plus a faint rumble while the bass is loud.
+          const quake = since >= 0 && since < 280 ? Math.exp(-since / 75) * dynamics.strength : 0;
+          const rumble = Math.max(0, low - 0.55) * 1.2;
+          const x = quake * 4 * Math.sin(since * 0.09 + 1) + rumble * Math.sin(now * 0.07);
+          const y = quake * 8 * Math.cos(since * 0.11) + rumble * Math.cos(now * 0.09);
+          scene.style.setProperty('--radio-shake-x', `${x.toFixed(2)}px`);
+          scene.style.setProperty('--radio-shake-y', `${y.toFixed(2)}px`);
+          scene.style.setProperty('--radio-stomp', (1 + quake * 0.012).toFixed(4));
         }
         if (!audio.paused && !document.hidden) frameRef.current = requestAnimationFrame(read);
         else frameRef.current = null;
@@ -167,6 +205,11 @@ export function AudiusRadio({ r }: { r: Rect }) {
       pendingPlayRef.current = false;
       void audio.play().catch(() => setMessage('Tap the radio to keep listening.'));
     }
+    const onTime = () => {
+      const share = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.currentTime / audio.duration : 0;
+      radioRef.current?.style.setProperty('--radio-progress', Math.min(1, share).toFixed(4));
+    };
+    radioRef.current?.style.setProperty('--radio-progress', '0');
     const onPlay = () => {
       document.querySelectorAll('audio').forEach((other) => {
         if (other !== audio) other.pause();
@@ -190,6 +233,7 @@ export function AudiusRadio({ r }: { r: Rect }) {
     const onWaiting = () => setBuffering(true);
     const onPlaying = () => { failuresRef.current = 0; setBuffering(false); startReactiveMeter(); };
     const onVisibility = () => { if (document.hidden) stopReactiveMeter(); else if (!audio.paused) startReactiveMeter(); };
+    audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('error', onError);
     audio.addEventListener('waiting', onWaiting);
     audio.addEventListener('playing', onPlaying);
@@ -201,6 +245,7 @@ export function AudiusRadio({ r }: { r: Rect }) {
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('timeupdate', onTime);
       audio.removeEventListener('error', onError);
       audio.removeEventListener('waiting', onWaiting);
       audio.removeEventListener('playing', onPlaying);
@@ -208,7 +253,6 @@ export function AudiusRadio({ r }: { r: Rect }) {
       audio.pause();
       setPlaying(false);
       stopReactiveMeter();
-      if (bassTimerRef.current !== null) window.clearTimeout(bassTimerRef.current);
     };
   }, [track, queue.length]);
 
@@ -233,32 +277,44 @@ export function AudiusRadio({ r }: { r: Rect }) {
 
   const label = status === 'error' ? 'Retry Audius radio' : playing ? 'Pause Audius radio' : `Play ${title} by ${artist}`;
   const notes = ['♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫', '♬'];
+  const time = clock.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(/\s?[AP]M$/i, '');
+  const date = clock.toLocaleDateString([], { month: 'numeric', day: 'numeric', weekday: 'short' });
 
   return (
-    <At r={r} className={`rx-radio ${playing ? 'is-playing' : ''} ${bassHit ? 'is-bass' : ''}`}>
+    <At r={r} className={`rx-radio ${playing ? 'is-playing' : ''}`}>
       <audio ref={audioRef} preload="none" crossOrigin="anonymous" />
       <div className="rx-radio__notes" aria-hidden="true">
         {notes.map((note, i) => <span key={i}><b>{note}</b></span>)}
       </div>
+      {/* A floating-screen head unit: the whole thing is one tap target. */}
       <button className="rx-radio__tap" type="button" onClick={toggle} disabled={status === 'loading'} aria-label={label} title={message || label}>
-        <div className="rx-radio__face" ref={radioRef}>
-          <div className="rx-radio__geometry">
-            <i className="rx-radio__circle rx-radio__circle--left-a" />
-            <i className="rx-radio__circle rx-radio__circle--left-b" />
-            <span className="rx-radio__core">
-              {artwork ? <img key={artwork} src={artwork} alt="" loading="lazy" onError={event => { event.currentTarget.style.visibility = 'hidden'; }} /> : <span>♪</span>}
-              <PlayIcon pause={playing} />
+        <span className="rx-radio__mount" aria-hidden="true" />
+        <span className="rx-radio__unit" aria-hidden="true">
+          <span className="rx-radio__rail"><i>▦</i><i>◖</i><i>+</i><i>−</i></span>
+          <span className="rx-radio__face" ref={radioRef}>
+            <span className="rx-radio__now">
+              <span className="rx-radio__art">
+                {artwork
+                  ? <img key={artwork} src={artwork} alt="" loading="lazy" onError={event => { event.currentTarget.style.visibility = 'hidden'; }} />
+                  : <span className="rx-radio__art-blank">♪</span>}
+                <PlayIcon pause={playing} />
+              </span>
+              <span className="rx-radio__progress"><i /></span>
+              <span className="rx-radio__title">{title}</span>
+              <span className="rx-radio__artist">{buffering ? 'BUFFERING…' : artist}</span>
             </span>
-            <i className="rx-radio__circle rx-radio__circle--right-a" />
-            <i className="rx-radio__circle rx-radio__circle--right-b" />
-          </div>
-          <div className="rx-radio__visualizer" aria-hidden="true">
-            {Array.from({ length: 6 }, (_, index) => <i key={index} style={{ transform: 'scaleY(0.12)' }} />)}
-          </div>
-        </div>
-        <span className="rx-radio__details" aria-hidden="true">
-          <span className="rx-radio__title">{title}</span>
-          <span className="rx-radio__artist">{buffering ? 'BUFFERING…' : artist}</span>
+            <span className="rx-radio__side">
+              <span className="rx-radio__clock"><b>{time}</b><small>{date}</small></span>
+              <span className="rx-radio__eq">
+                <span className="rx-radio__visualizer">
+                  {Array.from({ length: 6 }, (_, index) => <i key={index} style={{ transform: 'scaleY(0.12)' }} />)}
+                </span>
+                <small>{playing ? 'ON AIR' : 'AUDIUS'}</small>
+              </span>
+            </span>
+            <span className="rx-radio__dock"><i>◉</i><i className="is-hd">HD</i><i className="is-bt">ᛒ</i><i>⇪</i><i>≋</i><i>⚙</i><i className="is-call">✆</i></span>
+          </span>
+          <span className="rx-radio__brand">SWEETARDIO</span>
         </span>
       </button>
       <span className="rx-radio__sr" role="status">{message}</span>

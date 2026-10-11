@@ -56,7 +56,7 @@ export const FOCUS = {
   /** The clerk and the bell. */
   counter: { x: 1080, y: 540 },
   /** Narrow screens: split the view between the printer-side radio and clerk. */
-  counterMobile: { x: 910, y: 500 },
+  counterMobile: { x: 890, y: 500 },
   /** The cup on the tray and the can on the floor. */
   catch: { x: 1405, y: 540 },
   /** The empty cup, the clerk's line and the mat out, clear of the receipt on the left. */
@@ -107,8 +107,8 @@ export const COUNTER = {
   mat: { x: 800, y: 948, w: 680, h: 132 },
   /** The ring pops above the painted bell when rung. */
   bellPop: { x: 1168, y: 350, w: 120, h: 108 },
-  /** A compact radio resting on the counter just right of the printer. */
-  radio: { x: 670, y: 418, w: 166, h: 122 },
+  /** A floating-screen car stereo standing on the counter just right of the printer. */
+  radio: { x: 652, y: 410, w: 188, h: 130 },
 } satisfies Record<string, Rect>;
 
 /** Spacing of the vending keypad's keys, from one key's corner to the next. */

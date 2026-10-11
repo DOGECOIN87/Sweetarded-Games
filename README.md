@@ -211,6 +211,16 @@ wallet-free Radbro builds still ship at `sweetardio.fun/radbro/slots/` and
 `/radbro/coinpusher/`. Their source stays under `src/components/slots`,
 `src/components/junk-pusher` and `src/lib`. See `RADBRO.md`.
 
+## The original site
+
+The arcade site this pharmacy replaced is rebuilt on every deploy from its last
+commit (`4bcc24d`) and served at `sweetardio.fun/original/`, marked `noindex`.
+Typing 6969 on the vending keypad opens it. `npm run build:original` (after
+`npm run build`) adds it to `dist/original/`; see `scripts/build-original.mjs`.
+It loads its images, audio and fonts from the root, where the current
+`public/` still ships them unchanged, so don't remove those files while
+`/original/` is live.
+
 ## Deploy
 
 GitHub Pages, from `main`, via `.github/workflows/deploy.yml` (`public/CNAME`

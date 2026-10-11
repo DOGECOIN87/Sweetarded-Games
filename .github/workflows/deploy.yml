@@ -54,6 +54,13 @@ jobs:
           test -f dist/radbro/slots/index.html
           test -f dist/radbro/coinpusher/index.html
 
+      # Vending keypad code 6969 opens the original site (the arcade this one
+      # replaced), rebuilt from its last commit. See scripts/build-original.mjs.
+      - name: Build the original site at /original/
+        env:
+          VITE_MINT_START_AT: ${{ vars.VITE_MINT_START_AT }}
+        run: npm run build:original
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -3,7 +3,9 @@
  *
  * The screen shows the Telegram logo and is itself the link. The twelve pink
  * keys press, beep and type onto the screen; the counter's own number, 4444,
- * sends the plane off to Telegram. Any other four digits buzz and clear.
+ * sends the plane off to Telegram, and 6969 opens the original Sweetardio site
+ * (the arcade this pharmacy replaced, kept at /original/). Any other four
+ * digits buzz and clear.
  *
  * The painted keys are a few pixels wide on a phone, so touch screens press
  * the keypad as a whole and get a close-up of it with keys a thumb can hit.
@@ -19,8 +21,11 @@ import { TelegramMark } from '../TelegramMark';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'] as const;
 const CODE = '4444';
+/** The original Sweetardio site, built from its last commit by scripts/build-original.mjs. */
+const ORIGINAL_CODE = '6969';
+const ORIGINAL_HREF = `${import.meta.env.BASE_URL}original/`;
 
-type Screen = 'logo' | 'typing' | 'go' | 'no';
+type Screen = 'logo' | 'typing' | 'go' | 'open' | 'no';
 
 /** A new tab where allowed; in-app browsers that refuse pop-ups go there directly. */
 function openOutside(href: string) {
@@ -35,7 +40,7 @@ function Lcd({ screen, typed }: { screen: Screen; typed: string }) {
       {screen === 'logo' || screen === 'go' ? (
         <TelegramMark className="rx-lcd__plane" />
       ) : (
-        <span className="rx-lcd__digits">{screen === 'no' ? 'NO' : typed}</span>
+        <span className="rx-lcd__digits">{screen === 'no' ? 'NO' : screen === 'open' ? 'OPEN' : typed}</span>
       )}
     </>
   );
@@ -70,6 +75,9 @@ export function Vending({ href }: { href: string }) {
     if (code === CODE) {
       openOutside(href);
       settle('go', 1400, () => setCloseup(false));
+    } else if (code === ORIGINAL_CODE) {
+      openOutside(ORIGINAL_HREF);
+      settle('open', 1400, () => setCloseup(false));
     } else {
       beep(0, true);
       settle('no', 900);
@@ -78,7 +86,7 @@ export function Vending({ href }: { href: string }) {
 
   const press = (key: string, i: number) => {
     setLit((l) => ({ key, n: (l?.n ?? 0) + 1 }));
-    if (screen === 'go' || screen === 'no') return;
+    if (screen === 'go' || screen === 'open' || screen === 'no') return;
     beep(i);
     if (key === '*') return settle('logo', 0);
     if (key === '#') return check(typed);
@@ -106,7 +114,7 @@ export function Vending({ href }: { href: string }) {
         <Lcd screen={screen} typed={typed} />
       </At>
       <span className="rx-sr" aria-live="polite">
-        {screen === 'no' ? 'NO' : typed}
+        {screen === 'no' ? 'NO' : screen === 'open' ? 'OPEN' : typed}
       </span>
       <Hotspot
         r={COUNTER.telegram}
