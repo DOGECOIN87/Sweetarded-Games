@@ -16,8 +16,11 @@ const metadata: RadbroGameMetadata = {
 
 enableRadbroRuntime(metadata.game);
 window.Buffer = window.Buffer ?? Buffer;
-document.documentElement.style.setProperty('--sweetardio-games-bg', `url("${gameAsset('games-bg.png')}")`);
-document.documentElement.style.setProperty('--sweetardio-logo-bg', `url("${gameAsset('sweetardios-logo.svg')}")`);
+// Absolute, because a relative url() in a custom property resolves against the
+// stylesheet that uses it (assets/), not this page.
+const cssAsset = (path: string) => `url("${new URL(gameAsset(path), document.baseURI).href}")`;
+document.documentElement.style.setProperty('--sweetardio-games-bg', cssAsset('games-bg.png'));
+document.documentElement.style.setProperty('--sweetardio-logo-bg', cssAsset('sweetardios-logo.svg'));
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <RadbroGameShell metadata={metadata}>
