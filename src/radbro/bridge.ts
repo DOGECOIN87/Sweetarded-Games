@@ -21,6 +21,8 @@ declare global {
   }
 }
 
+export const SWEETARDIO_URL = 'https://sweetardio.fun/';
+
 export function enableRadbroRuntime(game?: string): void {
   window.__SWEETARDIO_RADBRO__ = true;
   window.__SWEETARDIO_RADBRO_GAME__ = game;
@@ -30,6 +32,9 @@ export function isRadbroRuntime(): boolean {
   return typeof window !== 'undefined' && window.__SWEETARDIO_RADBRO__ === true;
 }
 
+// Messages go to the parent with targetOrigin '*' and requests are accepted
+// from any origin, so the games work under whichever host embeds them
+// (radbro.fun today, radbro.gg next). Don't pin these to one domain.
 export function postRadbroReady(metadata: RadbroGameMetadata): void {
   if (!isRadbroRuntime()) return;
   window.parent.postMessage({ type: 'radbro:game-ready', ...metadata }, '*');
