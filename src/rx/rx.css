@@ -152,9 +152,24 @@ textarea {
   animation: rx-breathe 2.6s ease-in-out infinite;
 }
 
-/* A faint glow that is there from the start (the trash can at the catch). */
-.rx-hotspot--faint::before {
-  opacity: 0.85;
+/* The catch: the cup of pills and the trash can glow from the moment they
+   appear, pulsing slowly, so neither waits for a hover to be found. */
+.rx-hotspot--glow::before {
+  inset: -22%;
+  background: radial-gradient(closest-side, rgb(52 237 243 / 0.8), rgb(52 237 243 / 0.38) 55%, rgb(52 237 243 / 0));
+  mix-blend-mode: screen;
+  opacity: 1;
+  animation: rx-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes rx-glow {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .rx-hotspot.is-dead::before {
