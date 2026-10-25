@@ -16,7 +16,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { safeSessionStorage } from '../utils/safeStorage';
 import { COPY } from './copy';
 import { Flicker } from './Flicker';
-import { needsPhantomBrowser } from './device';
 import { getIdentity, useIdentity } from './identity';
 import { MintWindowProvider } from './mintWindow';
 import { fileIntake, notePath, readFile } from './patientFile';
@@ -199,10 +198,10 @@ export default function Pharmacy() {
     room === 'counter' ? 'idle' : room === 'catch' ? 'catch' : room === 'took' ? 'took' : room === 'spit' ? 'spit' : 'papers';
   const padPlace: PadPlace =
     room === 'pad' ? 'open' : room === 'catch' ? 'catch' : room === 'counter' && peek ? 'peek' : 'away';
-  const warmMintRegister =
-    !needsPhantomBrowser() && (room === 'catch' || room === 'spit' || room === 'bag' || (spat && room !== 'street'));
+  // The register (~8 MB) is no longer warmed: the bag room links out to
+  // LaunchMyNFT and MomoSwap instead of minting in-page.
+  const warmMintRegister = false;
 
-  // The register is ~8 MB: start it at the catch, or as soon as a patient who already spat walks in.
   return (
     <MintWindowProvider warm={warmMintRegister}>
       <main className="rx">
