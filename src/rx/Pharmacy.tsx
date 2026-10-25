@@ -124,17 +124,10 @@ export default function Pharmacy() {
     say(COPY.counter.afterBell);
     window.clearTimeout(ringTimer.current);
     ringTimer.current = window.setTimeout(() => {
-      const p = getProgress();
-      if (p.path === 'spit') {
-        setLine(null);
-        go('bag');
-      } else if (getIdentity().patient) {
-        // Signed in already: no more steps, straight to the pills on the counter.
-        setLine(null);
-        go('catch');
-      } else {
-        setPeek(true);
-      }
+      // No sign-in and no pad: the bell goes straight to the pills on the
+      // counter (or back to the bag for a patient who already spat).
+      setLine(null);
+      go(getProgress().path === 'spit' ? 'bag' : 'catch');
     }, 1900);
   };
 
