@@ -128,7 +128,8 @@ export default function Pharmacy() {
       if (p.path === 'spit') {
         setLine(null);
         go('bag');
-      } else if (p.filed && getIdentity().patient && isIntakeComplete(p)) {
+      } else if (getIdentity().patient) {
+        // Signed in already: no more steps, straight to the pills on the counter.
         setLine(null);
         go('catch');
       } else {
@@ -136,6 +137,18 @@ export default function Pharmacy() {
       }
     }, 1900);
   };
+
+  // Signing in on the pad is the last step: go straight to the pills.
+  useEffect(() => {
+    if (!uid || spat) return;
+    if (room === 'pad' || (room === 'counter' && peek)) {
+      setPeek(false);
+      setLine(null);
+      go('catch');
+    }
+    // only when a patient signs in, not on every room change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid]);
 
   const sendToFill = () => {
     const patient = getIdentity().patient;

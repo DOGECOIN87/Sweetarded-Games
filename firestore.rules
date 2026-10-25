@@ -32,7 +32,7 @@ rules_version = '2';
 //   - xHandle: string | null (<= 40)
 //   - answers: map (only medication / filled / allergies; each string <= 40 or null)
 //   - notes: string (required, 1..250)
-//   - wallet: string (required, 32..44, base58 Solana address)
+//   - wallet: string ('' or 32..44, base58 Solana address; optional on the pad)
 //   - ref: string | null (<= 64, the ?ref= they arrived with)
 //   - path: 'took' | 'spit' | null ('spit' is final)
 //   - minted: bool (required; the patient's own claim)
@@ -112,7 +112,7 @@ service cloud.firestore {
         && isShortOptionalString(d.answers.get('filled', null), 40)
         && isShortOptionalString(d.answers.get('allergies', null), 40)
         && d.notes is string && d.notes.size() >= 1 && d.notes.size() <= 250
-        && d.wallet is string && d.wallet.size() >= 32 && d.wallet.size() <= 44
+        && d.wallet is string && (d.wallet.size() == 0 || (d.wallet.size() >= 32 && d.wallet.size() <= 44))
         && isShortOptionalString(d.get('ref', null), 64)
         && (d.get('path', null) == null || d.path in ['took', 'spit'])
         && (resource == null || resource.data.get('path', null) != 'spit'

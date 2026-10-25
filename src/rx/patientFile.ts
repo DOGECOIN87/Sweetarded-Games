@@ -11,7 +11,7 @@
  */
 import app from '../firebase.config';
 import type { Patient } from './identity';
-import type { Path, Progress } from './progress';
+import { isSolanaAddress, type Path, type Progress } from './progress';
 import { getRef } from './ref';
 
 const COLLECTION = 'rx_files';
@@ -94,7 +94,8 @@ export async function fileIntake(patient: Patient, p: Progress): Promise<boolean
         },
       },
       notes: { stringValue: p.notes.trim() },
-      wallet: { stringValue: p.wallet.trim() },
+      // optional: an empty or unfinished address is filed as '' (the rules allow only '' or a real address)
+      wallet: { stringValue: isSolanaAddress(p.wallet) ? p.wallet.trim() : '' },
       ref: str(getRef()),
       path: str(p.path),
       minted: { booleanValue: p.minted },

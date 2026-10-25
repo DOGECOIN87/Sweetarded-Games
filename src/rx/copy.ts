@@ -58,7 +58,7 @@ export const COPY = {
       placeholder: 'the window does not need a thesis. it needs a sentence.',
     },
     bag: {
-      placeholder: 'solana wallet',
+      placeholder: 'solana wallet (optional)',
       note: 'THE COUNTER DOES NOT VERIFY THIS ONCHAIN FROM HERE.',
     },
     sideEffects: {

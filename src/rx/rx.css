@@ -152,6 +152,11 @@ textarea {
   animation: rx-breathe 2.6s ease-in-out infinite;
 }
 
+/* A faint glow that is there from the start (the trash can at the catch). */
+.rx-hotspot--faint::before {
+  opacity: 0.45;
+}
+
 .rx-hotspot.is-dead::before {
   background: radial-gradient(closest-side, rgb(239 233 223 / 0.14), rgb(239 233 223 / 0));
 }
