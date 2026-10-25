@@ -111,13 +111,14 @@ export function Counter({ moment, line, rings, refused, onRing, onTake, onSpit, 
             label={COPY.catch.cup}
             hint={catchNudge}
             onActivate={onTake}
+            className="rx-hotspot--glow"
           />
           <Hotspot
             r={COUNTER.trash}
             label={COPY.catch.can}
             hint={catchNudge}
             onActivate={onSpit}
-            className="rx-hotspot--faint"
+            className="rx-hotspot--glow"
           />
         </>
       )}
