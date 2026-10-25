@@ -136,14 +136,12 @@ function Intake({ compact, onSend }: { compact: boolean; onSend: () => void }) {
   const missing = {
     identify: !patient,
     notes: pending >= 0 || !progress.notes.trim(),
-    bag: !walletOk,
   };
-  const next: Section | null = missing.identify ? 'identify' : missing.notes ? 'notes' : missing.bag ? 'bag' : null;
+  const next: Section | null = missing.identify ? 'identify' : missing.notes ? 'notes' : null;
 
   const send = () => {
     if (!ready) {
       setFlash((n) => n + 1);
-      if (!walletOk) setWalletTouched(true);
       if (compact) setSheet(next);
       return;
     }
@@ -235,9 +233,9 @@ function Intake({ compact, onSend }: { compact: boolean; onSend: () => void }) {
       </At>
 
       {/* 4 — WHERE WE SEND THE BAG */}
-      <At r={PAD.bagBox} className={box(missing.bag)}>
+      <At r={PAD.bagBox} className={box(false)}>
         {compact ? (
-          <SheetOpener label={COPY.pad.boxes.bag} hint={next === 'bag'} onOpen={() => setSheet('bag')}>
+          <SheetOpener label={COPY.pad.boxes.bag} hint={false} onOpen={() => setSheet('bag')}>
             <span className={`rx-sum rx-sum--wallet ${progress.wallet ? '' : 'rx-sum--empty'}`}>
               {progress.wallet || COPY.pad.bag.placeholder}
             </span>

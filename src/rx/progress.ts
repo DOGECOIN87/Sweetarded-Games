@@ -106,8 +106,7 @@ export function isSolanaAddress(value: string): boolean {
   return zeros + bytes.length === 32;
 }
 
+/** The wallet box is optional: the mint happens off-site, so the pad no longer needs an address. */
 export function isIntakeComplete(p: Progress): boolean {
-  return Boolean(
-    p.answers.medication && p.answers.filled && p.answers.allergies && p.notes.trim() && isSolanaAddress(p.wallet),
-  );
+  return Boolean(p.answers.medication && p.answers.filled && p.answers.allergies && p.notes.trim());
 }
