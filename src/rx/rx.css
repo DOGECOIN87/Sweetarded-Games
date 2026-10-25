@@ -1722,6 +1722,109 @@ textarea {
   filter: drop-shadow(0 26px 44px rgb(0 0 0 / 0.75));
 }
 
+/* The two mint choices that replaced the bag: Solana (LaunchMyNFT) and the Cookie Chain (MomoSwap). */
+.rx-pick {
+  grid-column: 2;
+  display: flex;
+  gap: clamp(14px, 2.4vw, 36px);
+  align-items: stretch;
+  animation: rx-rise 0.95s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+
+.rx-pick__opt {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.35em;
+  width: clamp(200px, 22vw, 340px);
+  padding: clamp(16px, 2vw, 28px) clamp(14px, 1.6vw, 24px) clamp(18px, 2.2vw, 30px);
+  border: 2px solid rgb(52 237 243 / 0.45);
+  border-radius: 20px;
+  background: rgb(0 0 0 / 0.62);
+  color: var(--rx-paper);
+  font-family: var(--rx-label);
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow: 0 26px 44px rgb(0 0 0 / 0.6);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+a.rx-pick__opt:hover {
+  transform: translateY(-4px);
+  border-color: var(--rx-cerise);
+  box-shadow: 0 30px 50px rgb(0 0 0 / 0.7), 0 0 0 4px rgb(247 21 171 / 0.18);
+}
+
+a.rx-pick__opt:focus-visible {
+  outline: 3px solid var(--rx-cyan);
+  outline-offset: 4px;
+}
+
+.rx-pick__logo {
+  width: 74%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  margin-bottom: 0.4em;
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.55));
+}
+
+.rx-pick__logo.is-solana {
+  width: 62%;
+  padding: 6%;
+}
+
+.rx-pick__name {
+  font-size: clamp(20px, 2vw, 32px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.05;
+}
+
+.rx-pick__sub {
+  color: var(--rx-cyan);
+  font-size: clamp(13px, 1.1vw, 17px);
+  letter-spacing: 0.14em;
+}
+
+.rx-pick__price {
+  margin-top: 0.3em;
+  padding: 0.15em 0.6em;
+  border-radius: 8px;
+  background: var(--rx-cerise);
+  color: var(--rx-black);
+  font-size: clamp(18px, 1.7vw, 26px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.rx-pick__go {
+  margin-top: auto;
+  padding-top: 0.6em;
+  color: var(--rx-paper);
+  font-size: clamp(12px, 1vw, 15px);
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+}
+
+.rx-pick__opt.is-shut .rx-pick__logo,
+.rx-pick__opt.is-shut .rx-pick__name {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.rx-pick__slap {
+  position: absolute;
+  left: -9%;
+  top: 22%;
+  width: 118%;
+  transform: rotate(6deg);
+  animation: rx-slap 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.55));
+  pointer-events: none;
+}
+
 .rx-case {
   grid-column: 1;
   justify-self: end;
@@ -1854,6 +1957,17 @@ textarea {
     --bag-h: min(72dvh, 146vw, 1536px);
     grid-column: 1;
     grid-row: 2;
+  }
+
+  .rx-pick {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: center;
+    padding: 0 12px;
+  }
+
+  .rx-pick__opt {
+    width: min(42vw, 300px);
   }
 
   .rx-case {

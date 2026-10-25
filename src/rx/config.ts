@@ -51,4 +51,9 @@ export const LMNFT = {
     'https://firestore.googleapis.com/v1/projects/launch-my-nft/databases/(default)/documents/' +
     'Users/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/Collections/8azF6Zkfb5ExKPty13RO' +
     '?key=AIzaSyDpBtDjue_-0rB9LglNDD-rVACaUXRWPho',
+  /** The collection's own LaunchMyNFT page, where the Solana choice in the bag room goes. */
+  page: 'https://launchmynft.io/collections/Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo/8azF6Zkfb5ExKPty13RO',
 } as const;
+
+/** The Cookie Chain Edition, minted on MomoSwap. No price is printed for it here. */
+export const COOKIE_CHAIN_URL = 'https://momoswap.fun/create?kind=nft&explore=1&explore-kind=nft';
