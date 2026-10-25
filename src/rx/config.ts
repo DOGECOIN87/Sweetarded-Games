@@ -56,4 +56,4 @@ export const LMNFT = {
 } as const;
 
 /** The Cookie Chain Edition, minted on MomoSwap. No price is printed for it here. */
-export const COOKIE_CHAIN_URL = 'https://momoswap.fun/create?kind=nft&explore=1&explore-kind=nft';
+export const COOKIE_CHAIN_URL = 'https://momoswap.fun/nft/8TWT6i5Cpdp81LHmSvZGoAK2AxrVv6D5C5iG51dZ4LF5';
