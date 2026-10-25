@@ -154,7 +154,7 @@ textarea {
 
 /* A faint glow that is there from the start (the trash can at the catch). */
 .rx-hotspot--faint::before {
-  opacity: 0.45;
+  opacity: 0.85;
 }
 
 .rx-hotspot.is-dead::before {
